@@ -109,6 +109,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.django_env
+.mysql_env
 
 # Spyder project settings
 .spyderproject
