@@ -8,9 +8,12 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/
 """
 
 import os
+import sys
 
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
+
+# sys.path.append('/root/miniconda3/envs/article_env/lib/python3.9/site-packages')
 
 application = get_wsgi_application()

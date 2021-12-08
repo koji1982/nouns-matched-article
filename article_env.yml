@@ -11,8 +11,8 @@ dependencies:
   - bcrypt=3.2.0=py39he8ac12f_0
   - beautifulsoup4=4.10.0=pyh06a4308_0
   - brotlipy=0.7.0=py39h27cfd23_1003
-  - ca-certificates=2021.10.8=ha878542_0
-  - certifi=2021.10.8=py39hf3d152e_1
+  - ca-certificates=2021.10.26=h06a4308_2
+  - certifi=2021.10.8=py39h06a4308_0
   - cffi=1.14.6=py39h400218f_0
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
   - constantly=15.1.0=pyh2b92418_0
@@ -20,6 +20,7 @@ dependencies:
   - cssselect=1.1.0=pyhd3eb1b0_0
   - django=3.2.5=pyhd3eb1b0_0
   - django-environ=0.4.5=py_1
+  - gunicorn=20.1.0=py39h06a4308_0
   - hyperlink=21.0.0=pyhd3eb1b0_0
   - icu=58.2=he6710b0_3
   - idna=3.2=pyhd3eb1b0_0
