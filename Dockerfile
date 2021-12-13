@@ -4,13 +4,13 @@ WORKDIR /code
 
 ENV PATH /opt/conda/bin:$PATH
 
-RUN apt update -y && \
-    apt install -y tzdata && \
-    apt install -y wget apache2 apache2-dev && \
+RUN apt-get update -y && \
+    apt-get install -y tzdata && \
+    apt-get install -y wget apache2 apache2-dev && \
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda && \
     rm Miniconda3-latest-Linux-x86_64.sh && \
-    apt clean && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./article_env.yml /code

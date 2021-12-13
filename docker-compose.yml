@@ -7,11 +7,6 @@ services:
       - ./.mysql_env
   web:
     build: .
-    # image: continuumio/miniconda3:latest
-    # command: python django/manage.py runserver 0.0.0.0:8000
-    # command: 
-    # env_file:
-    #   - ./.django_env
     volumes:
       - .:/code
     ports:
@@ -19,3 +14,13 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    networks:
+      application_net:
+        ipv4_address: 172.20.0.3
+networks:
+  application_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16

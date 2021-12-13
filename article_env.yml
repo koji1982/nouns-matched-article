@@ -87,3 +87,4 @@ dependencies:
   - zlib=1.2.11=h7b6447c_3
   - zope=1.0=py39h06a4308_1
   - zope.interface=5.4.0=py39h7f8727e_0
+prefix: /opt/conda/envs/article_env
