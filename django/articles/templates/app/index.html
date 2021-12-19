@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>Docker,Djangoテスト</title>
+    <link rel="stylesheet" href="{%static '/css/style.css'%}" />
+    <script src="{%static 'javascript/sample.js'%}"></script>
+  </head>
+  <body>
+    <h1>index.htmlを表示中</h1>
+    <img src="/media/images/background_image.jpg" width="100%" height="100%"/>
+    <p>{{ insert_forms|linebreaksbr }}</p>
+    <table>
+      <form action="{% url 'articles:index' %}" method="post">
+        {% csrf_token %}
+        <tr>
+          <td></td>
+          <td>入力フォーム</td>
+        </tr>
+        {{ form.as_table }}
+        <tr>
+          <td></td>
+          <td><input type="submit" value="送信"></td>
+        </tr>
+      </form>
+    </table>
+    
+    <p>{{ insert_from_view_dict }}</p>
+    <p>pタグ<b>の中のbタグ{{ 2nd_key}}</b>後ろ　　pタグ</p>
+    <h2> h2タグ</h2>
+    <u1>
+      {% for index in list_key %}
+        {% if index == 'index_1' %}
+          <li>{{ index }}</li>
+        {% elif index == 'index_2' %}
+          <p>{{ index }} 除外</p>
+        {% else %}
+          <b id='test'>{{index}}</b>
+        {% endif %}
+      {% endfor %}
+    </u1>
+  </body>
+</html>
