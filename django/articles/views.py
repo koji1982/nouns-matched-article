@@ -24,4 +24,4 @@ def info(request):
         'list_1':'articles',
         'list_2':'article_values'
     }
-    return render(request, 'article_links/info.html', display_dict)
+    return render(request, 'articles/info.html', display_dict)
