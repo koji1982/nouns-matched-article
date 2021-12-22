@@ -7,7 +7,7 @@ jobs:
       image: circleci/classic:edge
     # docker:
     #   - image: cimg/python:3.9
-    # working_directory: ~/nouns-matched-articles/django
+    working_directory: ~/nouns-matched-articles/django
     steps:
       - checkout
 #       - python/install-packages:
@@ -18,7 +18,7 @@ jobs:
           # command: echo "Hello, world!"
       - run:
           name: setup env values
-          command: echo $ENV_VARS | base64 --decode > .mysql_env
+          command: echo $ENV_VARS | base64 --decode > ../.mysql_env
       - run:
           name: compose up
           command: docker-compose up -d db
