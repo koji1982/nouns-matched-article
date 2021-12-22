@@ -21,7 +21,7 @@ jobs:
           command: docker-compose run web python django/manage.py migrate
       - run:
           name: test
-          command: docker-compose run web python django/manage.py test
+          command: cd django && docker-compose run web python manage.py test
       - run:
           name: compose down
           command: docker-compose down
