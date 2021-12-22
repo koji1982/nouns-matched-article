@@ -8,6 +8,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: install Dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+      - run:
           name: setup mysql env values
           command: echo $MYSQL_ENV_VARS | base64 --decode > .mysql_env
       - run:
@@ -17,11 +20,13 @@ jobs:
           name: compose up db
           command: docker-compose up -d db
       - run:
-          name: sleep for launch db
-          command: sleep 10 
+          name: waiting for launch db
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
       - run:
           name: migrate
           command: docker-compose run web /bin/bash -c "export DB_LOCALHOST=db && env && python django/manage.py migrate"
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
       - run:
           name: test
           command: docker-compose run web /bin/bash -c 'cd django && python manage.py test'
