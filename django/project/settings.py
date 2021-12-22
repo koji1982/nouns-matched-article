@@ -75,7 +75,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 #CircleCIでのテスト実行時はos, docker-composeではdjango-environを使用する
-DB_HOST = os.environ.get('DB_HOST', env('DB_HOST'))
+DB_HOST = os.environ.get('DB_LOCALHOST', env('DB_HOST'))
 
 DATABASES = {
     'default': {
