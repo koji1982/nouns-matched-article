@@ -17,6 +17,9 @@ jobs:
           name: compose up db
           command: docker-compose up -d db
       - run:
+          name: sleep for launch db
+          command: sleep 10 
+      - run:
           name: migrate
           command: docker-compose run web /bin/bash -c "export DB_LOCALHOST=db && env && python django/manage.py migrate"
       - run:
