@@ -22,10 +22,7 @@ jobs:
           name: compose up db
           command: docker-compose up -d db
           environment:
-            HOSTNAME: "127.0.0.1"
-            MYSQL_HOST: "127.0.0.1"
-            MYSQL_ROOT_HOST: "127.0.0.1"
-            DB_HOST: "127.0.0.1"
+            MYSQL_HOST: 127.0.0.1
       - run:
           name: waiting for launch db
           command: dockerize -wait tcp://localhost:3306 -timeout 1m
