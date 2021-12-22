@@ -4,11 +4,11 @@ orbs:
 jobs:
   build_and_test:
     machine: true
-    working_directory: /code
+    working_directory: ~/nouns-matched-articles
     steps:
       - checkout
       - run:
-          name: setup env values
+          name: setup mysql env values
           command: echo $MYSQL_ENV_VARS | base64 --decode > .mysql_env
       - run:
           name: setup django env values
@@ -20,9 +20,8 @@ jobs:
           name: migrate
           command: docker-compose run web python django/manage.py migrate
       - run:
-          working_directory: /code/django
           name: test
-          command: docker-compose run web python manage.py test
+          command: docker-compose run web /bin/bash -c 'cd django && python manage.py test'
       - run:
           name: compose down
           command: docker-compose down
