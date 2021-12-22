@@ -10,6 +10,8 @@ jobs:
       - run:
           name: install Dockerize
           command: sudo apt-get update && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.6.0
       - run:
           name: setup mysql env values
           command: echo $MYSQL_ENV_VARS | base64 --decode > .mysql_env
@@ -25,8 +27,6 @@ jobs:
       - run:
           name: migrate
           command: docker-compose run web /bin/bash -c "export DB_LOCALHOST=db && env && python django/manage.py migrate"
-          environment:
-            DOCKERIZE_VERSION: v0.3.0
       - run:
           name: test
           command: docker-compose run web /bin/bash -c 'cd django && python manage.py test'
