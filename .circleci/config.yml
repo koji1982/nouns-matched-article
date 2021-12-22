@@ -2,20 +2,11 @@ version: 2.1
 orbs:
   python: circleci/python@1.2
 jobs:
-  build:
+  build_and_test:
     machine: true
-      # image: circleci/classic:edge
-    # docker:
-    #   - image: cimg/python:3.9
     working_directory: ~/nouns-matched-articles
     steps:
       - checkout
-#       - python/install-packages:
-#           pkg-manager: pip
-      # - run:
-          # name: Run tests
-#           command: pytest
-          # command: echo "Hello, world!"
       - run:
           name: setup env values
           command: echo $MYSQL_ENV_VARS | base64 --decode > .mysql_env
@@ -30,17 +21,14 @@ jobs:
           command: docker-compose run web python django/manage.py migrate
       - run:
           name: test
-          command: docker-compose run web python django/mange.py test
+          command: docker-compose run web python django/manage.py test
       - run:
           name: compose down
           command: docker-compose down
-#   test:
-#     docker:
-#       - image: 
 workflows:
-  build_and_test:
+  build_and_test_flow:
     jobs: 
-      - build
+      - build_and_test
 #       - test: 
 #           requires:
-#             - build
+#             - build_and_test
