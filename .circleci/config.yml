@@ -17,6 +17,9 @@ jobs:
 #           command: pytest
           # command: echo "Hello, world!"
       - run:
+          name: setup env values
+          command: echo $ENV_VARS | base64 --decode > ~/.env && . ~/.env
+      - run:
           name: compose up
           command: docker-compose up -d db
       - run:
