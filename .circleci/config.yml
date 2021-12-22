@@ -20,8 +20,9 @@ jobs:
           name: migrate
           command: docker-compose run web python django/manage.py migrate
       - run:
+          working_directory: ~/nouns-matched-articles/django
           name: test
-          command: cd django && docker-compose run web python manage.py test
+          command: docker-compose run web python manage.py test
       - run:
           name: compose down
           command: docker-compose down
