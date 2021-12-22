@@ -3,17 +3,34 @@ orbs:
   python: circleci/python@1.2
 jobs:
   build:
-    docker:
-      - image: cimg/python:3.9
-    working_directory: ~/nouns-matched-articles/django
+    machine:
+      image: circleci/classic:edge
+    # docker:
+    #   - image: cimg/python:3.9
+    # working_directory: ~/nouns-matched-articles/django
     steps:
       - checkout
 #       - python/install-packages:
 #           pkg-manager: pip
-      - run:
-          name: Run tests
+      # - run:
+          # name: Run tests
 #           command: pytest
-          command: echo "Hello, world!"
+          # command: echo "Hello, world!"
+      - run:
+          name: compose up
+          command: docker-compose up -d db
+      - run:
+          name: waiting
+          command: sleep 10
+      - run:
+          name: migrate
+          command: docker-compose run python ./django/manage.py migrate
+      - run:
+          name: test
+          command: docker-compose run python ./django/mange.py test
+      - run:
+          name: compose down
+          command: docker-compose down
 #   test:
 #     docker:
 #       - image: 
