@@ -3,8 +3,8 @@ orbs:
   python: circleci/python@1.2
 jobs:
   build:
-    machine:
-      image: circleci/classic:edge
+    machine: true
+      # image: circleci/classic:edge
     # docker:
     #   - image: cimg/python:3.9
     working_directory: ~/nouns-matched-articles
@@ -25,9 +25,6 @@ jobs:
       - run:
           name: compose up
           command: docker-compose up -d db
-      - run:
-          name: waiting
-          command: sleep 10
       - run:
           name: migrate
           command: docker-compose run web python django/manage.py migrate
