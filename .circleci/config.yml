@@ -24,10 +24,10 @@ jobs:
           command: sleep 10
       - run:
           name: migrate
-          command: docker-compose run python ./django/manage.py migrate
+          command: docker-compose run python django/manage.py migrate
       - run:
           name: test
-          command: docker-compose run python ./django/mange.py test
+          command: docker-compose run python django/mange.py test
       - run:
           name: compose down
           command: docker-compose down
