@@ -4,10 +4,8 @@ services:
     image: mysql:8.0
     env_file:
       - ./.mysql_env
-    command: >
-      /bin/bash -c "--default_authentication_plugin=mysql_native_password && 
-      echo "GRANT ALL PRIVILEGES ON test_django_db.* TO 'django'@'%';" | 
-      mysql -u root -p $MYSQL_ROOT_PASSWORD"
+    command:
+      --default_authentication_plugin=mysql_native_password
   web:
     build: .
     volumes:

@@ -24,17 +24,13 @@ jobs:
       - run:
           name: compose up db
           command: docker-compose up -d db
-          # environment:
-          #   MYSQL_HOST: 127.0.0.1
-      # - run:
-      #     name: waiting for launch db
-      #     command: dockerize -wait tcp://localhost:3306 -timeout 1m
       - run:
           name: waiting for launch db
-          command: sleep 20
-      # - run:
-      #     name: migrate
-      #     command: docker-compose run web /bin/bash -c "export DB_LOCALHOST=127.0.0.1 && env && python django/manage.py migrate"
+          command: sleep 10
+      - run:
+          name: grant privileges
+          command:
+            echo \"GRANT ALL PRIVILEGES ON test_django_db.* TO 'django'@'%';\" | mysql -u root
       - run:
           name: migrate
           command: docker-compose run web bash -c "python django/manage.py migrate"
