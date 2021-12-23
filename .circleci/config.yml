@@ -30,7 +30,7 @@ jobs:
       - run:
           name: grant privileges
           command:
-            docker-compose exec -d db "echo \"GRANT ALL PRIVILEGES ON test_django_db.* TO 'django'@'%' WITH GRANT OPTION\" | mysql -u root"
+            docker-compose exec -d db "echo \"GRANT ALL PRIVILEGES ON test_django_db.* TO 'django'@'%' WITH GRANT OPTION\" | mysql -u root && echo "FLUSH PRIVILEGES" | mysql -u root"
       - run:
           name: migrate
           command: docker-compose run web bash -c "python django/manage.py migrate"
