@@ -37,7 +37,7 @@ jobs:
       #     command: docker-compose run web /bin/bash -c "export DB_LOCALHOST=127.0.0.1 && env && python django/manage.py migrate"
       - run:
           name: migrate
-          command: docker-compose run web bash python django/manage.py migrate
+          command: docker-compose run web bash -c "python django/manage.py migrate"
       - run:
           name: test
           command: docker-compose run web /bin/bash -c 'cd django && python manage.py test'
