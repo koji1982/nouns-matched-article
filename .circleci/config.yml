@@ -19,19 +19,25 @@ jobs:
           name: setup django env values
           command: echo $DJANGO_ENV_VARS | base64 --decode > .django_env 
       - run:
+          name: docker build
+          command: docker-compose build
+      - run:
           name: compose up db
           command: docker-compose up -d db
-          environment:
-            MYSQL_HOST: 127.0.0.1
+          # environment:
+          #   MYSQL_HOST: 127.0.0.1
       # - run:
       #     name: waiting for launch db
       #     command: dockerize -wait tcp://localhost:3306 -timeout 1m
       - run:
           name: waiting for launch db
           command: sleep 20
+      # - run:
+      #     name: migrate
+      #     command: docker-compose run web /bin/bash -c "export DB_LOCALHOST=127.0.0.1 && env && python django/manage.py migrate"
       - run:
           name: migrate
-          command: docker-compose run web /bin/bash -c "export DB_LOCALHOST=127.0.0.1 && env && python django/manage.py migrate"
+          command: docker-compose run web bash python manage.py migrate
       - run:
           name: test
           command: docker-compose run web /bin/bash -c 'cd django && python manage.py test'
