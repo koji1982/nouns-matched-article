@@ -1,6 +1,4 @@
 version: 2.1
-orbs:
-  python: circleci/python@1.2
 jobs:
   build_and_test:
     machine: true
@@ -39,10 +37,20 @@ jobs:
       - run:
           name: compose down
           command: docker-compose down
+  deploy:
+    machine:
+      image: circleci/classic:edge
+    steps:
+      - checkout
+      - add_ssh_keys:
+      - run: ssh $USER_NAME@$HOSTNAME "cd /home/ubuntu/nouns-matched-articles && git pull origin main && service apache2 reload"
 workflows:
   build_and_test_flow:
     jobs: 
       - build_and_test
-#       - test: 
-#           requires:
-#             - build_and_test
+      - deploy:
+          requires:
+            - build_and_test
+          filters:
+            branches:
+              only: main
