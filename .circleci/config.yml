@@ -2,25 +2,59 @@ version: 2.1
 orbs:
   python: circleci/python@1.2
 jobs:
-  build:
-    docker:
-      - image: cimg/python:3.9
-    working_directory: ~/nouns-matched-articles/django
+  build_and_test:
+    machine: true
+    working_directory: ~/nouns-matched-articles
     steps:
       - checkout
-#       - python/install-packages:
-#           pkg-manager: pip
       - run:
-          name: Run tests
-#           command: pytest
-          command: echo "Hello, world!"
-#   test:
-#     docker:
-#       - image: 
+          name: install Dockerize
+          command: sudo apt-get update && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.5.0
+      - run:
+          name: setup mysql env values
+          command: echo $MYSQL_ENV_VARS | base64 --decode > .mysql_env
+      - run:
+          name: setup django env values
+          command: echo $DJANGO_ENV_VARS | base64 --decode > .django_env 
+      - run:
+          name: docker build
+          command: docker-compose build
+      - run:
+          name: compose up db
+          command: docker-compose up -d db
+      - run:
+          name: waiting for launch db
+          command: sleep 10
+      - run:
+          name: grant privileges
+          command: docker-compose exec -d db bash -c "echo \"GRANT ALL PRIVILEGES ON test_django_db.* TO 'django'@'%'\" | mysql -u root -p$MYSQL_ROOT_PASSWORD && echo \"FLUSH PRIVILEGES\" | mysql -u root -p$MYSQL_ROOT_PASSWORD"
+      - run:
+          name: migrate
+          command: docker-compose run -d web bash -c "python django/manage.py migrate"
+      - run:
+          name: test
+          command: docker-compose run web bash -c "cd django && python manage.py test"
+      - run:
+          name: compose down
+          command: docker-compose down
+  deploy:
+    machine:
+      image: circleci/classic:edge
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "c4:7c:65:dc:ef:ee:58:5d:b1:f8:48:44:90:4e:6c:2d"
+      - run: ssh $USER_NAME@$HOSTNAME "cd /home/ubuntu/nouns-matched-articles && git pull origin main && service apache2 reload"
 workflows:
-  build_and_test:
+  build_and_test_flow:
     jobs: 
-      - build
-#       - test: 
-#           requires:
-#             - build
+      - build_and_test
+      - deploy:
+          requires:
+            - build_and_test
+          filters:
+            branches:
+              only: main

@@ -29,8 +29,6 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
-# ALLOWED_HOSTS = ['*']
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -76,13 +74,16 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+#CircleCIでのテスト実行時はos, docker-composeではdjango-environを使用する
+DB_HOST = os.environ.get('DB_LOCALHOST', env('DB_HOST'))
+
 DATABASES = {
     'default': {
         'ENGINE': env('DB_ENGINE'),
         'NAME': env('DB_NAME'),
         'USER' : env('DB_USER'),
         'PASSWORD' : env('DB_PASSWORD'),
-        'HOST' : env('DB_HOST'),
+        'HOST' : DB_HOST,
         'PORT' : env('DB_PORT'),
         'TEST' : {
             'NAME' : 'test_django_db',
