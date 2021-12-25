@@ -45,6 +45,8 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
+          fingerprints:
+            - "c4:7c:65:dc:ef:ee:58:5d:b1:f8:48:44:90:4e:6c:2d"
       - run: ssh $USER_NAME@$HOSTNAME "cd /home/ubuntu/nouns-matched-articles && git pull origin main && service apache2 reload"
 workflows:
   build_and_test_flow:
