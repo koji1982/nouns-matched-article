@@ -1,6 +1,4 @@
 version: 2.1
-orbs:
-  python: circleci/python@1.2
 jobs:
   build_and_test:
     machine: true
@@ -49,7 +47,7 @@ jobs:
             - "c4:7c:65:dc:ef:ee:58:5d:b1:f8:48:44:90:4e:6c:2d"
       - run: ssh $USER_NAME@$HOST_NAME "cd /home/ubuntu/nouns-matched-articles && git pull origin main"
 workflows:
-  build_and_test_flow:
+  build_test_and_deploy:
     jobs: 
       - build_and_test
       - deploy:
