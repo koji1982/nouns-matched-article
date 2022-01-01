@@ -1,4 +1,11 @@
-h1 {
+h5 {
+  color: rebeccapurple;
+  border-color: rosybrown;
+}
+h3 {
   color: blue;
   border-bottom: double 6px #87CEFA
+}
+span {
+  color: chartreuse;
 }
