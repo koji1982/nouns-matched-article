@@ -7,6 +7,7 @@ ENV PATH /opt/conda/bin:$PATH
 RUN apt-get update -y && \
     apt-get install -y tzdata && \
     apt-get install -y wget apache2 apache2-dev && \
+    apt-get install -y mecab && \
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     sh Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda && \
     rm Miniconda3-latest-Linux-x86_64.sh && \
@@ -27,3 +28,4 @@ RUN conda init bash && \
 
 ENV CONDA_DEFAULT_ENV article_env
 ENV PATH /opt/conda/envs/article_env/bin/:$PATH
+ENV PYTHONPATH /code:$PYTHONPATH
