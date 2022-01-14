@@ -1,12 +1,10 @@
-from djangodir.articles.django_db import DBConnector
+from djangodir.articles.external import DBConnection
 from database import ArticleDB
-from word_analyze import extract_noun
+from scraping.analysis import extract_noun
 
 class ScrapeArticlePipeline:
-    db_connector = DBConnector()
+    db_connection = DBConnection()
     def open_spider(self, spider):
-        # ArticleDB.connect('news')
-        self.db_connector.init_django_db()
         pass
 
     def process_item(self, item, spider):
@@ -14,7 +12,7 @@ class ScrapeArticlePipeline:
         item['body'] = item['body'].replace('\u3000', '').replace('\n', '')
         item['noun'] = extract_noun(item['body'])
         # ArticleDB.insert(item)
-        self.db_connector.save_article(item)
+        self.db_connection.save_article(item)
         print('     --           from pipeline          -- ')
         return item
 

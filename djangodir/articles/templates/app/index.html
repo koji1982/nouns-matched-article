@@ -8,33 +8,11 @@
     <script src="{%static 'javascript/sample.js'%}"></script>
   </head>
   <body>
-    <h1>index.htmlを表示中</h1>
-    <h2>index.htmlを<span>span</span>表示中</h2>
-    <h3>index.htmlを表示中</h3>
-    <h4>index.htmlを表示中</h4>
-    <h5>index.htmlを表示中</h5>
-    <h6>index.htmlを表示中</h6>
-    <img src="{%static 'images/background_image.jpg'%}" width="100%" height="100%"/>
-    <a href="https://www.selected-article-2021.info/" target="_blank">Nouns Matched Articles</a>
-    <p>{{ insert_forms|linebreaksbr }}</p>
-    <table>
-      <form action="{% url 'articles:index' %}" method="post">
-        {% csrf_token %}
-        <tr>
-          <td></td>
-          <td>入力フォーム</td>
-        </tr>
-        {{ form.as_table }}
-        <tr>
-          <td></td>
-          <td><input type="submit" value="送信"></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td><input type="radio" name="test" value="テスト"><input type="radio" name="test" value="テスト"></td>
-        </tr>
-      </form>
-    </table>
-    
+    <h3>category:国内</h3>
+    <br>
+    {% for record in records %}
+      <a href={{ record.url }} target="_blank">{{ record.title }}</a>
+      <br>
+    {% endfor %}
   </body>
 </html>
