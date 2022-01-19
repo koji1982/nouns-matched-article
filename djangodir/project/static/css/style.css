@@ -1,0 +1,14 @@
+h5 {
+  color: rebeccapurple;
+  border-color: rosybrown;
+}
+h3 {
+  border-bottom: double 6px #106faa
+}
+span {
+  margin: 5px;
+}
+.left_links {
+  margin: 20px;
+  text-align: center;
+}

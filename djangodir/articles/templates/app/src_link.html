@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>Article Links</title>
+    <link rel="stylesheet" href="{%static '/css/style.css'%}" />
+  </head>
+  <body>
+    <a href="{% url 'articles:src_link' 'domestic' %}">国内</a>
+    <span>&nbsp;</span>
+    <a href="{% url 'articles:src_link' 'world' %}">国際</a>
+    <span>&nbsp;</span>
+    <a href="{% url 'articles:src_link' 'business' %}">経済</a>
+    <span>&nbsp;</span>
+    <a href="{% url 'articles:src_link' 'entertainment' %}">エンタメ</a>
+    <span>&nbsp;</span>
+    <a href="{% url 'articles:src_link' 'sports' %}">スポーツ</a>
+    <span>&nbsp;</span>
+    <a href="{% url 'articles:src_link' 'it' %}">IT</a>
+    <span>&nbsp;</span>
+    <a href="{% url 'articles:src_link' 'science' %}">科学</a>
+    <span>&nbsp;</span>
+    <a href="{% url 'articles:src_link' 'local' %}">地域</a>
+    <br>
+    <br>
+    <br>
+    {% for record in records %}
+      <a href={{ record.url }} target="_blank" rel="noopener noreferrer">{{ record.title }}</a>
+      <br>
+    {% endfor %}
+  </body>
+</html>
