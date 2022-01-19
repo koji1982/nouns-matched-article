@@ -6,5 +6,9 @@ h3 {
   border-bottom: double 6px #106faa
 }
 span {
-  color: chartreuse;
+  margin: 5px;
+}
+.left_links {
+  margin: 20px;
+  text-align: center;
 }

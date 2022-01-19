@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{%static '/css/style.css'%}" />
+  </head>
+  <body>
+    <div class="left_links">
+      <br>
+      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">選択</a>
+      <br>
+      <br>
+      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">結果</a>
+      <br>
+      <br>
+      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">累積</a>
+      <br>
+      <br>
+      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">図表</a>
+    </div>
+  </body>
+</html>

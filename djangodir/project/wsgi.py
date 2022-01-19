@@ -14,6 +14,4 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
 
-# sys.path.append('/opt/conda/envs/article_env/lib/python3.9/site-packages')
-
 application = get_wsgi_application()

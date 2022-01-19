@@ -18,4 +18,3 @@ service apache2 start
 cd /code/djangodir
 python manage.py migrate
 cd /code
-export MECABRC=/etc/mecabrc

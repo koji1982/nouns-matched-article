@@ -27,5 +27,6 @@ RUN conda init bash && \
     /opt/conda/bin/conda clean -afy
 
 ENV CONDA_DEFAULT_ENV article_env
+ENV MECABRC /etc/mecabrc
 ENV PATH /opt/conda/envs/article_env/bin/:$PATH
 ENV PYTHONPATH /code:$PYTHONPATH

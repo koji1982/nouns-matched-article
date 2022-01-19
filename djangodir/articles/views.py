@@ -3,12 +3,45 @@ from django.http import HttpResponse
 from .forms import PracticeForm
 from .models import Article
 
-def get_record(request):
-    context = {
-        'records':Article.objects.all()
-    }
-    return render(request, 'app/index.html', context)
+def article_response(request):
+    return render(request, 'app/frame.html')
 
+def left_frame(request):
+    content = {
+        'select':'選択',
+        'reflect':'反映',
+        'result':'結果',
+        'acumulate':'累積',
+        'figure':'図表',
+        'reset':'リセット'
+    }
+    return render(request, 'app/pages.html', content)
+
+def right_frame(request):
+    context = {
+        'records':Article.objects.all(),
+        'domestic':'国内',
+        'international':'国際',
+        'economy':'経済',
+        'entertaiment':'エンタメ',
+        'sport':'スポーツ',
+        'it':'IT',
+        'science':'科学',
+        'local':'地域'
+    }
+    return render(request, 'app/src_link.html', context)
+
+def init_link(request):
+    context = {
+        'records':Article.objects.all().filter(category='domestic')
+    }
+    return render(request, 'app/src_link.html', context)
+
+def article_link(request, clicked):
+    context = {
+        'records':Article.objects.all().filter(category=clicked)
+    }
+    return render(request, 'app/src_link.html', context)
 # def index(request):
 #     insert_dict = {
 #         'insert_from_view_dict':"views.pyから渡されるdict",

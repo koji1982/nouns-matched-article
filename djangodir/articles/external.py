@@ -1,8 +1,9 @@
-#
+#Djangoの外から呼ばれることを前提としてるため、
 import os
 import sys
 from pprint import pprint
 from pathlib import Path
+from django.db import IntegrityError
 django_root = str(Path(__file__).resolve().parent.parent)
 # project_path = os.path.join(django_root, 'project')
 sys.path.append(django_root)
@@ -17,5 +18,10 @@ from articles.models import Article
 class DBConnection:
 
     def save_article(self, item):
-        Article.objects.create(url=item['url'], date=item['date'], title=item['title'],
-                               body=item['body'], noun=item['noun'])
+        try:
+            Article.objects.create(url=item['url'], category=item['category'],
+                                   date=item['date'], title=item['title'],
+                                   body=item['body'], noun=item['noun'])
+        except IntegrityError:
+            print('Duplicated URL')
+        

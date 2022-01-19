@@ -5,6 +5,7 @@ class Article(models.Model):
         app_label='articles'
     
     url = models.URLField(unique=True)
+    category = models.CharField(max_length=15, default='domestic')
     date = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     body = models.TextField()
