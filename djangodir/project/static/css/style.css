@@ -12,3 +12,6 @@ span {
   margin: 20px;
   text-align: center;
 }
+.article_link {
+  white-space: nowrap;
+}

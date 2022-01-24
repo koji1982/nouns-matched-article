@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load external_functions %}
 <html>
   <head>
     <meta charset="utf-8">
@@ -8,16 +9,27 @@
   <body>
     <div class="left_links">
       <br>
-      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">選択</a>
+      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">選択</a><br>
+      <p>↓</p>
+      <form method="POST">
+        {% csrf_token %}
+        <button type="submit" name="reflect" value="{{ request|reflect_choice }}">反映</button>
+      </form>
+      <p>↓</p>
+      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">結果</a><br>
       <br>
       <br>
-      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">結果</a>
       <br>
       <br>
-      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">累積</a>
       <br>
       <br>
-      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">図表</a>
+      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">累積</a><br>
+      <br>
+      <a href="{% url 'articles:src_link' 'domestic' %}" target="right_frame">図表</a><br>
+      <br>
+      <form action="post">
+        <button type="button" name="reset">選択クリア</button>
+      </form>
     </div>
   </body>
 </html>

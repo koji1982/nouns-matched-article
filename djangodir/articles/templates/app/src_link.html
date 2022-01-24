@@ -4,7 +4,8 @@
   <head>
     <meta charset="utf-8">
     <title>Article Links</title>
-    <link rel="stylesheet" href="{%static '/css/style.css'%}" />
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+    <script src="{% static '/javascript/radio_cancel.js' %}"></script>
   </head>
   <body>
     <a href="{% url 'articles:src_link' 'domestic' %}">国内</a>
@@ -21,13 +22,27 @@
     <span>&nbsp;</span>
     <a href="{% url 'articles:src_link' 'science' %}">科学</a>
     <span>&nbsp;</span>
-    <a href="{% url 'articles:src_link' 'local' %}">地域</a>
+    <a href="{% url 'articles:src_link' 'local' %}">地域</a><br>
     <br>
     <br>
-    <br>
+    <table>
+      <tr>
+        <td><button type="button" onclick="all_clear()">選択クリア</button></td>
+        <td><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;カテゴリー：{{category}} </p></td>
+      </tr>
+    </table>
     {% for record in records %}
-      <a href={{ record.url }} target="_blank" rel="noopener noreferrer">{{ record.title }}</a>
-      <br>
+      <div class="article_link">
+        <input type="radio" class="radio_check" name={{forloop.counter}}
+               id="{{forloop.counter}}_good" onclick="remove_check(id)" value="good">
+        <label for="good">いいね</label>
+        <input type="radio" class="radio_check" name={{forloop.counter}}
+               id="{{forloop.counter}}_uninterested" onclick="remove_check(id)" value="uninterested">
+        <label for="uninterested">興味なし</label>
+        <a href={{record.url}} target="_blank" rel="noopener noreferrer">
+        {{ record.title | truncatechars:40 }}
+        </a>
+      </div>
     {% endfor %}
   </body>
 </html>

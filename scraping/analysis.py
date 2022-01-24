@@ -1,6 +1,6 @@
-import MeCab
-from database import ArticleDB
 from pprint import pprint
+import MeCab
+from scraping.database import ArticleDB
 
 def extract_noun(text):
     tagger = MeCab.Tagger()
@@ -46,3 +46,9 @@ def get_duplicate_rate(source, target):
     # print(duplicate_count / denom)
     # print(denom)
     return duplicate_count / len(split_sources)
+
+import structlog
+
+def callFunctionTest():
+    logger = structlog.get_logger(__name__)
+    logger.info("      Called from scraping/components/analysis.py    ")

@@ -1,8 +1,8 @@
 #!/bin/bash
-pip install mod-wsgi
+pip install mod-wsgi django-structlog
 mod_wsgi-express module-config > /etc/apache2/sites-available/django.conf
 echo "WSGIScriptAlias / /code/djangodir/project/wsgi.py
-WSGIPythonPath /code/djangodir
+WSGIPythonPath /code:/code/djangodir
 <Directory /code/djangodir/project>
   <Files wsgi.py>
     Require all granted
