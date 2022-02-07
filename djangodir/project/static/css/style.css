@@ -1,17 +1,55 @@
-h5 {
-  color: rebeccapurple;
-  border-color: rosybrown;
+.left_frame {
+  position:absolute;
+  top:0;
+  left:0px;
+  width:120px;
+  height:100%;
+  text-align:center;
+  background: linear-gradient(#509cff, #7bdaff);border:1px solid #4274ff;
 }
-h3 {
-  border-bottom: double 6px #106faa
+.right_frame {
+  position:absolute;
+  top:0;
+  right:0;
+  left:120px;
+  height:100%;
+  border-left:2px solid #ffffffa1;
 }
-span {
-  margin: 5px;
+iframe{
+  border:none;
+  height:100%;
+  width:100%;
+}
+.top {
+  background-color: #d6efffc2;padding:15px;border:1px solid #cccccc;
+}
+.categories {
+  margin-left: 165px;
+}
+.with_space {
+  margin:0;
+  padding:0;
+}
+.left_body {
+  font-family:"ＭＳ Ｐゴシック","ＭＳ ゴシック",sans-serif;
 }
 .left_links {
   margin: 20px;
   text-align: center;
 }
+.right_body {
+  margin:0;
+  padding:0;
+  font-family:"ＭＳ Ｐゴシック","ＭＳ ゴシック",sans-serif;
+}
+.explanation {
+  color: #4c5e75;
+}
 .article_link {
   white-space: nowrap;
+  background-color:#fffffff1;
+  display: flex;
+}
+a:visited {
+  color:#0127a1;
 }

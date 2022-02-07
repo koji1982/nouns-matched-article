@@ -1,21 +1,49 @@
-var checked_array = [];
+var checkedArray = [];
 
-function all_clear() {
-    for (const element of document.getElementsByClassName('radio_check')) {
+function allClear() {
+    for (let element of document.getElementsByClassName('radio_check')) {
         element.checked = false;
-        checked_array = [];
-      }
+        checkedArray = [];
+    }
 }
 
-function remove_check(clicked_id) {
-    let element = document.getElementById(clicked_id);
-    if( checked_array.includes(clicked_id) ){
-        console.log(clicked_id);
+function cancelCheck(clickedId) {
+    let element = document.getElementById(clickedId);
+    if( checkedArray.includes(clickedId) ){
         element.checked = false;
-        clicked_index = checked_array.indexOf(clicked_id);
-        checked_array.splice(clicked_index, 1);
+        clickedIndex = checkedArray.indexOf(clickedId);
+        checkedArray.splice(clickedIndex, 1);
     } else {
         element.checked = true;
-        checked_array.push(clicked_id);
+        checkedArray.push(clickedId);
     }
+}
+
+function setCheckedArray(prevCheckedArray){
+    // alert("set " + prevCheckedArray.length);
+    if( 0 < prevCheckedArray.length ){
+        checkedArray = prevCheckedArray;
+        alert( "0 < array");
+    }
+}
+
+function loadRadioChecked(clickedId){
+    let element = document.getElementById(clickedId);
+    if( checkedArray.includes(clickedId)){
+            element.checked = true;
+        }
+}
+
+function isChecked(radioId){
+    return checkedArray.includes(radioId);
+}
+
+function makeUrlWithCheckedArray(category){
+    urlString = "{% url 'articles:src_link' '" + category + "' 'isChecked' %}";
+    window.location.href = urlString.replace(/isChecked/, checkedArray);
+}
+
+function getCheckedArray(){
+    alert("get " + checkedArray.length);
+    return checkedArray;
 }
