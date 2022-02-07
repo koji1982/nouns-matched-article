@@ -31,4 +31,5 @@ ENV MECABRC /etc/mecabrc
 ENV PATH /opt/conda/envs/article_env/bin/:$PATH
 ENV PYTHONPATH /code:$PYTHONPATH
 
-RUN bash for_test.sh
+COPY ./prepare_test /code
+RUN bash prepare_test.sh
