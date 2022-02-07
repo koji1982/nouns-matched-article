@@ -1,33 +1,74 @@
 <!DOCTYPE html>
 {% load static %}
+{% load radio_control %}
 <html lang="ja">
   <head>
     <meta charset="utf-8">
     <title>Article Links</title>
-    <link rel="stylesheet" href="{%static '/css/style.css'%}" />
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+    <script src="{% static '/javascript/radio_cancel.js' %}"></script>
   </head>
-  <body>
-    <a href="{% url 'articles:src_link' 'domestic' %}">国内</a>
-    <span>&nbsp;</span>
-    <a href="{% url 'articles:src_link' 'world' %}">国際</a>
-    <span>&nbsp;</span>
-    <a href="{% url 'articles:src_link' 'business' %}">経済</a>
-    <span>&nbsp;</span>
-    <a href="{% url 'articles:src_link' 'entertainment' %}">エンタメ</a>
-    <span>&nbsp;</span>
-    <a href="{% url 'articles:src_link' 'sports' %}">スポーツ</a>
-    <span>&nbsp;</span>
-    <a href="{% url 'articles:src_link' 'it' %}">IT</a>
-    <span>&nbsp;</span>
-    <a href="{% url 'articles:src_link' 'science' %}">科学</a>
-    <span>&nbsp;</span>
-    <a href="{% url 'articles:src_link' 'local' %}">地域</a>
+  <body class="right_body">
+    <div class="top">
+      <div class="categories">
+        <a href="{% url 'articles:src_link' 'domestic'%}">国内</a>
+        <span>&nbsp;</span>
+        <a href="{% url 'articles:src_link' 'world' %}">国際</a>
+        <span>&nbsp;</span>
+        <a href="{% url 'articles:src_link' 'business' %}">経済</a>
+        <span>&nbsp;</span>
+        <a href="{% url 'articles:src_link' 'entertainment' %}">エンタメ</a>
+        <span>&nbsp;</span>
+        <a href="{% url 'articles:src_link' 'sports' %}">スポーツ</a>
+        <span>&nbsp;</span>
+        <a href="{% url 'articles:src_link' 'it' %}">IT</a>
+        <span>&nbsp;</span>
+        <a href="{% url 'articles:src_link' 'science' %}">科学</a>
+        <span>&nbsp;</span>
+        <a href="{% url 'articles:src_link' 'local' %}">地域</a>
+      </div>
+    </div>
     <br>
-    <br>
-    <br>
+    <div class="with_space">
+      <p class="explanation">&nbsp;&nbsp;ー使い方ー<br>『選択』ページ（このページ）で記事を選択後、<br>『保存・反映』ボタンを押すと選択が保存され、<br>『結果』ページにおすすめ記事が表示されます。</p>
+      <p>カテゴリー：{{category}} </p>
+      <div>
+        <form method="post" action="{% url 'articles:all_clear' category %}">
+          {% csrf_token %}
+          <button type="submit" name="clear">選択クリア</button>
+        </form>
+      </div>
+    </div>
     {% for record in records %}
-      <a href={{ record.url }} target="_blank" rel="noopener noreferrer">{{ record.title }}</a>
-      <br>
+      <div class="article_link">
+        <div>
+          <form name="form_{{forloop.counter}}_good" method="post" action="{% url 'articles:eval_good' record.category record.title %}">
+            {% csrf_token %}
+            <label>
+              <input type="radio" class="radio_check" name={{forloop.counter}} value="good"
+                    id="{{forloop.counter}}_good" onclick="this.form.submit();"
+                    {% if record.evaluation == 1 %}checked{% endif %}>
+              {{record.evaluation}}
+            </label>
+          </form>
+        </div>
+        <div>
+          <form name="form_{{forloop.counter}}_uninterested" method="post" action="{% url 'articles:eval_uninterested' record.category record.title %}">
+            {% csrf_token %}
+            <label>
+              <input type="radio" class="radio_check" name={{forloop.counter}} value="uninterested"
+                    id="{{forloop.counter}}_uninterested" onclick="this.form.submit()"
+                    {% if record.evaluation == 2 %}checked{% endif %}>
+              {{forloop.counter}}
+            </label>
+          </form>
+        </div>
+        <div>
+          <a href={{record.url}} target="_blank" rel="noopener noreferrer">
+            {{ record.title | truncatechars:40 }}
+          </a>
+        </div>
+      </div>
     {% endfor %}
   </body>
 </html>

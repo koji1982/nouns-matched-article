@@ -1,36 +1,15 @@
 <!DOCTYPE html>
+{% load static %}
 <html>
   <head>
     <title>Frame Test</title>
-    <style>
-      #left {
-	      position:absolute;
-	      top:0;
-	      left:0px;
-	      width:120px;
-	      height:100%;
-	      text-align:center;
-	    }
-      #right{
-	      position:absolute;
-	      top:0;
-	      right:0;
-	      left:120px;
-	      height:100%;
-	      border-left:2px solid #ccc;
-	    }
-      iframe{
-        border:none;
-        height:100%;
-        width:100%;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
   </head>
   <body>
-    <div id="left">
+    <div class="left_frame">
       <iframe src="pages.html" name="left_frame"></iframe>
     </div>
-    <div id="right">
+    <div class="right_frame">
       <iframe src="src_link.html" name="right_frame"></iframe>
     </div>
   </body>

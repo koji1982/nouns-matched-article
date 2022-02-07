@@ -1,66 +1,126 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .forms import PracticeForm
 from .models import Article
+import structlog
 
 def article_response(request):
     return render(request, 'app/frame.html')
 
 def left_frame(request):
-    content = {
-        'select':'選択',
-        'reflect':'反映',
-        'result':'結果',
-        'acumulate':'累積',
-        'figure':'図表',
-        'reset':'リセット'
-    }
-    return render(request, 'app/pages.html', content)
+    logger = structlog.get_logger(__name__)
+    logger.info(request.method)
+    content = {}
+    if request.method == "POST":
+        logger.info("from POST")
+        if "reflect" in request.POST:
+            content['records'] = 'src_link&it'
+            logger.info("from reflect")
+        elif "reset" in request.POST:
+            content['records'] = Article.objects.all().filter(category='local')
+            logger.info("from reset")
+    return render(request, 'app/pages.html')
 
 def right_frame(request):
     context = {
-        'records':Article.objects.all(),
-        'domestic':'国内',
-        'international':'国際',
-        'economy':'経済',
-        'entertaiment':'エンタメ',
-        'sport':'スポーツ',
-        'it':'IT',
-        'science':'科学',
-        'local':'地域'
+        'records':Article.objects.all()
     }
     return render(request, 'app/src_link.html', context)
 
 def init_link(request):
+    # test_article = Article.objects.all().filter(url='https:/news.yahoo.co.jp/articles/3635ae421328e9350c6776eca7f45c1aa1f3d23a')
+    # logger = structlog.get_logger(__name__)
+    # if test_article is None:
+    #     logger.info('url get empty !!!')
+    # else:
+    #     logger.info(str(test_article))
+    articles = Article.objects.all().filter(category='domestic')
     context = {
-        'records':Article.objects.all().filter(category='domestic')
+        'records': articles,
+        'category':'国内'
     }
     return render(request, 'app/src_link.html', context)
 
-def article_link(request, clicked):
+def article_link(request, clicked_category):
+    # test_article = Article.objects.all().filter(url='https:/news.yahoo.co.jp/articles/3635ae421328e9350c6776eca7f45c1aa1f3d23a')
+    # logger = structlog.get_logger(__name__)
+    # if test_article is None:
+    #     logger.info('url get empty !!!!!')
+    # else:
+    #     logger.info(str(test_article))
+    articles = Article.objects.all().filter(category=clicked_category)
     context = {
-        'records':Article.objects.all().filter(category=clicked)
+        'records': articles,
+        'category':get_category_jp(clicked_category),
+    }
+    # logger = structlog.get_logger(__name__)
+    # logger.error("from article_link")
+    # checked_list = []
+    # radio_length = len(context['records'])
+    # logger.error(request.POST.get('btnradio'))
+    # logger.error(request.POST.get('1'))
+    # logger.error(request.POST.get('2'))
+    # logger.error(request.POST.getlist('btnradio'))
+    # logger.error(request.POST.getlist('3'))
+    # for element in checked_array:
+    #     logger.error(str(element))
+    # for index in range(radio_length):
+    #     logger.error(request.GET.get(str(index)))
+    #     if value is not None:
+    #         checked_list.append(value)
+    # logger.error(checked_list)
+    return render(request, 'app/src_link.html', context)
+
+def all_clear(request, category_in_jp):
+    category_in_en = get_category_en(category_in_jp)
+    for article in Article.objects.all().filter(category=category_in_en):
+        article.clear_evaluation()
+    context = {
+        'records': Article.objects.all().filter(category=category_in_en),
+        'category': category_in_jp
     }
     return render(request, 'app/src_link.html', context)
-# def index(request):
-#     insert_dict = {
-#         'insert_from_view_dict':"views.pyから渡されるdict",
-#         '2nd_key':"2nd value",
-#         'list_key':['index_1', 'index_2', 'index_3'],
-#         'form':PracticeForm(),
-#         'insert_forms':'入力されていません'
-#     }
-#     if(request.method == 'POST'):
-#         insert_dict['insert_forms'] = '文字列:' + request.POST['text'] + '\n整数型:' + request.POST['num']
-#         insert_dict['form'] = PracticeForm(request.POST)
-#     return render(request, 'app/index.html', insert_dict)
-    
-# def info(request):
-#     articles = Article.objects.all()
-#     article_values = Article.objects.values()
-#     display_dict = {
-#         'title':'test',
-#         'list_1':'articles',
-#         'list_2':'article_values'
-#     }
-#     return render(request, 'app/index.html', display_dict)
+
+def eval_good(request, clicked_category, article_title):
+    evaluated_article = Article.objects.get(title=article_title)
+    evaluated_article.evaluate(1)
+    context = {
+        'records': Article.objects.all().filter(category=clicked_category),
+        'category':get_category_jp(clicked_category),
+    }
+    return render(request, 'app/src_link.html', context)
+
+def eval_uninterested(request, clicked_category, article_title):
+    evaluated_article = Article.objects.get(title=article_title)
+    evaluated_article.evaluate(2)
+    context = {
+        'records': Article.objects.all().filter(category=clicked_category),
+        'category':get_category_jp(clicked_category),
+    }
+    return render(request, 'app/src_link.html', context)
+
+
+def get_category_jp(category):
+    category_dict = {
+        'domestic':'国内',
+        'world':'国際',
+        'business':'経済',
+        'entertainment':'エンタメ',
+        'sports':'スポーツ',
+        'it':'IT',
+        'science':'科学',
+        'local':'地域'
+    }
+    return category_dict[category]
+
+def get_category_en(category):
+    category_dict = {
+        '国内': 'domestic',
+        '国際': 'world',
+        '経済': 'business',
+        'エンタメ': 'entertainment',
+        'スポーツ': 'sports',
+        'IT': 'it',
+        '科学': 'science',
+        '地域': 'local'
+    }
+    return category_dict[category]
