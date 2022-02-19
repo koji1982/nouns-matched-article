@@ -1,0 +1,72 @@
+[
+  {
+    "model": "articles.article",
+    "pk": 1,
+    "fields": {
+      "url": "http://dummy_url_1/",
+      "category": "domestic",
+      "date": "dummy_date_1",
+      "title": "dummy_title_1",
+      "body": "dummy_body_1",
+      "noun": [
+        "dummy_noun_element_1"
+      ]
+    }
+  },
+  {
+    "model": "articles.article",
+    "pk": 2,
+    "fields": {
+      "url": "http://dummy_url_2/",
+      "category": "domestic",
+      "date": "dummy_date_2",
+      "title": "dummy_title_2",
+      "body": "dummy_body_2",
+      "noun": [
+        "dummy_noun_element_2"
+      ]
+    }
+  },
+  {
+    "model": "articles.article",
+    "pk": 3,
+    "fields": {
+      "url": "http://dummy_url_3/",
+      "category": "domestic",
+      "date": "dummy_date_3",
+      "title": "dummy_title_3",
+      "body": "dummy_body_3",
+      "noun": [
+        "dummy_noun_element_3"
+      ]
+    }
+  },
+  {
+    "model": "articles.article",
+    "pk": 4,
+    "fields": {
+      "url": "http://dummy_url_4/",
+      "category": "domestic",
+      "date": "dummy_date_4",
+      "title": "dummy_title_4",
+      "body": "dummy_body_4",
+      "noun": [
+        "dummy_noun_element_4"
+      ]
+    }
+  },
+  {
+    "model": "articles.article",
+    "pk": 5,
+    "fields": {
+      "url": "http://dummy_url_5/",
+      "category": "domestic",
+      "date": "dummy_date_5",
+      "title": "dummy_title_5",
+      "body": "dummy_body_5",
+      "noun": [
+        "dummy_noun_element_5"
+      ]
+    }
+  }
+]

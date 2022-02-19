@@ -64,10 +64,17 @@
           </form>
         </div>
         <div>
-          <a href={{record.url}} target="_blank" rel="noopener noreferrer">
+          <a href={{record.url}} id="{{forloop.counter}}_link" target="_blank" rel="noopener noreferrer">
             {{ record.title | truncatechars:40 }}
           </a>
         </div>
+        <table id="test_table">
+          <tr>
+            <td>
+              {{ record.title }}
+            </td>
+          </tr>
+        </table>
       </div>
     {% endfor %}
   </body>

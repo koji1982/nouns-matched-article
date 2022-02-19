@@ -2,6 +2,11 @@ from django.db import models
 import structlog
 
 class Article(models.Model):
+    
+    NOT_EVALUATED = 0
+    EVAL_GOOD = 1
+    EVAL_UNINTERESTED = 2
+
     class meta:
         app_label='articles'
     
@@ -17,9 +22,9 @@ class Article(models.Model):
         return self.title
 
     def clear_evaluation(self):
-        self.evaluation = 0
+        self.evaluation = Article.NOT_EVALUATED
         self.save()
 
     def evaluate(self, eval_value):
-        self.evaluation = 0 if (self.evaluation == eval_value) else eval_value
+        self.evaluation = Article.NOT_EVALUATED if (self.evaluation == eval_value) else eval_value
         self.save()

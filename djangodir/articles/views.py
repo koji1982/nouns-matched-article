@@ -38,6 +38,9 @@ def init_link(request):
         'records': articles,
         'category':'国内'
     }
+    logger = structlog.get_logger(__name__)
+    logger.info(Article.objects.count())
+    logger.info('right_frame loaded')
     return render(request, 'app/src_link.html', context)
 
 def article_link(request, clicked_category):
@@ -68,6 +71,9 @@ def article_link(request, clicked_category):
     #     if value is not None:
     #         checked_list.append(value)
     # logger.error(checked_list)
+    logger = structlog.get_logger(__name__)
+    logger.info(Article.objects.count())
+    logger.info('right_frame loaded')
     return render(request, 'app/src_link.html', context)
 
 def all_clear(request, category_in_jp):
@@ -82,7 +88,7 @@ def all_clear(request, category_in_jp):
 
 def eval_good(request, clicked_category, article_title):
     evaluated_article = Article.objects.get(title=article_title)
-    evaluated_article.evaluate(1)
+    evaluated_article.evaluate(Article.EVAL_GOOD)
     context = {
         'records': Article.objects.all().filter(category=clicked_category),
         'category':get_category_jp(clicked_category),
@@ -91,7 +97,7 @@ def eval_good(request, clicked_category, article_title):
 
 def eval_uninterested(request, clicked_category, article_title):
     evaluated_article = Article.objects.get(title=article_title)
-    evaluated_article.evaluate(2)
+    evaluated_article.evaluate(Article.EVAL_UNINTERESTED)
     context = {
         'records': Article.objects.all().filter(category=clicked_category),
         'category':get_category_jp(clicked_category),
