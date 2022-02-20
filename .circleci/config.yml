@@ -29,7 +29,7 @@ jobs:
           command: docker-compose run -d web bash -c "sh init_wsgi.sh"
       - run:
           name: test
-          command: docker-compose exec web bash -c "cd djangodir && python manage.py test"
+          command: docker-compose exec nounsmatchedarticles_web_run_1 bash -c "cd djangodir && python manage.py test"
       - run:
           name: compose down
           command: docker-compose down
