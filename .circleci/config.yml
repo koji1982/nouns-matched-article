@@ -25,11 +25,14 @@ jobs:
           name: grant privileges
           command: docker-compose exec -d db bash -c "echo \"GRANT ALL PRIVILEGES ON test_django_db.* TO 'django'@'%'\" | mysql -u root -p$MYSQL_ROOT_PASSWORD && echo \"FLUSH PRIVILEGES\" | mysql -u root -p$MYSQL_ROOT_PASSWORD"
       - run:
+          name: compose up web
+          command: docker-compose up -d web
+      - run:
           name: start server and migrate
-          command: docker-compose run -d web --name web_app bash -c "sh init_wsgi.sh"
+          command: docker-compose exec web bash -c "sh init_wsgi.sh"
       - run:
           name: test
-          command: docker-compose exec web_app bash -c "cd djangodir && python manage.py test"
+          command: docker-compose exec web bash -c "cd djangodir && python manage.py test"
       - run:
           name: compose down
           command: docker-compose down
