@@ -56,7 +56,7 @@ class UrlTests(TestCase):
         self.assertTrue(html.endswith('</html>'))
 
     def test_visitor_test(self):
-        self.browser.get('http://web:80/')
+        self.browser.get('http://localhost/')
         right_frame = self.browser.find_element_by_name("right_frame")
         print(right_frame.get_attribute(name="src"))
         self.browser.switch_to_frame(right_frame)
@@ -120,7 +120,7 @@ class UrlTests(TestCase):
         print(found_test_table.get_text(strip=True))
 
         print('start browser loading')
-        self.browser.get('http://web:80/')
+        self.browser.get('http://localhost/')
         self.browser.refresh()
         right_frame = self.browser.find_element_by_name("right_frame")
         self.browser.switch_to_frame(right_frame)
