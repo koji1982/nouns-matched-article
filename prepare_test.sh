@@ -9,4 +9,3 @@ curl -O https://chromedriver.storage.googleapis.com/${CHROME_VERSION}/chromedriv
 unzip chromedriver_linux64.zip
 mv chromedriver /usr/local/bin/
 rm chromedriver_linux64.zip
-export PATH=/usr/local/bin/:$PATH
