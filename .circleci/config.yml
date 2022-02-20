@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build_and_test:
     # machine: true
-    dokcer:
+    docker:
       - image: cimg/base:2022.02-browsers
     working_directory: ~/nouns-matched-articles
     steps:
