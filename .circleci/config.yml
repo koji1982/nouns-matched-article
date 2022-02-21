@@ -1,7 +1,8 @@
 version: 2.1
 jobs:
   build_and_test:
-    machine: true
+    machine:
+      image: circleci/classic:edge
     working_directory: ~/nouns-matched-articles
     steps:
       - checkout
@@ -24,8 +25,8 @@ jobs:
           name: grant privileges
           command: docker-compose exec -d db bash -c "echo \"GRANT ALL PRIVILEGES ON test_django_db.* TO 'django'@'%'\" | mysql -u root -p$MYSQL_ROOT_PASSWORD && echo \"FLUSH PRIVILEGES\" | mysql -u root -p$MYSQL_ROOT_PASSWORD"
       - run:
-          name: migrate
-          command: docker-compose run -d web bash -c "python djangodir/manage.py migrate"
+          name: start server and migrate
+          command: docker-compose run -d web bash -c "sh init_wsgi.sh"
       - run:
           name: test
           command: docker-compose run web bash -c "cd djangodir && python manage.py test"
