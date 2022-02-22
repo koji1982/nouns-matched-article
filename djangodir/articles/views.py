@@ -3,6 +3,17 @@ from django.http import HttpResponse
 from .models import Article
 import structlog
 
+category_dict = {
+        'domestic':'国内',
+        'world':'国際',
+        'business':'経済',
+        'entertainment':'エンタメ',
+        'sports':'スポーツ',
+        'it':'IT',
+        'science':'科学',
+        'local':'地域'
+    }
+
 def article_response(request):
     return render(request, 'app/frame.html')
 
@@ -106,20 +117,10 @@ def eval_uninterested(request, clicked_category, article_title):
 
 
 def get_category_jp(category):
-    category_dict = {
-        'domestic':'国内',
-        'world':'国際',
-        'business':'経済',
-        'entertainment':'エンタメ',
-        'sports':'スポーツ',
-        'it':'IT',
-        'science':'科学',
-        'local':'地域'
-    }
     return category_dict[category]
 
 def get_category_en(category):
-    category_dict = {
+    category_jp_en = {
         '国内': 'domestic',
         '国際': 'world',
         '経済': 'business',
@@ -129,4 +130,4 @@ def get_category_en(category):
         '科学': 'science',
         '地域': 'local'
     }
-    return category_dict[category]
+    return category_jp_en[category]
