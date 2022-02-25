@@ -1,6 +1,8 @@
 from django.test import TestCase
-from django.urls import resolve
+from django.urls import resolve, exceptions
 from articles.views import *
+
+WRONG_URL_PATH = '/wrong_url_path/'
 
 class UrlsTest(TestCase):
     
@@ -54,3 +56,8 @@ class UrlsTest(TestCase):
         for category in category_dict.keys():
             view = resolve('/eval_uninterested/_'+category+'/?dummy_title')
             self.assertEqual(view.func, eval_uninterested)
+
+    def test_wrong_url(self):
+        '''誤ったpathから例外が送出されることを確認'''
+        with self.assertRaises(exceptions.Resolver404):
+            resolve(WRONG_URL_PATH)

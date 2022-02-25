@@ -19,16 +19,11 @@ from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from . import settings
 from django.conf import settings
-from django.contrib.staticfiles import views
-from django.urls import re_path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("articles.urls"))
 ]
 
-# if settings.DEBUG == True:
-#     urlpatterns += [re_path(r'^static/(?P<path>.*)$', views.serve),]
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += re_path(r'^static/(?P<path>.*)$', views.serve,{'document_root': settings.STATIC_ROOT}),
