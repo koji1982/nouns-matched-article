@@ -8,6 +8,7 @@ from ..items import ArticleItem
 
 
 class ArticleSpider(CrawlSpider):
+    
     name = 'article_spider'
     allowed_domains = ['www.yahoo.co.jp', 'news.yahoo.co.jp']
     start_urls = [
@@ -38,6 +39,12 @@ class ArticleSpider(CrawlSpider):
     }
 
     def parse_newsfeed(self, response):
+        """
+        @url http://news.yahoo.co.jp/topics/domestic?page=1
+        @returns items 1
+        @returns requests 0
+        @scrapes url category date title body
+        """
         #ニュースカテゴリーごとに呼ばれる関数なのでここでカテゴリーを格納しておく
         url = response.url
         current_category = None
@@ -63,10 +70,8 @@ class ArticleSpider(CrawlSpider):
             articleBodyTag = articleHtml.find('p', class_='highLightSearchTarget')
             if articleBodyTag is None:
                 continue
-            yield ArticleItem(
-                url=articleUrl,
-                category=current_category,
-                date=articleHtml.time.get_text(),
-                title=articleHtml.title.get_text(),
-                body=articleBodyTag.get_text()
-                )
+            yield ArticleItem(url=articleUrl,
+                              category=current_category,
+                              date=articleHtml.time.get_text(),
+                              title=articleHtml.title.get_text(),
+                              body=articleBodyTag.get_text() )

@@ -6,6 +6,7 @@ class ModelsTest(TestCase):
     fixtures = ["test_articles.json"]
 
     def test_evalulate_good(self):
+        """evaluate()"""
         test_article = Article.objects.filter(category='domestic')[0]
         self.assertEqual(test_article.evaluation, Article.NOT_EVALUATED)
         test_article.evaluate(Article.EVAL_GOOD)
@@ -46,6 +47,9 @@ class ModelsTest(TestCase):
         self.assertEqual(test_article.evaluation, Article.EVAL_UNINTERESTED)
 
     def test_evaluate_raises_error_with_wrong_args(self):
+        """evaluate()はEVAL_GOOD=1,EVAL_UNINTERESTED=2,以外の引数を
+        受け取らないことを確認する
+        """
         test_article = Article.objects.filter(category='domestic')[0]
         with self.assertRaises(ValueError):
             test_article.evaluate(-5000)

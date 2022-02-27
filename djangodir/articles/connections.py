@@ -1,4 +1,5 @@
 # Djangoの外から呼ばれることを前提としてるため、
+# ファイルを読み込む前にDjangoの設定を用意する
 import django
 import os
 import sys
