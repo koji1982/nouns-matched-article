@@ -1,5 +1,5 @@
 from django.db import models
-import structlog
+
 
 class Article(models.Model):
     
@@ -21,10 +21,17 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
-    def clear_evaluation(self):
-        self.evaluation = Article.NOT_EVALUATED
+    def evaluate(self, eval_value):
+        '''
+        evaluationフィールドの変更を行う関数。
+        評価値として有効な1または2のみが引数として渡される
+        ことを前提としている
+        '''
+        if (eval_value != Article.EVAL_GOOD) and (eval_value != Article.EVAL_UNINTERESTED):
+            raise ValueError
+        self.evaluation = Article.NOT_EVALUATED if (self.evaluation == eval_value) else eval_value
         self.save()
 
-    def evaluate(self, eval_value):
-        self.evaluation = Article.NOT_EVALUATED if (self.evaluation == eval_value) else eval_value
+    def clear_evaluation(self):
+        self.evaluation = Article.NOT_EVALUATED
         self.save()
