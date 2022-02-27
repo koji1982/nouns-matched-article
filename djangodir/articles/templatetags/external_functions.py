@@ -1,5 +1,5 @@
 import structlog
-from scraping.analysis import callFunctionTest
+from scraping.words import callFunctionTest
 from django import template
 register = template.Library()
 

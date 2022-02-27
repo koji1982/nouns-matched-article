@@ -66,10 +66,9 @@ class ViewsTest(TestCase):
             self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_article_link_with_wrong_category(self):
-        '''
-        article_link()に誤った引数(category)が渡された場合に
+        """article_link()に誤った引数(category)が渡された場合に
         例外が出されることを確認する
-        '''
+        """
         with self.assertRaises(KeyError):
             article_link(HttpRequest, WRONG_CATEGORY)
 
@@ -115,22 +114,21 @@ class ViewsTest(TestCase):
             self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_eval_good_with_wrong_category_correct_title(self):
-        '''eval_good()に誤ったcategoryを渡すとKeyErrorをraiseすることを確認する'''
+        """eval_good()に誤ったcategoryを渡すとKeyErrorをraiseすることを確認する"""
         test_article = Article.objects.filter(category='domestic')[0]
         correct_title = test_article.title
         with self.assertRaises(KeyError):
             eval_good(HttpRequest, WRONG_CATEGORY, correct_title)
 
     def test_eval_good_with_correct_category_wrong_title(self):
-        '''eval_good()に誤ったArticle.titleを渡すとDoesNotExistをraiseすることを確認する'''
+        """eval_good()に誤ったArticle.titleを渡すとDoesNotExistをraiseすることを確認する"""
         with self.assertRaises(Article.DoesNotExist):
             eval_good(HttpRequest, 'domestic', WRONG_TITLE)
 
     def test_eval_good_with_wrong_category_wrong_title(self):
-        '''
-        eval_good()に誤ったcategoryと誤ったArticle.titleを渡した時に
+        """eval_good()に誤ったcategoryと誤ったArticle.titleを渡した時に
         DoesNotExistをraiseすることを確認する
-        '''
+        """
         with self.assertRaises(Article.DoesNotExist):
             eval_good(HttpRequest, WRONG_CATEGORY, WRONG_TITLE)
 
@@ -156,32 +154,32 @@ class ViewsTest(TestCase):
             self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_eval_uninterested_with_wrong_category_correct_title(self):
-        '''eval_uninterested()に誤ったcategoryを渡すとKeyErrorをraiseすることを確認する'''
+        """eval_uninterested()に誤ったcategoryを渡すとKeyErrorをraiseすることを確認する"""
         test_article = Article.objects.filter(category='domestic')[0]
         correct_title = test_article.title
         with self.assertRaises(KeyError):
             eval_uninterested(HttpRequest, WRONG_CATEGORY, correct_title)
 
     def test_eval_uninterested_with_correct_category_wrong_title(self):
-        '''eval_uninterested()に誤ったArticle.titleを渡すとDoesNotExistをraiseすることを確認する'''
+        """eval_uninterested()に誤ったArticle.titleを渡すとDoesNotExistをraiseすることを確認する"""
         with self.assertRaises(Article.DoesNotExist):
             eval_uninterested(HttpRequest, 'domestic', WRONG_TITLE)
 
     def test_eval_uninterested_with_wrong_category_wrong_title(self):
-        '''
+        """
         eval_uninterested()に誤ったcategoryと誤ったArticle.titleを渡した時に
         DoesNotExistをraiseすることを確認する
-        '''
+        """
         with self.assertRaises(Article.DoesNotExist):
             eval_uninterested(HttpRequest, WRONG_CATEGORY, WRONG_TITLE)
 
 def remove_csrf(html_source):
-    '''csrf部分を除去して返す関数'''
+    """csrf部分を除去して返す関数"""
     csrf_regex = r'<input[^>]+csrfmiddlewaretoken[^>]+>'
     return re.sub(csrf_regex, '', html_source)
 
 def load_template_tag(tag_str, context=None):
-    '''テンプレートタグを読み出して返す関数'''
+    """テンプレートタグを読み出して返す関数"""
     context = context or {}
     context = Context(context)
     return Template(tag_str).render(context)
