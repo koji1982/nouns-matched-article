@@ -19,9 +19,24 @@ def extract_noun(text):
     connected_nouns = ','.join(nouns)
     return connected_nouns
 
-def sort_duplicated_nouns_list(base_nouns, url_nouns_pair_list):
+def sort_duplicated_nouns_list(base_nouns: str, url_nouns_pair_list: list):
     """target_listの各文字列に対して、base_nouns内の名詞と一致する
-    名詞の割合を算出して並べ替えたリストを返す関数"""
+    名詞の割合を算出して並べ替えたリストを返す関数
+    """
+    #型チェックを行う
+    #第一引数がlist(str),第二引数がlist(list(str))でない場合はErrorを送出する
+    #また、どちらのstrもコンマ(,)で連結、成形されていることを前提とする
+    try:
+        if type(base_nouns) is not str:
+            raise TypeError
+        if ',' not in base_nouns:
+            raise TypeError
+        if type(url_nouns_pair_list[0][1]) is not str:
+            raise TypeError
+        if ',' not in url_nouns_pair_list[0][1]:
+            raise TypeError
+    except IndexError as e:
+        raise TypeError
     # all_nouns = ArticleDB.getAllNoun()
     url_rate_pairs = {}
     for article_nouns in url_nouns_pair_list:
@@ -35,7 +50,7 @@ def sort_duplicated_nouns_list(base_nouns, url_nouns_pair_list):
 
     return url_rate_sorted
 
-def get_duplicate_rate(source, target):
+def get_duplicate_rate(source: str, target: str):
     """source側にとって、targetにどれだけ一致する語句が入っているかを
     一致した語句数の割合で返す
     """

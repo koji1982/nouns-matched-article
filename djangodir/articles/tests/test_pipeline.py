@@ -60,7 +60,7 @@ class ArticlePipelineTest(TestCase):
 
     def test_process_item_with_none_item_arg(self):
         """process_item()に対して、ArticleItemではなくNoneが渡された場合に
-        Errorを送出することを確認する
+        Errorを送出する
         """
         article_pipeline = ArticlePipeline()
         #ArticleItemではなくNoneが渡された場合
@@ -88,8 +88,7 @@ class ArticlePipelineTest(TestCase):
     
     def test_process_item_with_wrong_argument_raises_error(self):
         """process_item()に対して、ArticleItemではなくNoneが渡されたり
-        フィールドが入力されていないArticleItemが渡された時に
-        Errorを送出することを確認する
+        フィールドが入力されていないArticleItemが渡された時にErrorを送出する
         """
         article_pipeline = ArticlePipeline()
         #body無しのArticleItemが渡された場合
