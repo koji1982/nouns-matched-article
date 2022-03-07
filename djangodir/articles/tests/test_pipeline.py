@@ -11,11 +11,7 @@ class ArticlePipelineTest(TestCase):
         self.assertEqual(Article.objects.count(), 0)
 
         test_url = 'https://dummy_url_100'
-        article_item = ArticleItem(url=test_url,
-                                   category='domestic',
-                                   date='1/1(土) 22:07',
-                                   title='dummy_title_100',
-                                   body='dummy_body_100')
+        article_item = get_test_item(test_url)
         article_pipeline = ArticlePipeline()
         article_pipeline.process_item(article_item, ArticleSpider())
 
@@ -28,11 +24,7 @@ class ArticlePipelineTest(TestCase):
         追加していることを確認
         """
         test_url = 'https://dummy_url_100'
-        article_item = ArticleItem(url=test_url,
-                                   category='domestic',
-                                   date='1/1(土) 22:07',
-                                   title='dummy_title_100',
-                                   body='dummy_body_100')
+        article_item = get_test_item(test_url)
         with self.assertRaises(KeyError):
             article_item['noun']
         article_pipeline = ArticlePipeline()
@@ -60,7 +52,7 @@ class ArticlePipelineTest(TestCase):
 
     def test_process_item_with_none_item_arg(self):
         """process_item()に対して、ArticleItemではなくNoneが渡された場合に
-        Errorを送出することを確認する
+        Errorを送出する
         """
         article_pipeline = ArticlePipeline()
         #ArticleItemではなくNoneが渡された場合
@@ -73,11 +65,7 @@ class ArticlePipelineTest(TestCase):
         """
         self.assertEqual(Article.objects.count(), 0)
 
-        article_item = ArticleItem(url='https://dummy_url_100',
-                                   category='domestic',
-                                   date='1/1(土) 22:07',
-                                   title='dummy_title_100',
-                                   body='dummy_body_100')
+        article_item = get_test_item()
         article_pipeline = ArticlePipeline()
         article_pipeline.process_item(article_item, None)
 
@@ -88,8 +76,7 @@ class ArticlePipelineTest(TestCase):
     
     def test_process_item_with_wrong_argument_raises_error(self):
         """process_item()に対して、ArticleItemではなくNoneが渡されたり
-        フィールドが入力されていないArticleItemが渡された時に
-        Errorを送出することを確認する
+        フィールドが入力されていないArticleItemが渡された時にErrorを送出する
         """
         article_pipeline = ArticlePipeline()
         #body無しのArticleItemが渡された場合
@@ -109,11 +96,7 @@ class ArticlePipelineTest(TestCase):
 
     def test_process_item_lack_arg_raises_error(self):
         """process_item()に渡す引数が足りない場合はエラーが送出される"""
-        article_item = ArticleItem(url='https://dummy_url_100',
-                                   category='domestic',
-                                   date='1/1(土) 22:07',
-                                   title='dummy_title_100',
-                                   body='dummy_body_100')
+        article_item = get_test_item()
         article_pipeline = ArticlePipeline()
         #Spiderが渡されなかった場合
         with self.assertRaises(TypeError):
@@ -121,3 +104,10 @@ class ArticlePipelineTest(TestCase):
         #Itemが渡されなかった場合
         with self.assertRaises(TypeError):
             article_pipeline.process_item(spider=ArticleSpider())
+
+def get_test_item(url='https://dummy_url_100'):
+    return ArticleItem(url=url,
+                       category='domestic',
+                       date='1/1(土) 22:07',
+                       title='dummy_title_100',
+                       body='dummy_body_100')

@@ -27,8 +27,9 @@ class UrlsTest(TestCase):
         views.article_linkが返されることを確認する
         '''
         for category in category_dict.keys():
-            view = resolve('/src_link?'+category)
-            self.assertEqual(view.func, article_link)
+            with self.subTest(category=category):
+                view = resolve('/src_link?'+category)
+                self.assertEqual(view.func, article_link)
     
     def test_resolve_all_clear(self):
         '''
@@ -36,8 +37,9 @@ class UrlsTest(TestCase):
         views.all_clearが返されることを確認する
         '''
         for category_jp in category_dict.values():
-            view = resolve('/all_clear/?'+category_jp)
-            self.assertEqual(view.func, all_clear)
+            with self.subTest(category=category_jp):
+                view = resolve('/all_clear/?'+category_jp)
+                self.assertEqual(view.func, all_clear)
 
     def test_resolve_eval_good(self):
         '''
@@ -45,8 +47,9 @@ class UrlsTest(TestCase):
         views.eval_goodが返されることを確認する
         '''
         for category in category_dict.keys():
-            view = resolve('/eval_good/?'+category+'/?dummy_title')
-            self.assertEqual(view.func, eval_good)
+            with self.subTest(category=category):
+                view = resolve('/eval_good/?'+category+'/?dummy_title')
+                self.assertEqual(view.func, eval_good)
 
     def test_resolve_eval_uninterested(self):
         '''
@@ -54,8 +57,9 @@ class UrlsTest(TestCase):
         views.eval_uninterestedが返されることを確認する
         '''
         for category in category_dict.keys():
-            view = resolve('/eval_uninterested/_'+category+'/?dummy_title')
-            self.assertEqual(view.func, eval_uninterested)
+            with self.subTest(category=category):
+                view = resolve('/eval_uninterested/_'+category+'/?dummy_title')
+                self.assertEqual(view.func, eval_uninterested)
 
     def test_wrong_url(self):
         '''誤ったpathから例外が送出されることを確認'''

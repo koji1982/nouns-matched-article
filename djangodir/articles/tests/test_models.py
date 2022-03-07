@@ -50,14 +50,9 @@ class ModelsTest(TestCase):
         """evaluate()はEVAL_GOOD=1,EVAL_UNINTERESTED=2,以外の引数を
         受け取らないことを確認する
         """
+        test_patterns = [-5000, -1, 0, 3, 10000]
         test_article = Article.objects.filter(category='domestic')[0]
-        with self.assertRaises(ValueError):
-            test_article.evaluate(-5000)
-        with self.assertRaises(ValueError):
-            test_article.evaluate(-1)
-        with self.assertRaises(ValueError):
-            test_article.evaluate(0)
-        with self.assertRaises(ValueError):
-            test_article.evaluate(3)
-        with self.assertRaises(ValueError):
-            test_article.evaluate(10000)
+        for test_value in test_patterns:
+            with self.subTest(test_value=test_value):
+                with self.assertRaises(ValueError):
+                    test_article.evaluate(test_value)
