@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from django.template import Context, Template
 from django.template.loader import render_to_string
 from articles.views import *
+from articles.tests.helper import remove_csrf
 
 REQUEST_OK = 200
 WRONG_CATEGORY = 'wrong_category'
@@ -51,19 +52,20 @@ class ViewsTest(TestCase):
 
     def test_article_link(self):
         for category in category_dict.keys():
-            request = HttpRequest()
-            function_response = article_link(request, category)
-            actual_html = function_response.content.decode('utf8')
-            actual_without_csrf = remove_csrf(actual_html)
+            with self.subTest(category=category):
+                request = HttpRequest()
+                function_response = article_link(request, category)
+                actual_html = function_response.content.decode('utf8')
+                actual_without_csrf = remove_csrf(actual_html)
 
-            context = {'category': category}
-            path = '/'+category
-            expected_template = self.client.get(path, context)
-            expected_html = expected_template.content.decode('utf8')
-            expected_without_csrf = remove_csrf(expected_html)
+                context = {'category': category}
+                path = '/'+category
+                expected_template = self.client.get(path, context)
+                expected_html = expected_template.content.decode('utf8')
+                expected_without_csrf = remove_csrf(expected_html)
 
-            self.assertEqual(function_response.status_code, REQUEST_OK)
-            self.assertEqual(actual_without_csrf, expected_without_csrf)
+                self.assertEqual(function_response.status_code, REQUEST_OK)
+                self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_article_link_with_wrong_category(self):
         """article_link()に誤った引数(category)が渡された場合に
@@ -74,19 +76,20 @@ class ViewsTest(TestCase):
 
     def test_all_clear(self):
         for category_jp in category_dict.values():
-            request = HttpRequest()
-            function_response = all_clear(request, category_jp)
-            actual_html = function_response.content.decode('utf8')
-            actual_without_csrf = remove_csrf(actual_html)
+            with self.subTest(category=category_jp):
+                request = HttpRequest()
+                function_response = all_clear(request, category_jp)
+                actual_html = function_response.content.decode('utf8')
+                actual_without_csrf = remove_csrf(actual_html)
 
-            context = {'category': category_jp}
-            path = '/all_clear/'+category_jp
-            expected_template = self.client.post(path, context)
-            expected_html = expected_template.content.decode('utf8')
-            expected_without_csrf = remove_csrf(expected_html)
+                context = {'category': category_jp}
+                path = '/all_clear/'+category_jp
+                expected_template = self.client.post(path, context)
+                expected_html = expected_template.content.decode('utf8')
+                expected_without_csrf = remove_csrf(expected_html)
 
-            self.assertEqual(function_response.status_code, REQUEST_OK)
-            self.assertEqual(actual_without_csrf, expected_without_csrf)
+                self.assertEqual(function_response.status_code, REQUEST_OK)
+                self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_all_clear_with_wrong_category(self):
         with self.assertRaises(KeyError):
@@ -94,24 +97,25 @@ class ViewsTest(TestCase):
 
     def test_eval_good(self):
         for category in category_dict.keys():
-            #各カテゴリーの先頭のデータを取り出してテストデータとする
-            test_article = Article.objects.filter(category=category)[0]
-            #テスト対象の関数呼び出しとその結果のhtml取り出し
-            function_response = eval_good(HttpRequest(), category, test_article.title)
-            actual_html = function_response.content.decode('utf8')
-            actual_without_csrf = remove_csrf(actual_html)
-            #テスト対象の関数が呼ばれるとtest_articleのeval_goodフィールドが
-            #Trueになるため、モデルにアクセスして状態を戻す
-            test_article.clear_evaluation()
-            #比較用のhtml取り出し
-            context = {'category': category}
-            path = '/eval_good/'+category+'/'+test_article.title
-            expected_template = self.client.post(path, context)
-            expected_html = expected_template.content.decode('utf8')
-            expected_without_csrf = remove_csrf(expected_html)
+            with self.subTest(category=category):
+                #各カテゴリーの先頭のデータを取り出してテストデータとする
+                test_article = Article.objects.filter(category=category)[0]
+                #テスト対象の関数呼び出しとその結果のhtml取り出し
+                function_response = eval_good(HttpRequest(), category, test_article.title)
+                actual_html = function_response.content.decode('utf8')
+                actual_without_csrf = remove_csrf(actual_html)
+                #テスト対象の関数が呼ばれるとtest_articleのeval_goodフィールドが
+                #Trueになるため、モデルにアクセスして状態を戻す
+                test_article.clear_evaluation()
+                #比較用のhtml取り出し
+                context = {'category': category}
+                path = '/eval_good/'+category+'/'+test_article.title
+                expected_template = self.client.post(path, context)
+                expected_html = expected_template.content.decode('utf8')
+                expected_without_csrf = remove_csrf(expected_html)
 
-            self.assertEqual(function_response.status_code, REQUEST_OK)
-            self.assertEqual(actual_without_csrf, expected_without_csrf)
+                self.assertEqual(function_response.status_code, REQUEST_OK)
+                self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_eval_good_with_wrong_category_correct_title(self):
         """eval_good()に誤ったcategoryを渡すとKeyErrorをraiseすることを確認する"""
@@ -134,24 +138,25 @@ class ViewsTest(TestCase):
 
     def test_eval_uninterested(self):
         for category in category_dict.keys():
-            #各カテゴリーの先頭のデータを取り出してテストデータとする
-            test_article = Article.objects.filter(category=category)[0]
-            #テスト対象の関数呼び出しとその結果のhtml取り出し
-            function_response = eval_uninterested(HttpRequest(), category, test_article.title)
-            actual_html = function_response.content.decode('utf8')
-            actual_without_csrf = remove_csrf(actual_html)
-            #テスト対象の関数が呼ばれるとtest_articleのeval_uninterestedフィールドが
-            #Trueになるため、モデルにアクセスして状態を戻す
-            test_article.clear_evaluation()
-            #比較用のhtml取り出し
-            context = {'category': category}
-            path = '/eval_uninterested/'+category+'/'+test_article.title
-            expected_template = self.client.post(path, context)
-            expected_html = expected_template.content.decode('utf8')
-            expected_without_csrf = remove_csrf(expected_html)
+            with self.subTest(category=category):
+                #各カテゴリーの先頭のデータを取り出してテストデータとする
+                test_article = Article.objects.filter(category=category)[0]
+                #テスト対象の関数呼び出しとその結果のhtml取り出し
+                function_response = eval_uninterested(HttpRequest(), category, test_article.title)
+                actual_html = function_response.content.decode('utf8')
+                actual_without_csrf = remove_csrf(actual_html)
+                #テスト対象の関数が呼ばれるとtest_articleのeval_uninterestedフィールドが
+                #Trueになるため、モデルにアクセスして状態を戻す
+                test_article.clear_evaluation()
+                #比較用のhtml取り出し
+                context = {'category': category}
+                path = '/eval_uninterested/'+category+'/'+test_article.title
+                expected_template = self.client.post(path, context)
+                expected_html = expected_template.content.decode('utf8')
+                expected_without_csrf = remove_csrf(expected_html)
 
-            self.assertEqual(function_response.status_code, REQUEST_OK)
-            self.assertEqual(actual_without_csrf, expected_without_csrf)
+                self.assertEqual(function_response.status_code, REQUEST_OK)
+                self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_eval_uninterested_with_wrong_category_correct_title(self):
         """eval_uninterested()に誤ったcategoryを渡すとKeyErrorをraiseすることを確認する"""
@@ -172,14 +177,3 @@ class ViewsTest(TestCase):
         """
         with self.assertRaises(Article.DoesNotExist):
             eval_uninterested(HttpRequest, WRONG_CATEGORY, WRONG_TITLE)
-
-def remove_csrf(html_source):
-    """csrf部分を除去して返す関数"""
-    csrf_regex = r'<input[^>]+csrfmiddlewaretoken[^>]+>'
-    return re.sub(csrf_regex, '', html_source)
-
-def load_template_tag(tag_str, context=None):
-    """テンプレートタグを読み出して返す関数"""
-    context = context or {}
-    context = Context(context)
-    return Template(tag_str).render(context)

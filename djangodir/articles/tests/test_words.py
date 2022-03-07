@@ -13,16 +13,18 @@ class WordsTest(TestCase):
         それ以外が除去されていることを確認する
         """
         test_text = 'あからさまな名詞抽出テスト用のテキストです。'
-        extracted_text = extract_noun(test_text)
+        actual_extracted = extract_noun(test_text)
 
-        self.assertTrue('抽出' in extracted_text)
-        self.assertTrue('テキスト' in extracted_text)
-        self.assertTrue(',' in extracted_text)
+        expected_true = ['抽出', 'テキスト', ',']
+        expected_false = ['あからさまな', 'の', 'です', '。']
 
-        self.assertFalse('あからさまな' in extracted_text)
-        self.assertFalse('の' in extracted_text)
-        self.assertFalse('です' in extracted_text)
-        self.assertFalse('。' in extracted_text)
+        for word in expected_true:
+            with self.subTest(expected_contains=expected_true):
+                self.assertTrue(word in actual_extracted)
+        
+        for word in expected_false:
+            with self.subTest(unexpected_contains=expected_false):
+                self.assertFalse(word in actual_extracted)
 
     def test_extract_noun_with_empty_str_return_empty(self):
         """extract_noun()に空のstrを渡した場合は空のstrが返ってくる"""
@@ -37,10 +39,11 @@ class WordsTest(TestCase):
 
     def test_extract_noun_with_wrong_arg(self):
         """extract_noun()にstr以外の型を渡した場合はErrorを送出する"""
-        with self.assertRaises(TypeError):
-            extract_noun(5)
-        with self.assertRaises(TypeError):
-            extract_noun(True)
+        except_str_args = [5, 0.2, True, list()]
+        for arg in except_str_args:
+            with self.subTest(arg=arg):
+                with self.assertRaises(TypeError):
+                    extract_noun(arg)
 
     def test_extract_noun_without_arg(self):
         """extract_noun()を引数無しで呼び出した場合はErrorを送出する"""
@@ -51,13 +54,12 @@ class WordsTest(TestCase):
         """get_duplicated_rate()が、第一引数に対して第二引数の単語がどれだけ重複しているか
         の割合を返すことを確認する
         """
-        actual_duplicate_self = get_duplicate_rate(BASE_NOUNS, BASE_NOUNS)
-        actual_half_match = get_duplicate_rate(BASE_NOUNS, HALF_MATCH)
-        actual_unmatch  = get_duplicate_rate(BASE_NOUNS, UNMATCH_NOUNS)
         #全ての単語が同じ場合は1.0を返し、全く一致しない場合は0.0を返す
-        self.assertEqual(actual_duplicate_self, 1.0)
-        self.assertEqual(actual_half_match, 0.5)
-        self.assertEqual(actual_unmatch, 0.0)
+        words_match_rate_pair = {BASE_NOUNS:1.0, HALF_MATCH:0.5, UNMATCH_NOUNS:0.0}
+        for words, expected_rate in words_match_rate_pair.items():
+            with self.subTest(words=words, expected_rate=expected_rate):
+                actual_rate = get_duplicate_rate(BASE_NOUNS, words)
+                self.assertEqual(actual_rate, expected_rate)
 
     def test_get_duplicate_rate_with_one_side_empty_arg_return_zero(self):
         """get_duplicate_rate()のどちらか片方の引数が空の文字列の場合は0.0を返す"""
@@ -91,10 +93,13 @@ class WordsTest(TestCase):
 
     def test_get_duplicated_rate_with_wrong_args(self):
         """get_duplicate_rate()にstr以外の型を引数として渡すとErrorを送出する"""
-        with self.assertRaises(AttributeError):
-            get_duplicate_rate(0.5, BASE_NOUNS)
-        with self.assertRaises(AttributeError):
-            get_duplicate_rate(BASE_NOUNS, True)
+        except_str_args = [7, 0.5, True, tuple()]
+        for arg in except_str_args:
+            with self.subTest(arg=arg):
+                with self.assertRaises(AttributeError):
+                    get_duplicate_rate(arg, BASE_NOUNS)
+                with self.assertRaises(AttributeError):
+                    get_duplicate_rate(BASE_NOUNS, arg)
 
     def test_sort_duplicated_nouns_list(self):
         """sort_duplicated_nouns_list()が第一引数を基準にした一致率で、第二引数のリストを
