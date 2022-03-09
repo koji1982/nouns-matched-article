@@ -1,6 +1,5 @@
 from pprint import pprint
 import MeCab
-from scraping.database import ArticleDB
 
 def extract_noun(text):
     """引数として受け取ったtextから名詞を取り出して、','で繋いだ

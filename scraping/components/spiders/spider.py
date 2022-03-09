@@ -1,9 +1,9 @@
 import requests
 import re
+import time
 from bs4 import BeautifulSoup
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
-from unicodedata import category
 from ..items import ArticleItem
 
 
@@ -33,7 +33,7 @@ class ArticleSpider(CrawlSpider):
 
     def parse_newsfeed(self, response):
         """
-        @url http://news.yahoo.co.jp/topics/domestic?page=1
+        @url https://news.yahoo.co.jp/topics/domestic?page=1
         @returns items 1
         @returns requests 0
         @scrapes url category date title body
@@ -42,7 +42,6 @@ class ArticleSpider(CrawlSpider):
         url = response.url
         current_category = None
         url_tail = url.split("/")[-1]
-        print(url_tail)
         for category in self.categories:
             if re.match(category, url_tail) is not None:
                 current_category = category
@@ -83,12 +82,13 @@ class ArticleSpider(CrawlSpider):
         #ページのリンクを取得。無ければそのまま終了する
         pagination_links = parsed_html.find_all('li', class_='pagination_item')
         for pagination_link in pagination_links:
-            #次のページ以外のリンクはスキップする
+            #次のページへのリンク以外はスキップする
             next_page = '?page=' + str(page_count+1)
             if (pagination_link is None) or (next_page not in str(pagination_link)):
                 continue
             #次のページのurlを生成して取得、解析する
             next_url = src_url + next_page
+            time.sleep(1.0)
             pagination_response = requests.get(next_url)
             parsed_html = BeautifulSoup(pagination_response.text, 'html.parser')
             #記事本文の取得（本文が分かれて記述されている場合の為にfind_all()で取得）

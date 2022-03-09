@@ -1,3 +1,5 @@
+import sys
+print(sys.path)
 from djangodir.articles.connections import DBOperation
 from scraping.words import extract_noun
 
