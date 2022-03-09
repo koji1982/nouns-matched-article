@@ -33,4 +33,4 @@ ENV PYTHONPATH /code:$PYTHONPATH
 
 COPY ./prepare_test.sh /code
 RUN bash prepare_test.sh
-RUN timedatectl set-timezone Asia/Tokyo
+RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
