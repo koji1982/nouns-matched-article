@@ -5,7 +5,7 @@ WORKDIR /code
 ENV PATH /opt/conda/bin:$PATH
 
 RUN apt-get update -y && \
-    apt-get install -y tzdata && \
+    apt-get install -y tzdata cron && \
     apt-get install -y wget apache2 apache2-dev && \
     apt-get install -y mecab && \
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
@@ -33,3 +33,4 @@ ENV PYTHONPATH /code:$PYTHONPATH
 
 COPY ./prepare_test.sh /code
 RUN bash prepare_test.sh
+RUN timedatectl set-timezone Asia/Tokyo
