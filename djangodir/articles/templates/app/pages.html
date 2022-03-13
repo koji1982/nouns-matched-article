@@ -13,7 +13,7 @@
       <p>↓</p>
       <form method="POST">
         {% csrf_token %}
-        <button type="submit" name="apply" value="{{ apply_choice }}">反映</button>
+        <button type="submit" name="apply" value="{{ apply_choices }}">反映</button>
       </form>
       <p>↓</p>
       <a href="{% url 'articles:src_link' %}" target="right_frame">結果</a><br>

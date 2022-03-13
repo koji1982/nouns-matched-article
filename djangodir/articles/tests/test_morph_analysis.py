@@ -1,5 +1,5 @@
 from django.test import TestCase
-from scraping.words import *
+from scraping.morph_analysis import *
 
 BASE_NOUNS = '名詞,一致,割合,算出,基準,リスト,コンマ,付属'
 HALF_MATCH = '基準,リスト,名詞,半分,一致,残り,語句,相違'
@@ -105,12 +105,9 @@ class WordsTest(TestCase):
         """sort_duplicated_nouns_list()が第一引数を基準にした一致率で、第二引数のリストを
         ソートして、urlと一致率のペアのリストとして返すことを確認する
         """
-        url_nouns_pair_list = [['http://half_match/', HALF_MATCH ], 
-                               ['http://unmatch_nouns/', UNMATCH_NOUNS],
-                               ['http://base_nouns/', BASE_NOUNS] ]
-        self.assertEqual(url_nouns_pair_list[0][0], 'http://half_match/')
-        self.assertEqual(url_nouns_pair_list[1][0], 'http://unmatch_nouns/')
-        self.assertEqual(url_nouns_pair_list[2][0], 'http://base_nouns/')
+        url_nouns_pair_list = {'http://half_match/':HALF_MATCH, 
+                               'http://unmatch_nouns/':UNMATCH_NOUNS,
+                               'http://base_nouns/':BASE_NOUNS}
 
         sorted_list = sort_duplicated_nouns_list(BASE_NOUNS, url_nouns_pair_list)
 
@@ -127,27 +124,27 @@ class WordsTest(TestCase):
         self.assertEqual(sorted_list[2][1], 0.0)
 
     def test_sort_duplicated_nouns_list_with_unexpected_args(self):
-        """sort_duplicated_nouns_list()に対して第一引数str,第二引数list(list(str))
+        """sort_duplicated_nouns_list()に対して第一引数str,第二引数dict{str:str}
         以外の型が渡された場合にはErrorを送出する
         """
         correct_first_arg = BASE_NOUNS
-        correct_second_arg = [['http://half_match/', HALF_MATCH], 
-                              ['http://unmatch_nouns/', UNMATCH_NOUNS],
-                              ['http://base_nouns/', BASE_NOUNS]]
-        not_enough_nested_for_second_arg = BASE_NOUNS
+        correct_second_arg = {'http://half_match/':HALF_MATCH, 
+                              'http://unmatch_nouns/':UNMATCH_NOUNS,
+                              'http://base_nouns/':BASE_NOUNS}
+        list_as_wrong_arg = BASE_NOUNS
         with self.assertRaises(TypeError):
             sort_duplicated_nouns_list(7, correct_second_arg)
-        with self.assertRaises(TypeError):
+        with self.assertRaises(AttributeError):
             sort_duplicated_nouns_list(correct_first_arg, 0.5)
-        with self.assertRaises(TypeError):
-            sort_duplicated_nouns_list(correct_first_arg, not_enough_nested_for_second_arg)
+        with self.assertRaises(AttributeError):
+            sort_duplicated_nouns_list(correct_first_arg, list_as_wrong_arg)
         
     def test_sort_duplicated_nouns_list_with_empty_args(self):
         """sort_duplicated_nouns_list()に渡す引数が足りない場合はErrorを送出する"""
         correct_first_arg = BASE_NOUNS
-        correct_second_arg = [['http://half_match/', HALF_MATCH ], 
-                              ['http://unmatch_nouns/', UNMATCH_NOUNS],
-                              ['http://base_nouns/', BASE_NOUNS] ]
+        correct_second_arg = {'http://half_match/':HALF_MATCH, 
+                              'http://unmatch_nouns/':UNMATCH_NOUNS,
+                              'http://base_nouns/':BASE_NOUNS}
         with self.assertRaises(TypeError):
             sort_duplicated_nouns_list(url_nouns_pair_list=correct_second_arg)
         with self.assertRaises(TypeError):

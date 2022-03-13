@@ -17,6 +17,7 @@ class Article(models.Model):
     body = models.TextField()
     noun = models.TextField()
     evaluation = models.IntegerField(default=0)
+    rate = models.FloatField(default=0.0)
 
     def __str__(self):
         return self.title

@@ -1,7 +1,7 @@
 import sys
 print(sys.path)
 from djangodir.articles.connections import DBOperation
-from scraping.words import extract_noun
+from scraping.morph_analysis import extract_noun
 
 class ArticlePipeline:
 
