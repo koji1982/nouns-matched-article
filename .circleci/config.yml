@@ -20,7 +20,7 @@ jobs:
           command: docker-compose up -d db
       - run:
           name: waiting for launch db
-          command: sleep 10
+          command: sleep 30
       - run:
           name: grant privileges
           command: docker-compose exec -d db bash -c "echo \"GRANT ALL PRIVILEGES ON test_django_db.* TO 'django'@'%'\" | mysql -u root -p$MYSQL_ROOT_PASSWORD && echo \"FLUSH PRIVILEGES\" | mysql -u root -p$MYSQL_ROOT_PASSWORD"
