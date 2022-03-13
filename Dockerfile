@@ -31,6 +31,4 @@ ENV MECABRC /etc/mecabrc
 ENV PATH /opt/conda/envs/article_env/bin/:$PATH
 ENV PYTHONPATH /code:$PYTHONPATH
 
-COPY ./prepare_test.sh /code
-RUN bash prepare_test.sh
 RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
