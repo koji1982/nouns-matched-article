@@ -74,6 +74,27 @@ class ViewsTest(TestCase):
         with self.assertRaises(KeyError):
             article_link(HttpRequest, WRONG_CATEGORY)
 
+    def test_loading(self):
+        function_response = loading(HttpRequest())
+        actual_html = function_response.content.decode('utf8')
+
+        expected_template = self.client.get('/loading')
+        expected_html = expected_template.content.decode('utf8')
+
+        self.assertEqual(function_response.status_code, REQUEST_OK)
+        self.assertEqual(actual_html, expected_html)
+
+    def test_result(self):
+        """result()"""
+        function_response = result(HttpRequest())
+        actual_html = function_response.content.decode('utf8')
+
+        expected_template = self.client.get('/result')
+        expected_html = expected_template.content.decode('utf8')
+
+        self.assertEqual(function_response.status_code, REQUEST_OK)
+        self.assertEqual(actual_html, expected_html)
+
     def test_all_clear(self):
         for category_jp in category_dict.values():
             with self.subTest(category=category_jp):
@@ -171,8 +192,7 @@ class ViewsTest(TestCase):
             eval_uninterested(HttpRequest, 'domestic', WRONG_TITLE)
 
     def test_eval_uninterested_with_wrong_category_wrong_title(self):
-        """
-        eval_uninterested()に誤ったcategoryと誤ったArticle.titleを渡した時に
+        """eval_uninterested()に誤ったcategoryと誤ったArticle.titleを渡した時に
         DoesNotExistをraiseすることを確認する
         """
         with self.assertRaises(Article.DoesNotExist):

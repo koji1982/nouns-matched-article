@@ -1,5 +1,7 @@
 from django.db import models
-
+import structlog
+from django.db.models import Q
+from scraping.morph_analysis import *
 
 class Article(models.Model):
     
@@ -36,3 +38,8 @@ class Article(models.Model):
     def clear_evaluation(self):
         self.evaluation = Article.NOT_EVALUATED
         self.save()
+
+    def remove_slash(self):
+        if '/' in self.title:
+            self.title = self.title.replace('/', '')
+            self.save()

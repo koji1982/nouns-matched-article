@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import Article
-import structlog
+from django.db.models import Q
+from articles.models import Article
+from articles.templatetags.external_functions import *
 
 category_dict = {
         'domestic':'国内',
@@ -70,6 +71,19 @@ def eval_uninterested(request, clicked_category, article_title):
     }
     return render(request, 'app/src_link.html', context)
 
+def loading(request):
+    return render(request, 'app/loading.html')
+
+def result(request):
+    eval_nouns = apply_choices(request)
+    recommendations = []
+    if len(eval_nouns) != 0:
+        recommendations = Article.objects.order_by('rate').reverse()
+    context = {
+        'recommendations': recommendations,
+        'eval_nouns': eval_nouns
+    }
+    return render(request, 'app/result.html', context)
 
 def get_category_jp(category):
     return category_dict[category]

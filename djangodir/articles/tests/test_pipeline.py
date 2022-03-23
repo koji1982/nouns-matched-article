@@ -41,13 +41,18 @@ class ArticlePipelineTest(TestCase):
         article_item = ArticleItem(url=test_url,
                                    category='domestic',
                                    date='1/1(土) 22:07',
-                                   title='dummy_title_100\u3000 - Yahoo!ニュース\u3000',
+                                   title='dummy/_title/_100\u3000 - Yahoo!ニュース\u3000',
                                    body='dummy_\u3000body_\u3000100')
+        self.assertTrue(' - Yahoo!ニュース' in article_item['title'])
+        self.assertTrue('/' in article_item['title'])
+        self.assertTrue('\u3000' in article_item['body'])
+
         article_pipeline = ArticlePipeline()
         article_pipeline.process_item(article_item, ArticleSpider())
 
         saved_article = Article.objects.get(url=test_url)
         self.assertFalse(' - Yahoo!ニュース' in saved_article.title)
+        self.assertFalse('/' in saved_article.title)
         self.assertFalse('\u3000' in saved_article.body)
 
     def test_process_item_with_none_item_arg(self):

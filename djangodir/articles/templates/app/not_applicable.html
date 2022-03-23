@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+  </head>
+  <body>
+    <div>
+      <br>
+      {{recommendations.count}}<br>
+      [{{ eval_nouns }}]
+      {% for recommend in recommendations %}
+        <div class="article_link">
+          <div>
+            {{recommend.rate | floatformat:3}}&nbsp;
+          </div>
+          <div class="column_margin">
+            {{recommend.category}}
+          </div>
+          <div>
+            <a href={{recommend.url}} id="{{forloop.counter}}_link" target="_blank" rel="noopener noreferrer">
+              {{ recommend.title | truncatechars:40 }}{{forloop.counter}}
+            </a>
+          </div>
+        </div>
+      {% empty %}
+        <br><p>記事を評価した後に『反映』ボタンを押すと、<br>評価に一致したここに</p>
+      {% endfor %}
+      </div>
+  </body>
+</html>

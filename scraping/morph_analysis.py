@@ -35,7 +35,7 @@ def sort_duplicated_nouns_list(base_nouns: str, url_nouns_dict: dict) -> list:
     #strでないvalueが含まれている場合はerrorを送出
     if any(type(val) is not str for val in url_nouns_dict.values()):
         raise TypeError
-    #','で繋がれていないstrが含まれる場合はerrorを送出
+    #第二引数dictのvalueに','で繋がれていないstrが含まれる場合はerrorを送出
     if any(',' not in val for val in url_nouns_dict.values()):
         raise TypeError
     

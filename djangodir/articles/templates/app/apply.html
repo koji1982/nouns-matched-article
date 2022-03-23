@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>Loading</title>
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="{% static '/javascript/match_result.js' %}"></script>
+  </head>
+  <body>
+    <div id=loading_circle data-url="{% url 'articles:result' %}">
+      <div class=circle></div>
+    </div>
+  </body>
+</html>

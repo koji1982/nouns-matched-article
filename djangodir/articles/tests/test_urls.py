@@ -1,8 +1,10 @@
 from django.test import TestCase
-from django.urls import resolve, exceptions
+from django.urls import NoReverseMatch, resolve, exceptions
 from articles.views import *
 
 WRONG_URL_PATH = '/wrong_url_path/'
+
+TEST_TITLE = '【TGC2022S/S】新庄剛志がサプライズ降臨「監督になって歩くのが一番鳥肌立つね！」ランウェイ中に“開幕投手”決断？（オリコン）'
 
 class UrlsTest(TestCase):
     
@@ -30,7 +32,15 @@ class UrlsTest(TestCase):
             with self.subTest(category=category):
                 view = resolve('/src_link?'+category)
                 self.assertEqual(view.func, article_link)
+
+    def test_resolve_loading(self):
+        view = resolve('/loading')
+        self.assertEqual(view.func, loading)
     
+    def test_resolve_result(self):
+        view = resolve('/result')
+        self.assertEqual(view.func, result)
+
     def test_resolve_all_clear(self):
         '''
         想定されるcategoryを含んだpath全てから
@@ -51,6 +61,10 @@ class UrlsTest(TestCase):
                 view = resolve('/eval_good/?'+category+'/?dummy_title')
                 self.assertEqual(view.func, eval_good)
 
+    def test_fail_eval_good(self):
+        view = resolve('/eval_good/?'+'sports'+'/?'+TEST_TITLE)
+        self.assertEqual(view.func, eval_good)
+
     def test_resolve_eval_uninterested(self):
         '''
         想定されるcategoryを含んだpath全てから
@@ -58,7 +72,7 @@ class UrlsTest(TestCase):
         '''
         for category in category_dict.keys():
             with self.subTest(category=category):
-                view = resolve('/eval_uninterested/_'+category+'/?dummy_title')
+                view = resolve('/eval_uninterested/?'+category+'/?dummy_title')
                 self.assertEqual(view.func, eval_uninterested)
 
     def test_wrong_url(self):

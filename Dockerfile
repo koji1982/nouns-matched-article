@@ -32,3 +32,4 @@ ENV PATH /opt/conda/envs/article_env/bin/:$PATH
 ENV PYTHONPATH /code:$PYTHONPATH
 
 RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+RUN service cron start && crontab /code/cron.conf

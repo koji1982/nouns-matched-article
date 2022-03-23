@@ -30,7 +30,12 @@
     </div>
     <br>
     <div class="with_space">
-      <p class="explanation">&nbsp;&nbsp;ー使い方ー<br>『選択』ページ（このページ）で記事を選択後、<br>『保存・反映』ボタンを押すと選択が保存され、<br>『結果』ページにおすすめ記事が表示されます。</p>
+      <p class="explanation">
+        &nbsp;&nbsp;ー使い方ー<br>
+        『選択』ページ（このページ）で記事を選択後、<br>
+        『反映』ボタンを押すと、<br>
+        『結果』ページに評価が反映された記事が表示されます。
+      </p>
       <p>カテゴリー：{{category}} </p>
       <div>
         <form method="post" action="{% url 'articles:all_clear' category %}">
@@ -39,6 +44,7 @@
         </form>
       </div>
     </div>
+    <div>
     {% for record in records %}
       <div class="article_link">
         <div>
@@ -70,5 +76,6 @@
         </div>
       </div>
     {% endfor %}
+    </div>
   </body>
 </html>
