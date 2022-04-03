@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 {% load static %}
-{% load external_functions %}
 <html>
   <head>
     <meta charset="utf-8">
@@ -20,23 +19,16 @@
       <br>
       <a href="{% url 'articles:src_link' %}" target="right_frame">図表</a><br>
       <br>
-      <form action="post">
+      <form method="post">
         <button type="button" name="reset">反映<br>リセット</button>
       </form>
+      <br><br><br><br><br><br><br>
+      <p id="username">ユーザー名：</p>
+      <p id="current_username">{{ user }}</p><br>
+      <form method="post" action="{% url 'articles:logout' %}" target="_parent">
+        {% csrf_token %}
+        <button type="submit" name="logout">ログアウト</button>
+      </form>
     </div>
-    <!-- <script>
-      $(function(){
-        $("#apply").on("click", function(){
-          $("#right_frame", parent.document).attr("src", "/loading").on("load", function(){
-            $.get("/result", function(data){
-              $(document).ajaxComplete(function(){
-                $("#right_frame", parent.document).replaceWith(data);
-              });
-            });
-          });
-        });
-      });
-    </script> -->
-    <script src="{% static '/javascript/match_result.js' %}"></script>
   </body>
 </html>

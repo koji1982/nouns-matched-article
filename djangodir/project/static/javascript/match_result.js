@@ -1,14 +1,3 @@
-// $(function(){
-//     $("#apply").on("click", function(){
-//         $("#right_frame", parent.document).attr("src", "/loading").on("load", function(){
-//             $.get("/result", function(data){
-//                 $(document).ajaxComplete(function(){
-//                     $("#right_frame", parent.document).replaceWith(data);
-//                 });
-//             });
-//         });
-//     });
-// });
 $(function(){
     $("#apply").on("click", function(){
         $("#right_frame", parent.document).attr("src", "/loading").on("load", function(){
@@ -17,6 +6,13 @@ $(function(){
         });
     });
 });
+
+// $(function(){
+//     $("#logout_button").on("click", function(){
+//         $("#frame_html", parent.document).attr("src", "/").on("load");
+//     })
+// })
+
 // $(function(){
 //     $("#apply").on("click", function(){
 //         $.get("/loading", function(data){

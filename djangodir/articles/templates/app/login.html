@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+{% load static %}
+{% load widget_tweaks %}
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>ユーザー登録</title>
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+  </head>
+  <body class="login_outer">
+    <p class="input_title">ログイン</p>
+    <div id="signup_link">
+      <a href="{% url 'articles:signup' %}">新規登録</a>
+    </div>
+    <div class="login_inner">
+      <form method="POST" action="{% url 'articles:login' %}">
+        {% csrf_token %}
+        <div class="form_area">
+          <label>ユーザー名</label><br>
+          {{ form.username | add_class:"input_form" }}
+        </div>
+        <div class="form_area">
+          <label>パスワード</label><br>
+          {{ form.password | add_class:"input_form" }}
+        </div>
+        <div class="form_area">
+          {% if error %}
+            {{ error }}<br>
+          {% endif %}
+          <button type="submit">ログイン</button>
+        </div>
+      </form>
+    </div>
+    <div class="guest_login">
+      <form  method="POST" action="{% url 'articles:guest' %}">
+        {% csrf_token %}
+        <div id="guest_button">
+          <button type="submit">ゲストログイン</button>
+          <p>※ゲストとしてログインした場合でも<br>
+          サイト内を全て同じように使用できます
+          </p>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

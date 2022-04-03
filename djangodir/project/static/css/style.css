@@ -1,21 +1,6 @@
 #frame_html {
   overflow: hidden;
 }
-/* #select_html {
-  overflow: scroll;
-} */
-/* #result_html {
-  overflow: scroll !important;
-} */
-/* #result_body {
-  overflow: scroll !important;
-} */
-/* #select_main {
-  overflow: scroll;
-} */
-/* #result_main {
-  overflow: scroll !important;
-} */
 iframe{
   border:none;
   height:100%;
@@ -25,7 +10,7 @@ iframe{
   position:absolute;
   top:0;
   left:0;
-  width:120px;
+  width:145px;
   height:100%;
   text-align:center;
   background: linear-gradient(#509cff, #7bdaff);border:1px solid #4274ff;
@@ -34,7 +19,7 @@ iframe{
   position:absolute;
   top:0;
   right:0;
-  left:120px;
+  left:145px;
   height:100%;
   border-left:2px solid #ffffffa1;
 }
@@ -73,6 +58,83 @@ a:visited {
 }
 .column_margin {
   width: 110px;
+}
+.input_title {
+  width: 450px;
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+.login_outer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding-top: 80px;
+  padding-left: 25%;
+  padding-right: 25%;
+}
+.login_inner {
+  padding-top: 10px;
+  position: absolute;
+  width: 450px;
+  height: 270px;
+  background-color: #cae2e7;
+  text-align: center;
+}
+.guest_login {
+  position: static;
+  width: 450px;
+  padding-top: 240px;
+  text-align: center;
+}
+.signup_outer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding-top: 80px;
+  padding-left: 25%;
+  padding-right: 25%;
+}
+.signup_inner {
+  position: absolute;
+  width: 450px;
+  height: 370px;
+  background-color: #ece8df;
+  text-align: center;
+}
+.form_area {
+  margin-top: 35px;
+  /* height: 60px; */
+}
+.input_form {
+  width: 300px;
+  height: 30px;
+}
+#guest_button {
+  margin-top: 80px;
+  padding-bottom: 30px;
+}
+#login_link {
+  position:absolute;
+  top: 5%;
+  left: 5%;
+}
+#signup_link {
+  position: absolute;
+  top: 7%;
+  right: 7%;
+}
+#username {
+  font-weight: bold;
+  color:#48505a;
+}
+#current_username {
+  font-weight: bold;
+  color:#304895;
 }
 #loading_circle { 
   position: fixed;

@@ -7,11 +7,11 @@ class ExternalFunctionsTest(TestCase):
 
     fixtures = ['test_articles.json']
 
-    def test_apply_choices(self):
-        test_article = Article.objects.filter(category='domestic')[0]
-        test_article.evaluate(Article.EVAL_GOOD)
+    # def test_apply_choices(self):
+    #     test_article = Article.objects.filter(category='domestic')[0]
+    #     test_article.evaluate(Article.EVAL_GOOD)
 
-        apply_choices(HttpRequest())
+    #     apply_choices(HttpRequest())
 
-        results = Article.objects.filter(rate__gt=0.0)
-        self.assertTrue(0<results.count())
+    #     results = Article.objects.filter(rate__gt=0.0)
+    #     self.assertTrue(0<results.count())
