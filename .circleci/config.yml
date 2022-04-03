@@ -5,6 +5,9 @@ jobs:
       image: circleci/classic:edge
     working_directory: ~/nouns-matched-articles
     steps:
+      - run:
+          name: git install
+          command: sudo apt install -y git
       - checkout
       - run:
           name: setup mysql env values

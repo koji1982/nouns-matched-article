@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 {% load static %}
-{% load external_functions %}
 <html>
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="{%static '/css/style.css'%}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   </head>
-  <body class="left_body">
+  <body class="left_body" scrolling="no">
     <div class="left_links">
       <br>
       <a href="{% url 'articles:src_link' %}" target="right_frame">選択</a><br>
       <p>↓</p>
-      <form method="POST">
-        {% csrf_token %}
-        <button type="submit" name="apply" value="{{ apply_choices }}">反映</button>
-      </form>
+      <button type="submit" name="apply_button" id="apply">反映</button>
       <p>↓</p>
-      <a href="{% url 'articles:src_link' %}" target="right_frame">結果</a><br>
+      <a href="{% url 'articles:result' %}" target="right_frame">結果</a><br>
       <br><br><br><br><br><br>
       <a href="{% url 'articles:src_link' %}" target="right_frame">累積</a><br>
       <br>
       <a href="{% url 'articles:src_link' %}" target="right_frame">図表</a><br>
       <br>
-      <form action="post">
+      <form method="post">
         <button type="button" name="reset">反映<br>リセット</button>
+      </form>
+      <br><br><br><br><br><br><br>
+      <p id="username">ユーザー名：</p>
+      <p id="current_username">{{ user }}</p><br>
+      <form method="post" action="{% url 'articles:logout' %}" target="_parent">
+        {% csrf_token %}
+        <button type="submit" name="logout">ログアウト</button>
       </form>
     </div>
   </body>

@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 {% load static %}
-<html>
+<html id="frame_html">
   <head>
     <title>語句の一致率による記事選出</title>
     <link rel="stylesheet" href="{% static '/css/style.css' %}" />
   </head>
   <body>
     <div class="left_frame">
-      <iframe src="pages.html" name="left_frame"></iframe>
+      <iframe src="pages" id="left_frame" name="left_frame"></iframe>
     </div>
     <div class="right_frame">
-      <iframe src="src_link.html" name="right_frame"></iframe>
+      <iframe src="src_link" id="right_frame" name="right_frame" scrolling="yes"></iframe>
     </div>
   </body>
 </html>

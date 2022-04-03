@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+{% load static %}
+{% load external_functions %}
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="{% static '/javascript/radio_cancel.js' %}"></script>
+    <script src="{% static '/javascript/match_result.js' %}"></script>
+  </head>
+  <body>
+    <div>
+      <br>
+      {{recommendations.count}}<br>
+      [{{ eval_nouns }}]
+      {% for recommend in recommendations %}
+        <div class="article_link">
+          <div>
+            {{recommend.rate | floatformat:3}}&nbsp;
+          </div>
+          <div class="column_margin">
+            {{recommend.category}}
+          </div>
+          <div>
+            <a href={{recommend.url}} id="{{forloop.counter}}_link" target="_blank" rel="noopener noreferrer">
+              {{ recommend.title | truncatechars:40 }}{{forloop.counter}}
+            </a>
+          </div>
+        </div>
+      {% empty %}
+        <br>
+        <p>
+          『選択』ページで記事を選択後、<br>
+          『反映』ボタンを押すと、<br>
+          『結果』ページ（このページ）に評価が反映された記事が表示されます。
+        </p>
+      {% endfor %}
+      </div>
+  </body>
+</html>

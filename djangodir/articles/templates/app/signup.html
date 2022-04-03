@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% load static %}
+{% load widget_tweaks %}
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>ユーザー登録</title>
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+  </head>
+  <body class="signup_outer">
+    <p class="input_title">新規アカウント作成</p>
+    <div id="login_link">
+      <a href="{% url 'articles:login' %}">ログイン画面へ</a>
+    </div>
+    <div>
+      <form class="signup_inner" method="POST" action="{% url 'articles:signup' %}">
+        {% csrf_token %}
+        <div class="form_area">
+          <label>ユーザー名</label><br>
+          {{ form.username | add_class:"input_form" }}
+        </div>
+        <div class="form_area">
+          <label>パスワード</label><br>
+          {{ form.password1 | add_class:"input_form" }}
+        </div>
+        <div class="form_area">
+          <label>パスワード(確認用)</label><br>
+          {{ form.password2 | add_class:"input_form" }}
+        </div>
+        <div class="form_area">
+          {% if error %}
+            <p>{{ error }}</p><br>
+          {% endif %}
+          <button type="submit">登録</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,6 +1,45 @@
 from django import forms
-from articles.models import Article
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from articles.models import User
 import structlog
+
+class SignupForm(UserCreationForm):
+
+    class Meta:
+        model = User
+        fields = ['username', 'password1', 'password2']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for form_field in self.fields.values():
+            form_field.widget.attrs['class'] = 'form-control'
+            form_field.widget.attrs['placeholder'] = form_field.label
+
+    # def clean_username(self):
+    #     username = self.cleaned_data['username']
+    #     if len(username) == 0:
+    #         self.add_error('required', 'ユーザー名を入力してください')
+    #         raise forms.ValidationError
+    #     registerd_users = User.objects.all()
+    #     if username in registerd_users:
+    #         raise ValueError('このユーザー名は既に使われています')
+    #     return username
+
+class LoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+       super().__init__(*args, **kwargs)
+       self.fields['username'].widget.attrs['class'] = 'form-control'
+       self.fields['password'].widget.attrs['class'] = 'form-control'
+       self.fields['username'].widget.attrs['placeholder'] = 'User name'
+       self.fields['password'].widget.attrs['placeholder'] = 'Password'
+
+    # def clean_username(self):
+    #     username = self.cleaned_data['username']
+    #     if len(username) == 0:
+    #         self.add_error('required', 'ユーザー名を入力してください')
+    #         raise forms.ValidationError
+    #     return username
+        
 
 # class ChoiceForm(forms.ModelForm):
 #     class Meta:
