@@ -1,47 +1,63 @@
-import structlog
 from django import template
-from django.db.models import Q
-from scraping.morph_analysis import *
-from articles.models import Article
+from articles.nlp import make_matched_rate_dict
+from articles.models import Article, Preference
 
 register = template.Library()
 
 @register.filter(name='apply_choices')
-def apply_choices(string):
-    """利用者が評価した記事に含まれる単語(名詞)をまとめて、
+def apply_choices(request):
+    """評価した記事に含まれる単語(名詞)をまとめて、
     その単語群と他の記事内の単語がどれだけ一致するかを算出して保存する関数
     """
     #good評価の単語を集める
-    good_evals = Article.objects.all().filter(evaluation=Article.EVAL_GOOD)
-    #評価がゼロの場合は空のリストを返す
-    if good_evals.count() == 0:
-        return []
-    or_nouns = set()
-    for good_article in good_evals:
-        good_nouns = set(good_article.noun.split(','))
-        or_nouns = or_nouns | good_nouns
+    # good_id_list = Article.objects.all().filter(evaluation=Article.EVAL_GOOD)
+    preference_query = Preference.objects.filter(username=request.user)
+    #該当するユーザーが存在しない場合は空のリストを返す
+    if preference_query.count() == 0:
+        return
+    user_preference = preference_query[0]
 
-    uninterested_evals = Article.objects.all().filter(evaluation=Article.EVAL_UNINTERESTED)
-    nouns_list = list(or_nouns)
-    good_nouns = ','.join(nouns_list)
-    print(good_nouns)
-    #未評価の記事を{url:単語}のdictにして一致率を算出する
-    src_articles = Article.objects.filter(~Q(evaluation=1), ~Q(evaluation=2))
-    url_nouns_dict = {}
-    for article in src_articles:
-        url_nouns_dict[article.url] = article.noun
-    result_url_rate_list = sort_duplicated_nouns_list(good_nouns, url_nouns_dict)
-    print(result_url_rate_list)
+    good_id_list = user_preference.get_good_list()
+    uninterested_id_list = user_preference.get_uninterested_list()
 
-    update_list = []
-    for url_rate in result_url_rate_list:
-        article = Article.objects.get(url=url_rate[0])
-        article.rate = url_rate[1]
-        update_list.append(article)
-    Article.objects.bulk_update(update_list, fields=['rate'])
-
-    return good_nouns
+    good_merged_nouns = make_merged_nouns_str(good_id_list)
+    uninterested_merged_nouns = make_merged_nouns_str(uninterested_id_list)
     
+    good_id_nouns_dict = make_id_nouns_dict(good_id_list, uninterested_id_list)
+    uninterested_id_nouns_dict = make_id_nouns_dict(uninterested_id_list, good_id_list)
+    #一致率を算出する。{記事ID:一致率}の形の辞書として受け取る
+    good_id_rate_dict = make_matched_rate_dict(good_merged_nouns, good_id_nouns_dict)
+    uninterested_id_rate_dict = make_matched_rate_dict(uninterested_merged_nouns, uninterested_id_nouns_dict)
 
+    user_preference.good_nouns = good_merged_nouns
+    user_preference.uninterested_nouns = uninterested_merged_nouns
+    user_preference.save_recommended_id_rate_dict(good_id_rate_dict)
+    user_preference.save_rejected_id_rate_dict(uninterested_id_rate_dict)
+    user_preference.save()
+    
+def make_id_nouns_dict(article_id_list, rejected_id_list):
+    """"""
+    #未評価の記事を取り出す。
+    uneval_articles = [article for article in Article.objects.all() if str(article.id) not in article_id_list]
+    uneval_articles = [article for article in uneval_articles if str(article.id) not in rejected_id_list]
+    #{id:単語}のdictにして一致率を算出する
+    id_nouns_dict = {}
+    for article in uneval_articles:
+        #未評価側も重複を失くすため、一度Setに変換した後でstrにつなぎ直す
+        target_nouns = ','.join(set(article.noun.split(',')))
+        id_nouns_dict[str(article.id)] = target_nouns
+    return id_nouns_dict
 
-
+def make_merged_nouns_str(article_id_list):
+    """選択された記事の名詞(重複無し)を集めてstr型につないで返す関数"""
+    #評価がゼロの場合は空リストと空辞書を返して終了する
+    if len(article_id_list) == 0:
+        return []
+    #評価された全ての記事の名詞を一つのSetに集める
+    merged_nouns = set()
+    for article_id in article_id_list:
+        nouns = Article.objects.get(id=article_id).noun
+        nouns_set = set(nouns.split(','))
+        merged_nouns = merged_nouns | nouns_set
+    #集めた名詞をつなげてstrにして返す
+    return ','.join(list(merged_nouns))
