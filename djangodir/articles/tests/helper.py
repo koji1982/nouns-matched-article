@@ -11,6 +11,11 @@ def get_test_user():
         test_user = User.objects.create_user(username=test_username)
     return test_user
 
+def create_user_with_password():
+    test_username = 'password_user'
+    test_password = 'valid_test_password'
+    return User.objects.create_user(username=test_username, password=test_password)
+
 def get_request(url_path):
     test_username = 'test_user'
     test_user = None

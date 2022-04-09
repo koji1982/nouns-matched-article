@@ -196,9 +196,6 @@ def result_negative(request):
     }
     return render(request, 'app/result.html', context)
 
-def cover(request):
-    return (request, 'cover/index.html')
-
 def get_category_jp(category):
     return CATEGORY_DICT[category]
 

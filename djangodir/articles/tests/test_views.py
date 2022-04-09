@@ -19,12 +19,14 @@ class ViewsTest(TestCase):
     fixtures = ["test_articles.json"]
 
     def setUp(self):
+        #views.pyのテストはUser,Preferenceが作成済み、ログイン済みの状態から開始する
         self.prepare_user_pref()
 
     def tearDown(self):
         self.client.logout()
 
     def test_article_response(self):
+        """article_response()が'app/frame.html'の正常なレスポンスを返すことを確認する"""
         request = get_request('/')
         function_response = article_response(request)
         actual_html = function_response.content.decode('utf8')
@@ -34,7 +36,10 @@ class ViewsTest(TestCase):
         self.assertEqual(function_response.status_code, REQUEST_OK)
         self.assertEqual(actual_html, expected_template)
 
-    def test_login_process_response(self):
+    def test_login_process_get_response(self):
+        """login_process()がGETでのリクエスト時に
+        'app/login.html'の正常なレスポンスを返すことを確認する
+        """
         function_response = login_process(get_request('/login'))
         actual_html = function_response.content.decode('utf8')
         actual_without_csrf = remove_csrf(actual_html)
@@ -46,24 +51,79 @@ class ViewsTest(TestCase):
         self.assertEqual(function_response.status_code, REQUEST_OK)
         self.assertEqual(actual_without_csrf, expected_without_csrf)
 
+    def test_login_process_post_valid_input(self):
+        """login_process()がPOSTメソッドで有効な入力でログインすることを確認する"""
+        #ログアウト状態にする
+        self.client.logout()
+        #ログインのためにパスワード有りのUserを作成しデータとしてテスト対象に渡す
+        user = create_user_with_password()
+        data = {
+            'username': 'password_user',
+            'password': 'valid_test_password'
+        }
+        response = self.client.post('/login', data=data)
+
+        self.assertEqual(response.status_code, LOGIN_SUCCESS_REDIRECT)
+        self.assertRedirects(response, '/')
+        self.assertEqual(response.wsgi_request.user.username, data['username'])
+
+    def test_login_process_post_invalid_input_fail(self):
+        """login_process()が無効な入力の時にログイン失敗することを確認する"""
+        #ログアウトする
+        self.client.logout()
+        #ログインしないことを確認するため、パスワード有りのUserを作成する
+        create_user_with_password()
+        not_exist_user_data = {
+            'username': 'not_exist_user',
+            'password': 'not_exist_password'
+        }
+        missing_name_data = {
+            'password': 'valid_test_password'
+        }
+        missing_password_data = {
+            'username': 'password_user'
+        }
+        wrong_password_data = {
+            'username': 'password_user',
+            'password': 'invalid_test_password'
+        }
+        invalid_data_list = [
+            not_exist_user_data,
+            missing_name_data,
+            missing_password_data,
+            wrong_password_data
+        ]
+        for invalid_data in invalid_data_list:
+            with self.subTest(invalid_data=invalid_data):
+                response = self.client.post('/login', data=invalid_data)
+                self.assertEqual(response.status_code, LOGIN_FAILER_RESPONSE)
+                self.assertTrue(response.wsgi_request.user.is_anonymous)
+
     def test_login_guest_user_redirect(self):
 
         self.assertFalse(User.objects.filter(username='ゲスト').exists())
 
-        response = self.client.post('/guest', {})
+        response = self.client.post('/guest')
         
         self.assertEqual(response.status_code, LOGIN_SUCCESS_REDIRECT)
+        self.assertRedirects(response, '/')
         self.assertTrue(User.objects.filter(username='ゲスト').exists())
 
     def test_logout_reopen_redirect(self):
         """logout_reopen()が呼ばれるとUserがログアウトして
         リダイレクトすることを確認
         """
-        response = self.client.post('/logout', {})
+        response = self.client.post('/logout')
+        
         self.assertEqual(response.status_code, STATUS_REDIRECT)
+        #はじめの選択画面'/'にリダイレクトされた後、
+        #未ログインのためログイン画面に再びリダイレクトされる
+        self.assertRedirects(response, '/',
+                             status_code=STATUS_REDIRECT,
+                             target_status_code=STATUS_REDIRECT)
         self.assertTrue(response.wsgi_request.user.is_anonymous)
 
-    def test_signup_response(self):
+    def test_signup_get_response(self):
         request = get_request('/singup')
         function_response = signup(request)
         actual_html = function_response.content.decode('utf8')
@@ -76,7 +136,7 @@ class ViewsTest(TestCase):
         self.assertEqual(function_response.status_code, REQUEST_OK)
         self.assertEqual(actual_without_csrf, expected_without_csrf)
 
-    def test_signup_make_login_succeed(self):
+    def test_signup_input_post_make_login_succeed(self):
         """signup()が有効な入力データと共に呼ばれると
         Userが作成されログイン可能になることを確認する
         """
@@ -100,14 +160,13 @@ class ViewsTest(TestCase):
         self.assertEqual(before_login_response.status_code, LOGIN_FAILER_RESPONSE)
         self.assertTrue(before_login_response.wsgi_request.user.is_anonymous)
         
-        #テスト対象用のリクエスト
-        request = post_request_with_anonymous('/signup', data=signup_data)
-        #テスト対象関数
-        function_response = signup(request)
+        #テスト対象
+        function_response = self.client.post('/signup', signup_data)
 
         #responseがサインアップ成功後のリダイレクトであることと、
         #Userが作成されていることを確認
         self.assertEqual(function_response.status_code, SIGNUP_SUCCESS_REDIRECT)
+        self.assertRedirects(function_response, '/login')
         self.assertTrue(User.objects.filter(username=username).exists())
         #ログイン成功することを確認
         after_login_response = self.client.post('/login', login_data)
@@ -174,7 +233,7 @@ class ViewsTest(TestCase):
                 #テスト対象関数
                 function_response = signup(request)
 
-                #responseがサインアップ失敗のstatusであることを確認
+                #responseがサインアップ失敗のstatus(再読み込みの200)であることを確認
                 self.assertEqual(function_response.status_code, SIGNUP_FAILER_RESPONSE)
 
     def test_left_frame(self):
@@ -227,6 +286,21 @@ class ViewsTest(TestCase):
         with self.assertRaises(KeyError):
             article_link(HttpRequest(), WRONG_CATEGORY)
 
+    def test_all_clear(self):
+        """all_clear()が呼ばれた時に評価が消去されてリダイレクトされることを確認する"""
+        preference = Preference.objects.get(username=get_test_user())
+        preference.good_ids = '1,2,3,4,5'
+        preference.uninterested_ids = '6,7,8,9,10'
+        preference.save()
+
+        function_response = self.client.post('/all_clear')
+
+        after_preference = Preference.objects.get(username=get_test_user())
+        self.assertEqual(function_response.status_code, STATUS_REDIRECT)
+        self.assertRedirects(function_response, '/src_link')
+        self.assertEqual(after_preference.good_ids, '')
+        self.assertEqual(after_preference.uninterested_ids, '')
+
     def test_loading(self):
         function_response = loading(HttpRequest())
         actual_html = function_response.content.decode('utf8')
@@ -236,6 +310,40 @@ class ViewsTest(TestCase):
 
         self.assertEqual(function_response.status_code, REQUEST_OK)
         self.assertEqual(actual_html, expected_html)
+
+    def test_call_apply_choices_redirect(self):
+        """call_apply_choices()が呼ばれたとき'/result_positive'に
+        リダイレクトされていることを確認する
+        """
+        function_response = self.client.post('/call_apply_choices')
+
+        self.assertEqual(function_response.status_code, STATUS_REDIRECT)
+        self.assertRedirects(function_response, '/result_positive')
+
+    def test_call_apply_choices_calc_match_rate(self):
+        """call_apply_choices()が呼ばれたとき、
+        記事評価から一致率が計算されていることを確認する
+        """
+        preference = Preference.objects.get(username=get_test_user())
+        preference.good_ids = '1,2,3,4,5'
+        preference.uninterested_ids = '6,7,8,9,10'
+        preference.save()
+        self.assertEqual(preference.recommended_id_rate_pair, '')
+        self.assertEqual(preference.rejected_id_rate_pair, '')
+        response_positive = self.client.get('/result_positive')
+        self.assertEqual(response_positive.context['recommendations'], [])
+        response_negative = self.client.get('/result_negative')
+        self.assertEqual(response_negative.context['recommendations'], [])
+
+        self.client.post('/call_apply_choices')
+
+        after_preference = Preference.objects.get(username=get_test_user())
+        self.assertNotEqual(after_preference.recommended_id_rate_pair, '')
+        self.assertNotEqual(after_preference.rejected_id_rate_pair, '')
+        response_positive = self.client.get('/result_positive')
+        self.assertNotEqual(response_positive.context['recommendations'], [])
+        response_negative = self.client.get('/result_negative')
+        self.assertNotEqual(response_negative.context['recommendations'], [])
 
     def test_result_positive(self):
         """result_positive()"""

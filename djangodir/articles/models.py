@@ -140,17 +140,10 @@ class MyUserManager(BaseUserManager):
     use_in_migrations = True
     
     def create_user(self, username, email=None, password=None, **extra_fields):
-        
-        import structlog
-        logger = structlog.get_logger(__name__)
-        logger.info('create_user_1')
-
         username = self.model.normalize_username(username)
-        logger.info('create_user_2')
         user = self.model(username=username, **extra_fields)
         user.set_password(password)
         user.save()
-        logger.info('create_user_3')
         return user
 
     def create_guest_user(self):

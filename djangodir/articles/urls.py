@@ -23,5 +23,4 @@ urlpatterns = [
           views.eval_good, name='eval_good'),
     path('eval_uninterested/<str:clicked_category>/<str:article_title>', 
           views.eval_uninterested, name='eval_uninterested'),
-    path('cover/index', views.cover, name='cover')
 ]
