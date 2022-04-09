@@ -146,10 +146,6 @@ class MyUserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_guest_user(self):
-        user = self.model(username='guest')
-        user.save()
-
 class User(AbstractBaseUser):
 
     class Meta:
