@@ -1,7 +1,7 @@
 from django.test import TestCase
 from articles.models import Article, Preference
 from articles.tests.helper import *
-from articles.templatetags.external_functions import apply_choices
+from articles.selection import apply_choices
 
 class ModelsTest(TestCase):
 
@@ -244,9 +244,7 @@ class ModelsTest(TestCase):
         preference.save()
         previous_dict = preference.get_recommended_id_rate_dict()
         self.assertEqual(len(previous_dict), 0)
-        request = get_request('/call_apply_choices')
-        request.user = get_test_user()
-        apply_choices(request)
+        apply_choices(get_test_user())
 
         preference = Preference.objects.get(username=get_test_user())
         result_dict = preference.get_recommended_id_rate_dict()
@@ -275,7 +273,7 @@ class ModelsTest(TestCase):
         """good_idsが空の時、get_recommended_id_rate_dict()が空の辞書を返すことを確認する"""
         preference = Preference.objects.get(username=get_test_user())
         self.assertEqual(preference.good_ids, '')
-        apply_choices(get_request('/call_apply_choices'))
+        apply_choices(get_test_user())
 
         result_dict = preference.get_recommended_id_rate_dict()
 
@@ -306,7 +304,7 @@ class ModelsTest(TestCase):
         self.assertEqual(len(previous_dict), 0)
         request = get_request('/call_apply_choices')
         request.user = get_test_user()
-        apply_choices(request)
+        apply_choices(get_test_user())
 
         preference = Preference.objects.get(username=get_test_user())
         result_dict = preference.get_rejected_id_rate_dict()
@@ -336,7 +334,7 @@ class ModelsTest(TestCase):
         """
         preference = Preference.objects.get(username=get_test_user())
         self.assertEqual(preference.uninterested_ids, '')
-        apply_choices(get_request('/call_apply_choices'))
+        apply_choices(get_test_user())
 
         result_dict = preference.get_rejected_id_rate_dict()
 

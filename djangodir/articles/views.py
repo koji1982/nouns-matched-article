@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login, logout
 from django.contrib.auth.decorators import login_required
 from articles.models import *
-from articles.templatetags.external_functions import *
+from articles.selection import apply_choices
 from articles.forms import SignupForm, LoginForm
 
 CATEGORY_DICT = {
@@ -165,7 +165,7 @@ def loading(request):
     return render(request, 'app/loading.html')
 
 def call_apply_choices(request):
-    apply_choices(request)
+    apply_choices(request.user)
     return redirect('/result_positive')
 
 def result_positive(request):

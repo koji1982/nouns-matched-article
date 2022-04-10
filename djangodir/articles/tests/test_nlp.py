@@ -101,7 +101,7 @@ class NlpTest(TestCase):
                 with self.assertRaises(AttributeError):
                     get_duplicate_rate(BASE_NOUNS, arg)
 
-    def test_sort_duplicated_nouns_list(self):
+    def test_make_matched_rate_dict(self):
         """make_matched_rate_dict()が第一引数を基準にした一致率で、
         第二引数の一致率を算出して{id:rate}の辞書の形で返すことを確認する
         """
@@ -115,15 +115,32 @@ class NlpTest(TestCase):
         self.assertEqual(matched_rate_dict['2'], '0.0')
         self.assertEqual(matched_rate_dict['3'], '1.0')
 
-    def test_sort_duplicated_nouns_list_with_unexpected_args(self):
+    def test_make_matched_rate_dict_with_unexpected_args(self):
         """make_matched_rate_dict()に対して第一引数str,第二引数dict{str:str}
         以外の型が渡された場合にはErrorを送出する
         """
         correct_first_arg = BASE_NOUNS
-        correct_second_arg = {'http://half_match/':HALF_MATCH, 
-                              'http://unmatch_nouns/':UNMATCH_NOUNS,
-                              'http://base_nouns/':BASE_NOUNS}
+        correct_second_arg = {'1':HALF_MATCH, 
+                              '2':UNMATCH_NOUNS,
+                              '3':BASE_NOUNS}
         list_as_wrong_arg = BASE_NOUNS
+        wrong_key_second = { 1:HALF_MATCH,
+                             2:UNMATCH_NOUNS,
+                             3:BASE_NOUNS}
+        wrong_val_second1 = { '1':['名詞','一致','割合','算出','基準','リスト','コンマ','付属'],
+                             '2':['基準','リスト','名詞','半分','一致','残り','語句','相違'],
+                             '3':['全部','単語','意味','量','相違']}
+        wrong_val_second2 = {'1': 'wrong_value_1',
+                             '2': 'wrong_value_2',
+                             '3': 'wrong_value_3'}
+        with self.assertRaises(TypeError):
+            make_matched_rate_dict('wrong_first_arg', correct_second_arg)
+        with self.assertRaises(TypeError):
+            make_matched_rate_dict(correct_first_arg, wrong_key_second)
+        with self.assertRaises(TypeError):
+            make_matched_rate_dict(correct_first_arg, wrong_val_second1)
+        with self.assertRaises(TypeError):
+            make_matched_rate_dict(correct_first_arg, wrong_val_second2)
         with self.assertRaises(TypeError):
             make_matched_rate_dict(7, correct_second_arg)
         with self.assertRaises(AttributeError):
@@ -131,15 +148,24 @@ class NlpTest(TestCase):
         with self.assertRaises(AttributeError):
             make_matched_rate_dict(correct_first_arg, list_as_wrong_arg)
         
-    def test_sort_duplicated_nouns_list_with_empty_args(self):
+    def test_make_matched_rate_dict_with_empty_args(self):
         """make_matched_rate_dict()に渡す引数が足りない場合はErrorを送出する"""
         correct_first_arg = BASE_NOUNS
-        correct_second_arg = {'http://half_match/':HALF_MATCH, 
-                              'http://unmatch_nouns/':UNMATCH_NOUNS,
-                              'http://base_nouns/':BASE_NOUNS}
+        correct_second_arg = {'1':HALF_MATCH, 
+                              '2':UNMATCH_NOUNS,
+                              '3':BASE_NOUNS}
         with self.assertRaises(TypeError):
             make_matched_rate_dict(url_nouns_pair_list=correct_second_arg)
         with self.assertRaises(TypeError):
             make_matched_rate_dict(base_nouns=correct_first_arg)
         with self.assertRaises(TypeError):
             make_matched_rate_dict()
+
+    def test_make_matched_rate_dict_returns_empty_dict_with_empty_str(self):
+        """make_matched_rate_dict()の第一引数が空のstr '' だった場合
+        空のdictを返す
+        """
+        correct_second_arg = {'1':HALF_MATCH, 
+                              '2':UNMATCH_NOUNS,
+                              '3':BASE_NOUNS}
+        self.assertDictEqual(make_matched_rate_dict('',correct_second_arg), {})

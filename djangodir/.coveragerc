@@ -4,6 +4,10 @@ omit =
     */migrations/*
     */__init__.py
     .venv/*
+    */admin.py
+    manage.py
+    */asgi.py
+    */wsgi.py
 
 [report]
 omit =
@@ -11,6 +15,10 @@ omit =
     */migrations/*
     */__init__.py
     .venv/*
-
+    */admin.py
+    manage.py
+    */asgi.py
+    */wsgi.py
+    
 [html]
 directory = cover

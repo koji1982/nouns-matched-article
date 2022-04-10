@@ -25,7 +25,7 @@ def make_matched_rate_dict(base_nouns: str, id_nouns_dict: dict) -> dict:
     #base_nounsが空の場合、
     #即ち、goodまたはuninterestedどちらかの評価が全くされていない場合、
     #その評価の一致率を算出できないため空の辞書を返す
-    if len(base_nouns) == 0:
+    if base_nouns == '':
         return {}
     #型チェックを行う
     #第一引数がlist(str),第二引数がdict{str:str}でない場合はErrorを送出する

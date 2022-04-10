@@ -10,49 +10,53 @@ class IntegrationTest(TestCase):
 
     fixtures = ["test_articles.json"]
 
-    def test_routing_response_from_slash(self):
-        """urlパス'/'から返されるview関数にリクエストを送り
-        app/frame.htmlを取得する
-        """
-        view = resolve('/')
-        response = view.func(get_request('/'))
-        actual_html = response.content.decode('utf8')
+    # def test_routing_response_from_slash(self):
+    #     """urlパス'/'から返されるview関数にリクエストを送り
+    #     app/frame.htmlを取得する
+    #     """
+    #     view = resolve('/')
+    #     response = view.func(get_request('/'))
+    #     actual_html = response.content.decode('utf8')
 
-        expected_html = render_to_string('app/frame.html')
+    #     expected_html = render_to_string('app/frame.html')
 
-        self.assertEqual(actual_html, expected_html)
+    #     self.assertEqual(actual_html, expected_html)
 
-    def test_routing_response_from_pages(self):
-        """"""
-        path = '/pages'
-        actual_without_csrf = self.get_actual_html_with_user(path)
+    # def test_routing_response_from_pages(self):
+    #     """"""
+    #     path = '/pages'
+    #     actual_without_csrf = self.get_actual_html_with_user(path)
 
-        expected_html = render_to_string('app/pages.html', request=get_request(path))
-        expected_template = self.client.get(path)
-        # expected_html = expected_template.content.decode('utf8')
-        expected_without_csrf = remove_csrf(expected_html)
+    #     expected_html = render_to_string('app/pages.html', request=get_request(path))
+    #     expected_template = self.client.get(path)
+    #     # expected_html = expected_template.content.decode('utf8')
+    #     expected_without_csrf = remove_csrf(expected_html)
 
-        self.assertEqual(actual_without_csrf, expected_without_csrf)
+    #     self.assertEqual(actual_without_csrf, expected_without_csrf)
 
-    def test_routing_response_from_src_link(self):
-        """
-        """
-        path = '/src_link'
-        actual_without_csrf = self.get_actual_html_with_user(path)
+    # def test_routing_response_from_src_link(self):
+    #     """
+    #     """
+    #     path = '/src_link'
+    #     actual_without_csrf = self.get_actual_html_with_user(path)
 
-        expected_without_csrf = self.get_expected_html(path)
+    #     expected_without_csrf = self.get_expected_html(path)
 
-        self.assertEqual(actual_without_csrf, expected_without_csrf)
+    #     self.assertEqual(actual_without_csrf, expected_without_csrf)
 
-    def test_routing_response_from_src_link_with_category(self):
-        for category in CATEGORY_DICT.keys():
-            with self.subTest(category=category):
-                path = '/src_link?'+category
-                actual_without_csrf = self.get_actual_html(path, category)
+    # def test_routing_response_from_src_link_with_category(self):
+    #     for category in CATEGORY_DICT.keys():
+    #         with self.subTest(category=category):
+    #             path = '/src_link?'+category
+    #             actual_without_csrf = self.get_actual_html(path, category)
 
-                expected_without_csrf = self.get_expected_html('/'+category, category)
+    #             expected_without_csrf = self.get_expected_html('/'+category, category)
 
-                self.assertEqual(actual_without_csrf, expected_without_csrf)
+    #             self.assertEqual(actual_without_csrf, expected_without_csrf)
+
+
+
+
 
     # def test_routing_response_from_all_clear(self):
     #     for category in CATEGORY_DICT.keys():
@@ -98,27 +102,31 @@ class IntegrationTest(TestCase):
 
     # def test_process_item_to_extract_nouns
     
-    def get_actual_html_with_user(self, path):
-        view = resolve(path)
-        request = get_request(path)
-        response = view.func(request)
-        actual_html = response.content.decode('utf8')
-        return remove_csrf(actual_html)
-    
-    def get_actual_html(self, path, category=None, test_article=None):
-        view = resolve(path)
-        response = None
-        if category is None:
-            response = view.func(HttpRequest())
-        elif test_article is None:
-            response = view.func(HttpRequest(), category)
-        # else:
-        #     response = view.func(HttpRequest(), category, test_article.title)
-        actual_html = response.content.decode('utf8')
-        return remove_csrf(actual_html)
 
-    def get_expected_html(self, path, category='domestic'):
-        context={'category':category}
-        expected_template = self.client.post(path, context)
-        expected_html = expected_template.content.decode('utf8')
-        return remove_csrf(expected_html)
+
+
+
+    # def get_actual_html_with_user(self, path):
+    #     view = resolve(path)
+    #     request = get_request(path)
+    #     response = view.func(request)
+    #     actual_html = response.content.decode('utf8')
+    #     return remove_csrf(actual_html)
+    
+    # def get_actual_html(self, path, category=None, test_article=None):
+    #     view = resolve(path)
+    #     response = None
+    #     if category is None:
+    #         response = view.func(HttpRequest())
+    #     elif test_article is None:
+    #         response = view.func(HttpRequest(), category)
+    #     # else:
+    #     #     response = view.func(HttpRequest(), category, test_article.title)
+    #     actual_html = response.content.decode('utf8')
+    #     return remove_csrf(actual_html)
+
+    # def get_expected_html(self, path, category='domestic'):
+    #     context={'category':category}
+    #     expected_template = self.client.post(path, context)
+    #     expected_html = expected_template.content.decode('utf8')
+    #     return remove_csrf(expected_html)

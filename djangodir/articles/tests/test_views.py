@@ -55,8 +55,8 @@ class ViewsTest(TestCase):
         """login_process()がPOSTメソッドで有効な入力でログインすることを確認する"""
         #ログアウト状態にする
         self.client.logout()
-        #ログインのためにパスワード有りのUserを作成しデータとしてテスト対象に渡す
-        user = create_user_with_password()
+        #ログインのためにパスワード有りのUserを作成する
+        create_user_with_password()
         data = {
             'username': 'password_user',
             'password': 'valid_test_password'
@@ -295,11 +295,11 @@ class ViewsTest(TestCase):
 
         function_response = self.client.post('/all_clear')
 
-        after_preference = Preference.objects.get(username=get_test_user())
+        preference_after = Preference.objects.get(username=get_test_user())
         self.assertEqual(function_response.status_code, STATUS_REDIRECT)
         self.assertRedirects(function_response, '/src_link')
-        self.assertEqual(after_preference.good_ids, '')
-        self.assertEqual(after_preference.uninterested_ids, '')
+        self.assertEqual(preference_after.good_ids, '')
+        self.assertEqual(preference_after.uninterested_ids, '')
 
     def test_loading(self):
         function_response = loading(HttpRequest())
@@ -337,9 +337,9 @@ class ViewsTest(TestCase):
 
         self.client.post('/call_apply_choices')
 
-        after_preference = Preference.objects.get(username=get_test_user())
-        self.assertNotEqual(after_preference.recommended_id_rate_pair, '')
-        self.assertNotEqual(after_preference.rejected_id_rate_pair, '')
+        preference_after = Preference.objects.get(username=get_test_user())
+        self.assertNotEqual(preference_after.recommended_id_rate_pair, '')
+        self.assertNotEqual(preference_after.rejected_id_rate_pair, '')
         response_positive = self.client.get('/result_positive')
         self.assertNotEqual(response_positive.context['recommendations'], [])
         response_negative = self.client.get('/result_negative')
