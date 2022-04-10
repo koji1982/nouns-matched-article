@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 {% load static %}
-{% load radio_control %}
 <html lang="ja">
   <head>
     <meta charset="utf-8">
     <title>Article Links</title>
     <link rel="stylesheet" href="{% static '/css/style.css' %}" />
-    <script src="{% static '/javascript/radio_cancel.js' %}"></script>
   </head>
   <body class="right_body">
     <div class="top">
@@ -33,12 +31,12 @@
       <p class="explanation">
         &nbsp;&nbsp;ー使い方ー<br>
         『選択』ページ（このページ）で記事を選択後、<br>
-        『反映』ボタンを押すと、<br>
+        『反映』ボタンを押して下さい。<br>
         『結果』ページに評価が反映された記事が表示されます。
       </p>
       <p>カテゴリー：{{category}} </p>
       <div>
-        <form method="post" action="{% url 'articles:all_clear' category %}">
+        <form method="post" action="{% url 'articles:category_clear' category %}">
           {% csrf_token %}
           <button type="submit" name="clear">選択クリア</button>
         </form>
@@ -53,8 +51,7 @@
             <label>
               <input type="radio" class="radio_check" name={{forloop.counter}} value="good"
                     id="{{forloop.counter}}_good" onclick="this.form.submit();"
-                    {% if record.evaluation == 1 %}checked{% endif %}>
-              {{record.evaluation}}
+                    {% if record.get_id in preference.get_good_list %}checked{% endif %}>いいね&nbsp;&nbsp;
             </label>
           </form>
         </div>
@@ -64,8 +61,7 @@
             <label>
               <input type="radio" class="radio_check" name={{forloop.counter}} value="uninterested"
                     id="{{forloop.counter}}_uninterested" onclick="this.form.submit()"
-                    {% if record.evaluation == 2 %}checked{% endif %}>
-              {{forloop.counter}}
+                    {% if record.get_id in preference.get_uninterested_list %}checked{% endif %}>興味なし&nbsp;&nbsp;
             </label>
           </form>
         </div>

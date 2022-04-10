@@ -36,38 +36,41 @@ class UrlsTest(TestCase):
         view = resolve('/pages')
         self.assertEqual(view.func, left_frame)
 
-    def test_resolve_init_frame(self):
-        '''pathからviews.init_frameが返されることを確認する'''
+    def test_resolve_article_link_without_arg(self):
+        """引数無しのpath'/src_link'からviews.article_linkが返されることを確認する"""
         view = resolve('/src_link')
-        self.assertEqual(view.func, init_link)
+        self.assertEqual(view.func, article_link)
 
     def test_resolve_article_link(self):
-        '''
-        想定されるcategoryを含んだpath全てから
+        '''想定されるcategoryを含んだpath全てから
         views.article_linkが返されることを確認する
         '''
         for category in CATEGORY_DICT.keys():
             with self.subTest(category=category):
-                view = resolve('/src_link?'+category)
+                view = resolve('/src_link/?'+category)
                 self.assertEqual(view.func, article_link)
 
     def test_resolve_loading(self):
         view = resolve('/loading')
         self.assertEqual(view.func, loading)
     
-    def test_resolve_result(self):
-        view = resolve('/result')
-        self.assertEqual(view.func, result)
+    def test_resolve_result_positive(self):
+        view = resolve('/result_positive')
+        self.assertEqual(view.func, result_positive)
 
-    def test_resolve_all_clear(self):
+    def test_resolve_result_negative(self):
+        view = resolve('/result_negative')
+        self.assertEqual(view.func, result_negative)
+
+    def test_resolve_category_clear(self):
         '''
         想定されるcategoryを含んだpath全てから
-        views.all_clearが返されることを確認する
+        views.category_clearが返されることを確認する
         '''
         for category_jp in CATEGORY_DICT.values():
             with self.subTest(category=category_jp):
-                view = resolve('/all_clear/?'+category_jp)
-                self.assertEqual(view.func, all_clear)
+                view = resolve('/category_clear/?'+category_jp)
+                self.assertEqual(view.func, category_clear)
 
     def test_resolve_eval_good(self):
         '''
@@ -78,11 +81,6 @@ class UrlsTest(TestCase):
             with self.subTest(category=category):
                 view = resolve('/eval_good/?'+category+'/?dummy_title')
                 self.assertEqual(view.func, eval_good)
-
-    def test_fail_eval_good(self):
-        # view = resolve('/eval_good/?'+'sports'+'/?'+TEST_TITLE)
-        # self.assertEqual(view.func, eval_good)
-        pass
 
     def test_resolve_eval_uninterested(self):
         '''

@@ -18,10 +18,15 @@ def extract_noun(text):
     connected_nouns = ','.join(nouns)
     return connected_nouns
 
-def sort_duplicated_nouns_list(base_nouns: str, url_nouns_dict: dict) -> list:
-    """target_listの各文字列に対して、base_nouns内の名詞と一致する
-    名詞の割合を算出して並べ替えたリストを返す関数
+def make_matched_rate_dict(base_nouns: str, id_nouns_dict: dict) -> dict:
+    """url_nouns_dictのvalue文字列に対して、base_nouns内の名詞と一致する
+    名詞の割合を算出し、id:rateのdictの形で返す関数
     """
+    #base_nounsが空の場合、
+    #即ち、goodまたはuninterestedどちらかの評価が全くされていない場合、
+    #その評価の一致率を算出できないため空の辞書を返す
+    if base_nouns == '':
+        return {}
     #型チェックを行う
     #第一引数がlist(str),第二引数がdict{str:str}でない場合はErrorを送出する
     #また、どちらのstr(dict.keyは除く)もコンマ(,)で連結、成形されていることを前提とする
@@ -30,31 +35,22 @@ def sort_duplicated_nouns_list(base_nouns: str, url_nouns_dict: dict) -> list:
     if ',' not in base_nouns:
         raise TypeError
     #strでないkeyが含まれている場合はerrorを送出
-    if any(type(key) is not str for key in url_nouns_dict.keys()):
+    if any(type(key) is not str for key in id_nouns_dict.keys()):
         raise TypeError
     #strでないvalueが含まれている場合はerrorを送出
-    if any(type(val) is not str for val in url_nouns_dict.values()):
+    if any(type(val) is not str for val in id_nouns_dict.values()):
         raise TypeError
     #第二引数dictのvalueに','で繋がれていないstrが含まれる場合はerrorを送出
-    if any(',' not in val for val in url_nouns_dict.values()):
+    if any(',' not in val for val in id_nouns_dict.values()):
         raise TypeError
     
-    #dict{url:nouns}のそれぞれのrateを算出してdict{url:rate}を作成する
+    #dict{id:nouns}のそれぞれのrateを算出してdict{id:rate}を作成する
     url_rate_pairs = {}
-    for article_url, article_nouns in url_nouns_dict.items():
+    for article_id, article_nouns in id_nouns_dict.items():
         rate = get_duplicate_rate(base_nouns, article_nouns)
-        url_rate_pairs[article_url] = rate
-    #rateの降順でソート
-    url_rate_sorted = sorted(url_rate_pairs.items(), key=lambda pair: pair[1], reverse=True)
-    
-    
-    for pair in url_rate_sorted:
-        print(str(pair[0])+' 一致率:'+str(pair[1] * 100.0)+'%')
-    #[(url, rate),
-    # (url, rate),
-    # (url, rate)]
-    # の形のリストとして返す
-    return url_rate_sorted
+        url_rate_pairs[article_id] = str(rate)
+
+    return url_rate_pairs
 
 def get_duplicate_rate(source: str, target: str) -> float:
     """sourceを基準(1.0)として、targetにどれだけ一致する語句が入っているかを
@@ -68,9 +64,3 @@ def get_duplicate_rate(source: str, target: str) -> float:
             duplicate_count += 1
     
     return duplicate_count / len(split_sources)
-
-import structlog
-
-def callFunctionTest():
-    logger = structlog.get_logger(__name__)
-    logger.info("      Called from scraping/components/analysis.py    ")

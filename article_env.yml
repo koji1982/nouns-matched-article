@@ -11,11 +11,12 @@ dependencies:
   - bcrypt=3.2.0=py39he8ac12f_0
   - beautifulsoup4=4.10.0=pyh06a4308_0
   - brotlipy=0.7.0=py39h27cfd23_1003
-  - ca-certificates=2021.10.8=ha878542_0
-  - certifi=2021.10.8=py39hf3d152e_1
+  - ca-certificates=2022.3.29=h06a4308_0
+  - certifi=2021.10.8=py39h06a4308_2
   - cffi=1.14.6=py39h400218f_0
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
   - constantly=15.1.0=pyh2b92418_0
+  - coverage=6.3.2=py39h7f8727e_0
   - cryptography=35.0.0=py39hd23ed53_0
   - cssselect=1.1.0=pyhd3eb1b0_0
   - django=3.2.5=pyhd3eb1b0_0

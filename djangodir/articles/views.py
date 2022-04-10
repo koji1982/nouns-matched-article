@@ -2,11 +2,10 @@ import os
 import environ
 from pathlib import Path
 from django.shortcuts import render, redirect
-from django.db.models import Q
 from django.contrib.auth import authenticate,login, logout
 from django.contrib.auth.decorators import login_required
 from articles.models import *
-from articles.templatetags.external_functions import *
+from articles.selection import apply_choices
 from articles.forms import SignupForm, LoginForm
 
 CATEGORY_DICT = {
@@ -58,13 +57,16 @@ def signup(request):
         form.save()
         return redirect('/login')
     else:
+        import structlog
+        logger = structlog.get_logger(__name__)
+        logger.error('form is invalid')
         error_message += '\n入力内容が無効とみなされました'
         context['error'] = error_message
         return render(request, 'app/signup.html', context)
 
 def login_process(request):
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         return render(request, 'app/login.html', {'form': LoginForm()})
 
     form = LoginForm(data=request.POST)
@@ -83,7 +85,6 @@ def login_guest_user(request):
     env = environ.Env()
     env.read_env(os.path.join(Path(__file__).resolve().parent.parent.parent, '.django_env'))
     #guest_userが存在するかをチェック
-    User.objects.filter(username=GUEST_USERNAME).delete()
     if not User.objects.filter(username=GUEST_USERNAME).exists():
         #なければguest_userを作成する
         data = {'username': GUEST_USERNAME, 'password1': env('GUEST_PASSWORD'), 'password2': env('GUEST_PASSWORD')}
@@ -93,6 +94,9 @@ def login_guest_user(request):
     user = authenticate(username=GUEST_USERNAME, password=env('GUEST_PASSWORD'))
     #guest_userとしてログイン
     login(request, user)
+    #Preferenceが作られていない場合は作成する
+    if not Preference.objects.filter(username=user).exists():
+        Preference.objects.create(username=user)
     #記事選択のページへ転送
     return redirect('/')
 
@@ -106,71 +110,89 @@ def left_frame(request):
     content = {
         'user': str(request.user)
     }
-    if request.method == "POST":
-        if "reflect" in request.POST:
-            content['records'] = 'src_link&it'
-        elif "reset" in request.POST:
-            content['records'] = Article.objects.all().filter(category='local')
     return render(request, 'app/pages.html', content)
 
-def init_link(request):
-    import structlog
-    logger = structlog.get_logger(__name__)
-    logger.info(request.user.username)
-    articles = Article.objects.all().filter(category='domestic')
-    context = {
-        'records': articles,
-        'category': '国内'
-    }
-    return render(request, 'app/src_link.html', context)
-
-def article_link(request, clicked_category):
-    articles = Article.objects.all().filter(category=clicked_category)
+def article_link(request, clicked_category='domestic'):
+    articles = Article.objects.filter(category=clicked_category)
     context = {
         'records': articles,
         'category':get_category_jp(clicked_category),
+        'preference': Preference.objects.get(username=request.user)
     }
     return render(request, 'app/src_link.html', context)
 
-def all_clear(request, category_in_jp):
+def all_clear(request):
+    preference = Preference.objects.get(username=request.user)
+    preference.all_clear()
+    return redirect('/src_link')
+
+def category_clear(request, category_in_jp):
     category_in_en = get_category_en(category_in_jp)
-    for article in Article.objects.all().filter(category=category_in_en):
-        article.clear_evaluation()
+    preference = Preference.objects.get(username=request.user)
+    preference.category_clear(category_in_en)
     context = {
-        'records': Article.objects.all().filter(category=category_in_en),
-        'category': category_in_jp
+        'records': Article.objects.filter(category=category_in_en),
+        'category': category_in_jp,
+        'preference': preference
     }
     return render(request, 'app/src_link.html', context)
 
 def eval_good(request, clicked_category, article_title):
     evaluated_article = Article.objects.get(title=article_title)
-    evaluated_article.evaluate(Article.EVAL_GOOD)
+    current_user_pref = Preference.objects.get(username=request.user)
+    current_user_pref.evaluate_good(evaluated_article.get_id())
     context = {
-        'records': Article.objects.all().filter(category=clicked_category),
+        'records': Article.objects.filter(category=clicked_category),
         'category':get_category_jp(clicked_category),
+        'preference': Preference.objects.get(username=request.user)
     }
+    
     return render(request, 'app/src_link.html', context)
 
 def eval_uninterested(request, clicked_category, article_title):
     evaluated_article = Article.objects.get(title=article_title)
-    evaluated_article.evaluate(Article.EVAL_UNINTERESTED)
+    current_user_pref = Preference.objects.get(username=request.user)
+    current_user_pref.evaluate_uninterest(evaluated_article.get_id())
     context = {
-        'records': Article.objects.all().filter(category=clicked_category),
+        'records': Article.objects.filter(category=clicked_category),
         'category':get_category_jp(clicked_category),
+        'preference': Preference.objects.get(username=request.user)
     }
     return render(request, 'app/src_link.html', context)
 
 def loading(request):
+    '''ローディング画面を呼び出して描画する'''
     return render(request, 'app/loading.html')
 
-def result(request):
-    eval_nouns = apply_choices(request)
-    recommendations = []
-    if len(eval_nouns) != 0:
-        recommendations = Article.objects.order_by('rate').reverse()
+def call_apply_choices(request):
+    apply_choices(request.user)
+    return redirect('/result_positive')
+
+def result_positive(request):
+    id_rate_dict = Preference.objects.get(username=request.user).get_recommended_id_rate_dict()
+    rate_articles = []
+    for id, rate in id_rate_dict.items():
+        article = Article.objects.get(id=id)
+        rate_articles.append((rate, article))
+    sorted_rate_articles = sorted(rate_articles, key=lambda pair: pair[0], reverse=True)
     context = {
-        'recommendations': recommendations,
-        'eval_nouns': eval_nouns
+        'result_title': '「いいね」評価の記事から抽出された語群（名詞）と\nその語群に対する各記事の一致率',
+        'recommendations': sorted_rate_articles,
+        'eval_nouns': Preference.objects.get(username=request.user).good_nouns,
+    }
+    return render(request, 'app/result.html', context)
+
+def result_negative(request):
+    id_rate_dict = Preference.objects.get(username=request.user).get_rejected_id_rate_dict()
+    rate_articles = []
+    for id, rate in id_rate_dict.items():
+        article = Article.objects.get(id=id)
+        rate_articles.append((rate, article))
+    sorted_rate_articles = sorted(rate_articles, key=lambda pair: pair[0], reverse=True)
+    context = {
+        'result_title': '「興味なし」評価の記事から抽出された語群（名詞）と\nその語群に対する各記事の一致率',
+        'recommendations': sorted_rate_articles,
+        'eval_nouns': Preference.objects.get(username=request.user).uninterested_nouns,
     }
     return render(request, 'app/result.html', context)
 
