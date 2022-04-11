@@ -1,3 +1,8 @@
+from selenium import webdriver
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.webdriver import WebDriver
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase
 from django.http import HttpRequest
 from django.urls import resolve
@@ -5,9 +10,35 @@ from articles.tests.test_views import *
 from articles.tests.helper import *
 
 
-class ScenarioTest(TestCase):
+class ScenarioTest(StaticLiveServerTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        options = Options()
+        options.add_argument('-headless')
+        cls.selenium = WebDriver(options=options)
+        cls.selenium.implicitly_wait(10)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.selenium.quit()
+        super().tearDownClass()
 
     def test_user_open_eval_apply_result(self):
+        # self.selenium.get('%s%s' % (self.live_server_url, '/'))
+
+
+        options = Options()
+        options.add_argument('-headless')
+        driver = webdriver.Firefox(options=options)
+
+        # driver.get('http://172.18.0.3/')
+        driver.get(self.live_server_url)
+        print(self.live_server_url)
+        print(self.selenium.page_source)
+        driver.quit()
+
         #ログイン画面からゲストとしてログインする
         login_view = resolve('/login')
         login_view_response = login_view.func(get_request('/login'))

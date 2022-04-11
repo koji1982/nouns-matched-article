@@ -34,3 +34,6 @@ ENV PYTHONPATH /code:$PYTHONPATH
 RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 COPY cron.conf /code
 RUN service cron start && crontab /code/cron.conf
+
+COPY ./prepare_browser_test.sh /code
+RUN bash prepare_browser_test.sh
