@@ -35,5 +35,5 @@ RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 COPY cron.conf /code
 RUN service cron start && crontab /code/cron.conf
 
-COPY ./prepare_browser_test.sh /code
-RUN bash prepare_browser_test.sh
+COPY ./prepare_webdriver.sh /code
+RUN bash prepare_webdriver.sh
