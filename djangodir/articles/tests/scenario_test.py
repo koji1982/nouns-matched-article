@@ -26,23 +26,38 @@ class ScenarioTest(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def test_user_open_eval_apply_result(self):
-        # self.selenium.get('%s%s' % (self.live_server_url, '/'))
+        # options = Options()
+        # options.add_argument('-headless')
+        # driver = webdriver.Firefox(options=options)
 
+        # driver.get(self.live_server_url)
+        # print(self.live_server_url)
+        # print(self.selenium.page_source)
+        # driver.quit()
 
-        options = Options()
-        options.add_argument('-headless')
-        driver = webdriver.Firefox(options=options)
-
-        # driver.get('http://172.18.0.3/')
-        driver.get(self.live_server_url)
-        print(self.live_server_url)
+        self.selenium.get(self.live_server_url + '/')
         print(self.selenium.page_source)
-        driver.quit()
+
+        register_link = self.selenium.find_element_by_link_text('新規登録')
+        register_link.click()
+        print(self.selenium.page_source)
+
+        username_input = self.selenium.find_element_by_name('username')
+        username_input.send_keys('browser_test_user')
+        password1_input = self.selenium.find_element_by_name('password1')
+        password1_input.send_keys('valid_browser_test_password')
+        password2_input = self.selenium.find_element_by_name('password2')
+        password2_input.send_keys('valid_browser_test_password')
+        register_button = self.selenium.find_element_by_name('register_button')
+        register_button.submit()
+        self.selenium.implicitly_wait(10)
+        print(self.live_server_url)
+
 
         #ログイン画面からゲストとしてログインする
         login_view = resolve('/login')
         login_view_response = login_view.func(get_request('/login'))
-        print(login_view_response)
+        
 
         #urlを指定してページを開く
         view = resolve('/')
@@ -53,10 +68,8 @@ class ScenarioTest(StaticLiveServerTestCase):
 
         self.assertEqual(function_response.status_code, REQUEST_OK)
         self.assertEqual(actual_html, expected_template)
-        #最初のページで上から1番目と3番目の記事にgoodの評価をする
-        print(function_response.content)
-        print(actual_html)
-        print(self.client.get('/'))
+        #選択ページ(国内)で上から1番目と3番目の記事にgoodの評価をする
+        
         #カテゴリーを国際に切り替える
 
         #2番目と3番目の記事にuninterestedの評価をする

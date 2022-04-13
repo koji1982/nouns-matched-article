@@ -65,7 +65,7 @@ a:visited {
   font-size: 1.5em;
   font-weight: bold;
 }
-.login_outer {
+.form_outer {
   position: absolute;
   top: 0;
   right: 0;
@@ -89,16 +89,6 @@ a:visited {
   padding-top: 240px;
   text-align: center;
 }
-.signup_outer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding-top: 80px;
-  padding-left: 25%;
-  padding-right: 25%;
-}
 .signup_inner {
   position: absolute;
   width: 450px;
@@ -106,9 +96,23 @@ a:visited {
   background-color: #ece8df;
   text-align: center;
 }
+.signup_completed_inner {
+  position: absolute;
+  width: 450px;
+  height: 200px;
+  background-color: #ece8df;
+  text-align: center;
+}
+.completed_input {
+  margin-top: 25px;
+}
+.user_input {
+  margin-top: 8px;
+  font-weight: bold;
+  font-size:large;
+}
 .form_area {
   margin-top: 35px;
-  /* height: 60px; */
 }
 .input_form {
   width: 300px;
@@ -136,7 +140,7 @@ a:visited {
   font-weight: bold;
   color:#304895;
 }
-#loading_circle { 
+.loading_circle { 
   position: fixed;
   top: 0; 
   left: 0; 
@@ -163,7 +167,7 @@ a:visited {
     transform: rotate(360deg); 
   } 
 }
-.completed{
+.invisible{
   opacity: 0;
   visibility: hidden;
 }

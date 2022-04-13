@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlencode
 from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
@@ -116,11 +117,9 @@ class ViewsTest(TestCase):
         response = self.client.post('/logout')
         
         self.assertEqual(response.status_code, STATUS_REDIRECT)
-        #はじめの選択画面'/'にリダイレクトされた後、
-        #未ログインのためログイン画面に再びリダイレクトされる
-        self.assertRedirects(response, '/',
-                             status_code=STATUS_REDIRECT,
-                             target_status_code=STATUS_REDIRECT)
+        #ログイン画面にリダイレクトされる
+        self.assertRedirects(response, '/login',
+                             status_code=STATUS_REDIRECT)
         self.assertTrue(response.wsgi_request.user.is_anonymous)
 
     def test_signup_get_response(self):
@@ -156,7 +155,7 @@ class ViewsTest(TestCase):
         #Userが存在しないことを確認
         self.assertFalse(User.objects.filter(username=username).exists())
         #ログインが失敗することを確認
-        before_login_response = self.client.post('/login', login_data)
+        before_login_response = self.client.post('/signup_completed', login_data)
         self.assertEqual(before_login_response.status_code, LOGIN_FAILER_RESPONSE)
         self.assertTrue(before_login_response.wsgi_request.user.is_anonymous)
         
@@ -166,7 +165,7 @@ class ViewsTest(TestCase):
         #responseがサインアップ成功後のリダイレクトであることと、
         #Userが作成されていることを確認
         self.assertEqual(function_response.status_code, SIGNUP_SUCCESS_REDIRECT)
-        self.assertRedirects(function_response, '/login')
+        self.assertRedirects(function_response, '/signup_completed')
         self.assertTrue(User.objects.filter(username=username).exists())
         #ログイン成功することを確認
         after_login_response = self.client.post('/login', login_data)
@@ -235,6 +234,27 @@ class ViewsTest(TestCase):
 
                 #responseがサインアップ失敗のstatus(再読み込みの200)であることを確認
                 self.assertEqual(function_response.status_code, SIGNUP_FAILER_RESPONSE)
+
+    def test_signup_completed_response(self):
+        """signup_completed()が'app/signup_completed.html'の
+        正常なレスポンスを返すことを確認する
+        """
+        url = reverse('articles:signup_completed')
+        param_dict = {
+            'username': 'test_username', 
+            'password': '*' * len('valid_test_password')
+        }
+        param_in_url = urlencode(param_dict)
+        url_with_parameters = f'{url}?{param_in_url}'
+        function_response = signup_completed(get_request(url_with_parameters))
+        actual_html = function_response.content.decode('utf8')
+
+        expected_templete = self.client.get(url_with_parameters)
+        expected_html = expected_templete.content.decode('utf8')
+
+        self.assertEqual(function_response.status_code, REQUEST_OK)
+        self.assertEqual(actual_html, expected_html)
+
 
     def test_left_frame(self):
         request = get_request('/pages')

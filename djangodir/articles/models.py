@@ -101,9 +101,13 @@ class Preference(models.Model):
         self.save()
 
     def all_clear(self):
-        """全ての評価を消去する"""
+        """全ての評価とその評価にもとづいた結果を消去する"""
         self.good_ids = ''
         self.uninterested_ids = ''
+        self.good_nouns = ''
+        self.uninterested_nouns = ''
+        self.recommended_id_rate_pair = ''
+        self.rejected_id_rate_pair = ''
         self.save()
 
     def get_recommended_id_rate_dict(self):

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>登録が完了しました</title>
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+  </head>
+  <body class="form_outer">
+    <p class="input_title">登録が完了しました</p>
+    <div id="login_link">
+      <a href="{% url 'articles:login' %}">ログイン画面へ</a>
+    </div>
+    <div>
+      <div class="signup_completed_inner">
+        <div class="completed_input">
+          <label>ユーザー名</label><br>
+          <p class="user_input">{{ username }}</p>
+        </div>
+        <div class="completed_input">
+          <label>パスワード</label><br>
+          <p class="user_input">{{ password }}</p>
+        </div>
+        <div class="completed_input">
+          <form method="get" action="{% url 'articles:login' %}">
+            {% csrf_token %}
+            <button type="submit" name="logout">OK</button>
+          </form>
+        </div>
+    </div>
+    </div>
+  </body>
+</html>

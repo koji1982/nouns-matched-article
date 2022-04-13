@@ -1,6 +1,8 @@
 import os
 import environ
+from urllib.parse import urlencode
 from pathlib import Path
+from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login, logout
 from django.contrib.auth.decorators import login_required
@@ -54,15 +56,25 @@ def signup(request):
     }
     form = SignupForm(data=data)
     if form.is_valid():
+        #入力が有効な場合は保存して完了画面へリダイレクト
         form.save()
-        return redirect('/login')
+        #完了画面へ送るデータをurlにまとめる
+        completed_url = reverse('articles:signup_completed')
+        param_dict = {'username': username, 'password': '*' * len(password1)}
+        param_in_url = urlencode(param_dict)
+        url_with_parameters = f'{completed_url}?{param_in_url}'
+        return redirect(url_with_parameters)
     else:
-        import structlog
-        logger = structlog.get_logger(__name__)
-        logger.error('form is invalid')
         error_message += '\n入力内容が無効とみなされました'
         context['error'] = error_message
         return render(request, 'app/signup.html', context)
+
+def signup_completed(request):
+    content = {
+        'username': request.GET.get('username'),
+        'password': request.GET.get('password')
+    }
+    return render(request, 'app/signup_completed.html', content)
 
 def login_process(request):
 
@@ -75,6 +87,9 @@ def login_process(request):
         password = form.cleaned_data.get('password')
         user = authenticate(username=username, password=password)
         login(request, user)
+        #Preferenceが作られていない場合は作成する
+        if not Preference.objects.filter(username=user).exists():
+            Preference.objects.create(username=user)
         return redirect('/')
     else:
         error_message = '認証に失敗しました'
@@ -104,7 +119,8 @@ def logout_reopen(request):
     #djangoユーザーのログアウト
     logout(request)
     #先頭のページへ転送
-    return redirect('/')
+    return redirect('/login')
+    # return render(request, "app/login.html")
 
 def left_frame(request):
     content = {

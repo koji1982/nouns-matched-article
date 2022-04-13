@@ -26,6 +26,11 @@ class UrlsTest(TestCase):
         view = resolve('/signup')
         self.assertEqual(view.func, signup)
 
+    def test_resolve_signup_completed(self):
+        '''pathからview.signup_completedが返されることを確認する'''
+        view = resolve('/signup_completed')
+        self.assertEqual(view.func, signup_completed)
+
     def test_resolve_logout_reopen(self):
         '''pathからviews.logout_reopenが返されることを確認する'''
         view = resolve('/logout')

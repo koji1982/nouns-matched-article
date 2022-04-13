@@ -6,8 +6,13 @@
     <meta charset="utf-8">
     <title>ユーザー登録</title>
     <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="{% static '/javascript/match_result.js' %}"></script>
   </head>
-  <body class="signup_outer">
+  <body class="form_outer">
+    <div class="loading_circle invisible">
+      <div class="circle"></div>
+    </div>
     <p class="input_title">新規アカウント作成</p>
     <div id="login_link">
       <a href="{% url 'articles:login' %}">ログイン画面へ</a>
@@ -31,7 +36,7 @@
           {% if error %}
             <p>{{ error }}</p><br>
           {% endif %}
-          <button type="submit">登録</button>
+          <button class="commit_button" type="submit" name="register_button">登録</button>
         </div>
       </form>
     </div>
