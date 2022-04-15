@@ -8,7 +8,7 @@ class ModelsTest(TestCase):
     fixtures = ["test_articles.json"]
 
     def setUp(self):
-        self.prepare_user_pref()
+        prepare_user_pref(self)
 
     def tearDown(self):
         self.client.logout()
@@ -279,8 +279,8 @@ class ModelsTest(TestCase):
 
         self.assertDictEqual(result_dict, {})
 
-    def test_save_recommended_id_rate_dict_save_key_values(self):
-        """save_recommended_id_rate_dict()が辞書型の引数をstrで保存することを確認する"""
+    def test_set_recommended_id_rate_dict_set_key_values(self):
+        """set_recommended_id_rate_dict()が辞書型の引数をstrで保存することを確認する"""
         preference = Preference.objects.get(username=get_test_user())
         self.assertEqual(preference.recommended_id_rate_pair, '')
 
@@ -291,7 +291,7 @@ class ModelsTest(TestCase):
             '9':'0.375',
             '10':'0.375',
         }
-        preference.save_recommended_id_rate_dict(test_data)
+        preference.set_recommended_id_rate_dict(test_data)
 
         self.assertNotEqual(preference.recommended_id_rate_pair, '')
 
@@ -340,7 +340,7 @@ class ModelsTest(TestCase):
 
         self.assertDictEqual(result_dict, {})
 
-    def test_save_rejected_id_rate_dict_save_key_values(self):
+    def test_set_rejected_id_rate_dict_sets_key_values(self):
         """seva_rejected_id_rate_dict()が辞書型の引数をstrで保存することを確認する"""
         preference = Preference.objects.get(username=get_test_user())
         self.assertEqual(preference.rejected_id_rate_pair, '')
@@ -352,7 +352,7 @@ class ModelsTest(TestCase):
             '9':'0.375',
             '10':'0.375',
         }
-        preference.save_rejected_id_rate_dict(test_data)
+        preference.set_rejected_id_rate_dict(test_data)
 
         self.assertNotEqual(preference.rejected_id_rate_pair, '')
 
@@ -398,9 +398,3 @@ class ModelsTest(TestCase):
         """Userオブジェクトをstr()に渡した時にusernameの文字列を返すことを確認する"""
         user = User.objects.get(username=get_test_user())
         self.assertEqual(str(user), user.username)
-
-    #ヘルパー関数
-    def prepare_user_pref(self):
-        user = get_test_user()
-        self.client.force_login(user)
-        create_test_preference(user)

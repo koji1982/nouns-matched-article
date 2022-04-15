@@ -4,7 +4,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8">
-    <title>ユーザー登録</title>
+    <title>ログイン画面</title>
     <link rel="stylesheet" href="{% static '/css/style.css' %}" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   </head>
@@ -32,7 +32,7 @@
           {% if error %}
             {{ error }}<br>
           {% endif %}
-          <button class="commit_button" type="submit">ログイン</button>
+          <button class="commit_button" name="login_button" type="submit">ログイン</button>
         </div>
       </form>
     </div>
@@ -40,7 +40,7 @@
       <form  method="POST" action="{% url 'articles:guest' %}">
         {% csrf_token %}
         <div id="guest_button">
-          <button class="commit_button" type="submit">ゲストログイン</button>
+          <button class="commit_button" name="guest_button" type="submit">ゲストログイン</button>
           <p>※ゲストとしてログインした場合でも<br>
           サイト内を全て同じように使用できます
           </p>

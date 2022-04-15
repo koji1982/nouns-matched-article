@@ -114,19 +114,17 @@ class Preference(models.Model):
         """strで保存されているrecommended_id_rate_pairをdictで返す"""
         return self.convert_str_to_dict(self.recommended_id_rate_pair)
 
-    def save_recommended_id_rate_dict(self, id_rate_dict):
+    def set_recommended_id_rate_dict(self, id_rate_dict):
         """dictで渡されたrecommended_id_rate_pairをstrで保存する"""
         self.recommended_id_rate_pair = self.convert_dict_to_str(id_rate_dict)
-        self.save()
 
     def get_rejected_id_rate_dict(self):
         """「興味なし」の評価から算出したdict{記事ID:一致率}を取得する"""
         return self.convert_str_to_dict(self.rejected_id_rate_pair)
 
-    def save_rejected_id_rate_dict(self, id_rate_dict):
+    def set_rejected_id_rate_dict(self, id_rate_dict):
         """「興味なし」の評価から算出したdict{記事ID:一致率}をデータベースに保存する"""
         self.rejected_id_rate_pair = self.convert_dict_to_str(id_rate_dict)
-        self.save()
 
     def convert_dict_to_str(self, id_rate_dict):
         """引数として受け取ったdictの':'や','を文字列に変換してstrで返す関数"""

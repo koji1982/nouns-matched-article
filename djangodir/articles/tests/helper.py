@@ -40,6 +40,11 @@ def get_request_with_pref(url_path):
         Preference.objects.create(username=user)
     return request
 
+def prepare_user_pref(testcase):
+    user = get_test_user()
+    testcase.client.force_login(user)
+    create_test_preference(user)
+
 def create_test_preference(user):
     if not Preference.objects.filter(username=user).exists():
         Preference.objects.create(username=user)

@@ -21,7 +21,7 @@ class ViewsTest(TestCase):
 
     def setUp(self):
         #views.pyのテストはUser,Preferenceが作成済み、ログイン済みの状態から開始する
-        self.prepare_user_pref()
+        prepare_user_pref(self)
 
     def tearDown(self):
         self.client.logout()
@@ -165,7 +165,6 @@ class ViewsTest(TestCase):
         #responseがサインアップ成功後のリダイレクトであることと、
         #Userが作成されていることを確認
         self.assertEqual(function_response.status_code, SIGNUP_SUCCESS_REDIRECT)
-        self.assertRedirects(function_response, '/signup_completed')
         self.assertTrue(User.objects.filter(username=username).exists())
         #ログイン成功することを確認
         after_login_response = self.client.post('/login', login_data)
@@ -248,12 +247,15 @@ class ViewsTest(TestCase):
         url_with_parameters = f'{url}?{param_in_url}'
         function_response = signup_completed(get_request(url_with_parameters))
         actual_html = function_response.content.decode('utf8')
+        actual_without_csrf = remove_csrf(actual_html)
 
         expected_templete = self.client.get(url_with_parameters)
         expected_html = expected_templete.content.decode('utf8')
+        expected_without_csrf = remove_csrf(expected_html)
 
         self.assertEqual(function_response.status_code, REQUEST_OK)
-        self.assertEqual(actual_html, expected_html)
+        # self.assertEqual(actual_html, expected_html)
+        self.assertEqual(actual_without_csrf, expected_without_csrf)
 
 
     def test_left_frame(self):
@@ -367,7 +369,6 @@ class ViewsTest(TestCase):
 
     def test_result_positive(self):
         """result_positive()"""
-        # self.prepare_user_pref()
         function_response = result_positive(get_request_with_pref('/result_positive'))
         actual_html = function_response.content.decode('utf8')
 
@@ -379,7 +380,6 @@ class ViewsTest(TestCase):
 
     def test_result_negative(self):
         """result_negative()"""
-        # self.prepare_user_pref()
         function_response = result_negative(get_request_with_pref('/result_negative'))
         actual_html = function_response.content.decode('utf8')
 
@@ -410,12 +410,10 @@ class ViewsTest(TestCase):
                 self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_category_clear_with_wrong_category(self):
-        # self.prepare_user_pref()
         with self.assertRaises(KeyError):
             category_clear(HttpRequest(), WRONG_CATEGORY)
 
     def test_eval_good(self):
-        # self.prepare_user_pref()
         for category in CATEGORY_DICT.keys():
             with self.subTest(category=category):
                 #各カテゴリーの先頭のデータを取り出してテストデータとする
@@ -442,7 +440,6 @@ class ViewsTest(TestCase):
 
     def test_eval_good_with_wrong_args(self):
         """eval_good()に誤った引数を渡すとエラーを送出することを確認する"""
-        # self.prepare_user_pref()
         test_article = Article.objects.filter(category='domestic')[0]
         correct_title = test_article.title
         path = '/eval_good/'+test_article.category+'/'+test_article.title
@@ -460,7 +457,6 @@ class ViewsTest(TestCase):
             eval_good(HttpRequest, WRONG_CATEGORY, WRONG_TITLE)
 
     def test_eval_uninterested(self):
-        # self.prepare_user_pref()
         for category in CATEGORY_DICT.keys():
             with self.subTest(category=category):
                 #各カテゴリーの先頭のデータを取り出してテストデータとする
@@ -487,7 +483,6 @@ class ViewsTest(TestCase):
 
     def test_eval_uninterested_with_wrong_category_correct_title(self):
         """eval_uninterested()に誤った引数を渡すとエラーを送出することを確認する"""
-        # self.prepare_user_pref()
         test_article = Article.objects.filter(category='domestic')[0]
         correct_title = test_article.title
         path = '/eval_good/'+test_article.category+'/'+test_article.title
@@ -501,8 +496,3 @@ class ViewsTest(TestCase):
         #誤ったcategoryと誤ったArticle.titleを渡した時にDoesNotExistをraiseすることを確認する
         with self.assertRaises(Article.DoesNotExist):
             eval_uninterested(request, WRONG_CATEGORY, WRONG_TITLE)
-
-    def prepare_user_pref(self):
-        user = get_test_user()
-        self.client.force_login(user)
-        create_test_preference(user)

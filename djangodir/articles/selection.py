@@ -5,24 +5,25 @@ def apply_choices(user):
     """評価した記事に含まれる単語(名詞)をまとめて、
     その単語群と他の記事内の単語がどれだけ一致するかを算出して保存する関数
     """
+    
     user_preference = Preference.objects.get(username=user)
-
+    
     good_id_list = user_preference.get_good_list()
     uninterested_id_list = user_preference.get_uninterested_list()
-
+    
     good_merged_nouns = make_merged_nouns_str(good_id_list)
     uninterested_merged_nouns = make_merged_nouns_str(uninterested_id_list)
-
+    
     good_id_nouns_dict = make_id_nouns_dict(good_id_list, uninterested_id_list)
     uninterested_id_nouns_dict = make_id_nouns_dict(uninterested_id_list, good_id_list)
     #一致率を算出する。{記事ID:一致率}の形の辞書として受け取る
     good_id_rate_dict = make_matched_rate_dict(good_merged_nouns, good_id_nouns_dict)
     uninterested_id_rate_dict = make_matched_rate_dict(uninterested_merged_nouns, uninterested_id_nouns_dict)
-
+    
     user_preference.good_nouns = good_merged_nouns
     user_preference.uninterested_nouns = uninterested_merged_nouns
-    user_preference.save_recommended_id_rate_dict(good_id_rate_dict)
-    user_preference.save_rejected_id_rate_dict(uninterested_id_rate_dict)
+    user_preference.set_recommended_id_rate_dict(good_id_rate_dict)
+    user_preference.set_rejected_id_rate_dict(uninterested_id_rate_dict)
     user_preference.save()
 
 def make_id_nouns_dict(article_id_list, rejected_id_list):

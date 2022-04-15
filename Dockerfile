@@ -36,4 +36,4 @@ COPY cron.conf /code
 RUN service cron start && crontab /code/cron.conf
 
 COPY ./prepare_webdriver.sh /code
-RUN bash prepare_webdriver.sh
+RUN sh prepare_webdriver.sh

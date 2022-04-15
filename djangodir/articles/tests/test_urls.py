@@ -55,6 +55,10 @@ class UrlsTest(TestCase):
                 view = resolve('/src_link/?'+category)
                 self.assertEqual(view.func, article_link)
 
+    def test_resolve_all_clear(self):
+        view = resolve('/all_clear')
+        self.assertEqual(view.func, all_clear)
+        
     def test_resolve_loading(self):
         view = resolve('/loading')
         self.assertEqual(view.func, loading)

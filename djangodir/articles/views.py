@@ -120,7 +120,6 @@ def logout_reopen(request):
     logout(request)
     #先頭のページへ転送
     return redirect('/login')
-    # return render(request, "app/login.html")
 
 def left_frame(request):
     content = {
