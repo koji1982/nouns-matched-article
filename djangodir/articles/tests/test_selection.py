@@ -12,7 +12,7 @@ class SelectionTest(TestCase):
         rejected_id_rate_pairの４つが作成、保存されることを確認する"""
         #Preference用意し、記事の評価を保存する
         self.prepare_user_pref()
-        preference = Preference.objects.get(username=get_test_user())
+        preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = '1,2,3,4,5'
         preference.uninterested_ids = '6,7,8,9,10'
         preference.save()
@@ -26,7 +26,7 @@ class SelectionTest(TestCase):
         apply_choices(get_test_user())
 
         #各fieldが空でなくなっていることを確認する
-        preference_after = Preference.objects.get(username=get_test_user())
+        preference_after = Preference.objects.get(user=get_test_user())
         self.assertNotEqual(preference_after.good_nouns, '')
         self.assertNotEqual(preference_after.uninterested_nouns, '')
         self.assertNotEqual(preference_after.recommended_id_rate_pair, '')
@@ -39,7 +39,7 @@ class SelectionTest(TestCase):
         作成されないことを確認する"""
         #Preference用意し、記事の評価を保存する
         self.prepare_user_pref()
-        preference = Preference.objects.get(username=get_test_user())
+        preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = ''
         preference.uninterested_ids = ''
         preference.save()
@@ -55,7 +55,7 @@ class SelectionTest(TestCase):
         apply_choices(get_test_user())
 
         #各fieldが空のままであることを確認する
-        preference_after = Preference.objects.get(username=get_test_user())
+        preference_after = Preference.objects.get(user=get_test_user())
         self.assertEqual(preference_after.good_ids, '')
         self.assertEqual(preference_after.uninterested_ids, '')
         self.assertEqual(preference_after.good_nouns, '')

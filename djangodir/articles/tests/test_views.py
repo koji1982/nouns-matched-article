@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlencode
 from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
@@ -20,7 +21,7 @@ class ViewsTest(TestCase):
 
     def setUp(self):
         #views.pyのテストはUser,Preferenceが作成済み、ログイン済みの状態から開始する
-        self.prepare_user_pref()
+        prepare_user_pref(self)
 
     def tearDown(self):
         self.client.logout()
@@ -116,11 +117,9 @@ class ViewsTest(TestCase):
         response = self.client.post('/logout')
         
         self.assertEqual(response.status_code, STATUS_REDIRECT)
-        #はじめの選択画面'/'にリダイレクトされた後、
-        #未ログインのためログイン画面に再びリダイレクトされる
-        self.assertRedirects(response, '/',
-                             status_code=STATUS_REDIRECT,
-                             target_status_code=STATUS_REDIRECT)
+        #ログイン画面にリダイレクトされる
+        self.assertRedirects(response, '/login',
+                             status_code=STATUS_REDIRECT)
         self.assertTrue(response.wsgi_request.user.is_anonymous)
 
     def test_signup_get_response(self):
@@ -156,7 +155,7 @@ class ViewsTest(TestCase):
         #Userが存在しないことを確認
         self.assertFalse(User.objects.filter(username=username).exists())
         #ログインが失敗することを確認
-        before_login_response = self.client.post('/login', login_data)
+        before_login_response = self.client.post('/signup_completed', login_data)
         self.assertEqual(before_login_response.status_code, LOGIN_FAILER_RESPONSE)
         self.assertTrue(before_login_response.wsgi_request.user.is_anonymous)
         
@@ -166,7 +165,6 @@ class ViewsTest(TestCase):
         #responseがサインアップ成功後のリダイレクトであることと、
         #Userが作成されていることを確認
         self.assertEqual(function_response.status_code, SIGNUP_SUCCESS_REDIRECT)
-        self.assertRedirects(function_response, '/login')
         self.assertTrue(User.objects.filter(username=username).exists())
         #ログイン成功することを確認
         after_login_response = self.client.post('/login', login_data)
@@ -236,6 +234,30 @@ class ViewsTest(TestCase):
                 #responseがサインアップ失敗のstatus(再読み込みの200)であることを確認
                 self.assertEqual(function_response.status_code, SIGNUP_FAILER_RESPONSE)
 
+    def test_signup_completed_response(self):
+        """signup_completed()が'app/signup_completed.html'の
+        正常なレスポンスを返すことを確認する
+        """
+        url = reverse('articles:signup_completed')
+        param_dict = {
+            'username': 'test_username', 
+            'password': '*' * len('valid_test_password')
+        }
+        param_in_url = urlencode(param_dict)
+        url_with_parameters = f'{url}?{param_in_url}'
+        function_response = signup_completed(get_request(url_with_parameters))
+        actual_html = function_response.content.decode('utf8')
+        actual_without_csrf = remove_csrf(actual_html)
+
+        expected_templete = self.client.get(url_with_parameters)
+        expected_html = expected_templete.content.decode('utf8')
+        expected_without_csrf = remove_csrf(expected_html)
+
+        self.assertEqual(function_response.status_code, REQUEST_OK)
+        # self.assertEqual(actual_html, expected_html)
+        self.assertEqual(actual_without_csrf, expected_without_csrf)
+
+
     def test_left_frame(self):
         request = get_request('/pages')
         function_response = left_frame(request)
@@ -288,14 +310,14 @@ class ViewsTest(TestCase):
 
     def test_all_clear(self):
         """all_clear()が呼ばれた時に評価が消去されてリダイレクトされることを確認する"""
-        preference = Preference.objects.get(username=get_test_user())
+        preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = '1,2,3,4,5'
         preference.uninterested_ids = '6,7,8,9,10'
         preference.save()
 
         function_response = self.client.post('/all_clear')
 
-        preference_after = Preference.objects.get(username=get_test_user())
+        preference_after = Preference.objects.get(user=get_test_user())
         self.assertEqual(function_response.status_code, STATUS_REDIRECT)
         self.assertRedirects(function_response, '/src_link')
         self.assertEqual(preference_after.good_ids, '')
@@ -324,7 +346,7 @@ class ViewsTest(TestCase):
         """call_apply_choices()が呼ばれたとき、
         記事評価から一致率が計算されていることを確認する
         """
-        preference = Preference.objects.get(username=get_test_user())
+        preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = '1,2,3,4,5'
         preference.uninterested_ids = '6,7,8,9,10'
         preference.save()
@@ -337,7 +359,7 @@ class ViewsTest(TestCase):
 
         self.client.post('/call_apply_choices')
 
-        preference_after = Preference.objects.get(username=get_test_user())
+        preference_after = Preference.objects.get(user=get_test_user())
         self.assertNotEqual(preference_after.recommended_id_rate_pair, '')
         self.assertNotEqual(preference_after.rejected_id_rate_pair, '')
         response_positive = self.client.get('/result_positive')
@@ -347,7 +369,6 @@ class ViewsTest(TestCase):
 
     def test_result_positive(self):
         """result_positive()"""
-        # self.prepare_user_pref()
         function_response = result_positive(get_request_with_pref('/result_positive'))
         actual_html = function_response.content.decode('utf8')
 
@@ -359,7 +380,6 @@ class ViewsTest(TestCase):
 
     def test_result_negative(self):
         """result_negative()"""
-        # self.prepare_user_pref()
         function_response = result_negative(get_request_with_pref('/result_negative'))
         actual_html = function_response.content.decode('utf8')
 
@@ -390,12 +410,10 @@ class ViewsTest(TestCase):
                 self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_category_clear_with_wrong_category(self):
-        # self.prepare_user_pref()
         with self.assertRaises(KeyError):
             category_clear(HttpRequest(), WRONG_CATEGORY)
 
     def test_eval_good(self):
-        # self.prepare_user_pref()
         for category in CATEGORY_DICT.keys():
             with self.subTest(category=category):
                 #各カテゴリーの先頭のデータを取り出してテストデータとする
@@ -410,7 +428,7 @@ class ViewsTest(TestCase):
                 actual_without_csrf = remove_csrf(actual_html)
                 #テスト対象の関数が呼ばれるとtest_articleのeval_goodフィールドが
                 #Trueになるため、モデルにアクセスして状態を戻す
-                Preference.objects.get(username=request.user).all_clear()
+                Preference.objects.get(user=request.user).all_clear()
                 #比較用のhtml取り出し
                 context = {'category': category}
                 expected_template = self.client.post(path, context)
@@ -422,7 +440,6 @@ class ViewsTest(TestCase):
 
     def test_eval_good_with_wrong_args(self):
         """eval_good()に誤った引数を渡すとエラーを送出することを確認する"""
-        # self.prepare_user_pref()
         test_article = Article.objects.filter(category='domestic')[0]
         correct_title = test_article.title
         path = '/eval_good/'+test_article.category+'/'+test_article.title
@@ -440,7 +457,6 @@ class ViewsTest(TestCase):
             eval_good(HttpRequest, WRONG_CATEGORY, WRONG_TITLE)
 
     def test_eval_uninterested(self):
-        # self.prepare_user_pref()
         for category in CATEGORY_DICT.keys():
             with self.subTest(category=category):
                 #各カテゴリーの先頭のデータを取り出してテストデータとする
@@ -455,7 +471,7 @@ class ViewsTest(TestCase):
                 actual_without_csrf = remove_csrf(actual_html)
                 #テスト対象の関数が呼ばれるとtest_articleのeval_uninterestedフィールドが
                 #Trueになるため、モデルにアクセスして状態を戻す
-                Preference.objects.get(username=request.user).all_clear()
+                Preference.objects.get(user=request.user).all_clear()
                 #比較用のhtml取り出し
                 context = {'category': category}
                 expected_template = self.client.post(path, context)
@@ -467,7 +483,6 @@ class ViewsTest(TestCase):
 
     def test_eval_uninterested_with_wrong_category_correct_title(self):
         """eval_uninterested()に誤った引数を渡すとエラーを送出することを確認する"""
-        # self.prepare_user_pref()
         test_article = Article.objects.filter(category='domestic')[0]
         correct_title = test_article.title
         path = '/eval_good/'+test_article.category+'/'+test_article.title
@@ -481,8 +496,3 @@ class ViewsTest(TestCase):
         #誤ったcategoryと誤ったArticle.titleを渡した時にDoesNotExistをraiseすることを確認する
         with self.assertRaises(Article.DoesNotExist):
             eval_uninterested(request, WRONG_CATEGORY, WRONG_TITLE)
-
-    def prepare_user_pref(self):
-        user = get_test_user()
-        self.client.force_login(user)
-        create_test_preference(user)

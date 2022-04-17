@@ -1,6 +1,8 @@
 import os
 import environ
+from urllib.parse import urlencode
 from pathlib import Path
+from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login, logout
 from django.contrib.auth.decorators import login_required
@@ -54,27 +56,53 @@ def signup(request):
     }
     form = SignupForm(data=data)
     if form.is_valid():
+        #入力が有効な場合は保存して完了画面へリダイレクト
         form.save()
-        return redirect('/login')
+        #完了画面へ送るデータをurlにまとめる
+        completed_url = reverse('articles:signup_completed')
+        param_dict = {'username': username, 'password': '*' * len(password1)}
+        param_in_url = urlencode(param_dict)
+        url_with_parameters = f'{completed_url}?{param_in_url}'
+        return redirect(url_with_parameters)
     else:
-        import structlog
-        logger = structlog.get_logger(__name__)
-        logger.error('form is invalid')
         error_message += '\n入力内容が無効とみなされました'
         context['error'] = error_message
         return render(request, 'app/signup.html', context)
+
+def signup_completed(request):
+    content = {
+        'username': request.GET.get('username'),
+        'password': request.GET.get('password')
+    }
+    return render(request, 'app/signup_completed.html', content)
 
 def login_process(request):
 
     if request.method == 'GET':
         return render(request, 'app/login.html', {'form': LoginForm()})
 
-    form = LoginForm(data=request.POST)
+    username = request.POST.get('username', '')
+    password = request.POST.get('password', '')
+    error_message = ''
+    if (username == '') or (password == ''):
+        error_message = '未記入の項目があります'
+        return render(request,
+                      'app/login.html', 
+                      {'form': LoginForm(), 'error': error_message})
+    data = {
+        'username': username,
+        'password': password
+    }
+    
+    form = LoginForm(data=data)
     if form.is_valid():
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
         user = authenticate(username=username, password=password)
         login(request, user)
+        #Preferenceが作られていない場合は作成する
+        if not Preference.objects.filter(user=user).exists():
+            Preference.objects.create(user=user)
         return redirect('/')
     else:
         error_message = '認証に失敗しました'
@@ -95,8 +123,8 @@ def login_guest_user(request):
     #guest_userとしてログイン
     login(request, user)
     #Preferenceが作られていない場合は作成する
-    if not Preference.objects.filter(username=user).exists():
-        Preference.objects.create(username=user)
+    if not Preference.objects.filter(user=user).exists():
+        Preference.objects.create(user=user)
     #記事選択のページへ転送
     return redirect('/')
 
@@ -104,7 +132,7 @@ def logout_reopen(request):
     #djangoユーザーのログアウト
     logout(request)
     #先頭のページへ転送
-    return redirect('/')
+    return redirect('/login')
 
 def left_frame(request):
     content = {
@@ -117,18 +145,18 @@ def article_link(request, clicked_category='domestic'):
     context = {
         'records': articles,
         'category':get_category_jp(clicked_category),
-        'preference': Preference.objects.get(username=request.user)
+        'preference': Preference.objects.get(user=request.user)
     }
     return render(request, 'app/src_link.html', context)
 
 def all_clear(request):
-    preference = Preference.objects.get(username=request.user)
+    preference = Preference.objects.get(user=request.user)
     preference.all_clear()
     return redirect('/src_link')
 
 def category_clear(request, category_in_jp):
     category_in_en = get_category_en(category_in_jp)
-    preference = Preference.objects.get(username=request.user)
+    preference = Preference.objects.get(user=request.user)
     preference.category_clear(category_in_en)
     context = {
         'records': Article.objects.filter(category=category_in_en),
@@ -139,24 +167,24 @@ def category_clear(request, category_in_jp):
 
 def eval_good(request, clicked_category, article_title):
     evaluated_article = Article.objects.get(title=article_title)
-    current_user_pref = Preference.objects.get(username=request.user)
+    current_user_pref = Preference.objects.get(user=request.user)
     current_user_pref.evaluate_good(evaluated_article.get_id())
     context = {
         'records': Article.objects.filter(category=clicked_category),
         'category':get_category_jp(clicked_category),
-        'preference': Preference.objects.get(username=request.user)
+        'preference': Preference.objects.get(user=request.user)
     }
     
     return render(request, 'app/src_link.html', context)
 
 def eval_uninterested(request, clicked_category, article_title):
     evaluated_article = Article.objects.get(title=article_title)
-    current_user_pref = Preference.objects.get(username=request.user)
+    current_user_pref = Preference.objects.get(user=request.user)
     current_user_pref.evaluate_uninterest(evaluated_article.get_id())
     context = {
         'records': Article.objects.filter(category=clicked_category),
         'category':get_category_jp(clicked_category),
-        'preference': Preference.objects.get(username=request.user)
+        'preference': Preference.objects.get(user=request.user)
     }
     return render(request, 'app/src_link.html', context)
 
@@ -169,7 +197,7 @@ def call_apply_choices(request):
     return redirect('/result_positive')
 
 def result_positive(request):
-    id_rate_dict = Preference.objects.get(username=request.user).get_recommended_id_rate_dict()
+    id_rate_dict = Preference.objects.get(user=request.user).get_recommended_id_rate_dict()
     rate_articles = []
     for id, rate in id_rate_dict.items():
         article = Article.objects.get(id=id)
@@ -178,12 +206,12 @@ def result_positive(request):
     context = {
         'result_title': '「いいね」評価の記事から抽出された語群（名詞）と\nその語群に対する各記事の一致率',
         'recommendations': sorted_rate_articles,
-        'eval_nouns': Preference.objects.get(username=request.user).good_nouns,
+        'eval_nouns': Preference.objects.get(user=request.user).good_nouns,
     }
     return render(request, 'app/result.html', context)
 
 def result_negative(request):
-    id_rate_dict = Preference.objects.get(username=request.user).get_rejected_id_rate_dict()
+    id_rate_dict = Preference.objects.get(user=request.user).get_rejected_id_rate_dict()
     rate_articles = []
     for id, rate in id_rate_dict.items():
         article = Article.objects.get(id=id)
@@ -192,7 +220,7 @@ def result_negative(request):
     context = {
         'result_title': '「興味なし」評価の記事から抽出された語群（名詞）と\nその語群に対する各記事の一致率',
         'recommendations': sorted_rate_articles,
-        'eval_nouns': Preference.objects.get(username=request.user).uninterested_nouns,
+        'eval_nouns': Preference.objects.get(user=request.user).uninterested_nouns,
     }
     return render(request, 'app/result.html', context)
 

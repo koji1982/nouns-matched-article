@@ -4,10 +4,15 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8">
-    <title>ユーザー登録</title>
+    <title>ログイン画面</title>
     <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   </head>
-  <body class="login_outer">
+  </head>
+  <body class="form_outer">
+    <div class="loading_circle invisible">
+      <div class="circle"></div>
+    </div>
     <p class="input_title">ログイン</p>
     <div id="signup_link">
       <a href="{% url 'articles:signup' %}">新規登録</a>
@@ -25,9 +30,9 @@
         </div>
         <div class="form_area">
           {% if error %}
-            {{ error }}<br>
+            <p class="input_error">{{ error  }}</p>
           {% endif %}
-          <button type="submit">ログイン</button>
+          <button class="commit_button" name="login_button" type="submit">ログイン</button>
         </div>
       </form>
     </div>
@@ -35,12 +40,13 @@
       <form  method="POST" action="{% url 'articles:guest' %}">
         {% csrf_token %}
         <div id="guest_button">
-          <button type="submit">ゲストログイン</button>
+          <button id="guest_button_id" name="guest_button" type="submit">ゲストログイン</button>
           <p>※ゲストとしてログインした場合でも<br>
           サイト内を全て同じように使用できます
           </p>
         </div>
       </form>
     </div>
+    <script src="{% static '/javascript/match_result.js' %}"></script>
   </body>
 </html>

@@ -26,7 +26,7 @@ class Preference(models.Model):
     class meta:
         app_lavel = 'articles'
     
-    username = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     good_ids = models.TextField(default='')
     good_nouns = models.TextField(default='')
     recommended_id_rate_pair = models.TextField(default='')
@@ -101,28 +101,30 @@ class Preference(models.Model):
         self.save()
 
     def all_clear(self):
-        """全ての評価を消去する"""
+        """全ての評価とその評価にもとづいた結果を消去する"""
         self.good_ids = ''
         self.uninterested_ids = ''
+        self.good_nouns = ''
+        self.uninterested_nouns = ''
+        self.recommended_id_rate_pair = ''
+        self.rejected_id_rate_pair = ''
         self.save()
 
     def get_recommended_id_rate_dict(self):
         """strで保存されているrecommended_id_rate_pairをdictで返す"""
         return self.convert_str_to_dict(self.recommended_id_rate_pair)
 
-    def save_recommended_id_rate_dict(self, id_rate_dict):
+    def set_recommended_id_rate_dict(self, id_rate_dict):
         """dictで渡されたrecommended_id_rate_pairをstrで保存する"""
         self.recommended_id_rate_pair = self.convert_dict_to_str(id_rate_dict)
-        self.save()
 
     def get_rejected_id_rate_dict(self):
         """「興味なし」の評価から算出したdict{記事ID:一致率}を取得する"""
         return self.convert_str_to_dict(self.rejected_id_rate_pair)
 
-    def save_rejected_id_rate_dict(self, id_rate_dict):
+    def set_rejected_id_rate_dict(self, id_rate_dict):
         """「興味なし」の評価から算出したdict{記事ID:一致率}をデータベースに保存する"""
         self.rejected_id_rate_pair = self.convert_dict_to_str(id_rate_dict)
-        self.save()
 
     def convert_dict_to_str(self, id_rate_dict):
         """引数として受け取ったdictの':'や','を文字列に変換してstrで返す関数"""

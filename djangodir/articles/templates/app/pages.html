@@ -5,7 +5,6 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="{%static '/css/style.css'%}" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="{% static '/javascript/match_result.js' %}"></script>
   </head>
   <body class="left_body" scrolling="no">
     <div class="left_links">
@@ -30,10 +29,8 @@
       <br><br><br><br>
       <p id="username">ユーザー名：</p>
       <p id="current_username">{{ user }}</p><br>
-      <form method="post" action="{% url 'articles:logout' %}" target="_parent">
-        {% csrf_token %}
-        <button type="submit" name="logout">ログアウト</button>
-      </form>
+      <button type="button" id="logout_button" name="logout" onclick="transitWithLoadingCircle('logout')">ログアウト</button>
     </div>
+    <script src="{% static '/javascript/match_result.js' %}"></script>
   </body>
 </html>
