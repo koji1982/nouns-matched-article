@@ -65,14 +65,13 @@ class ScenarioTest(StaticLiveServerTestCase):
         
         #Preferenceが作成されているか確認
         user = User.objects.get(username=test_username)
-        self.assertTrue(Preference.objects.filter(username=user).exists())
+        self.assertTrue(Preference.objects.filter(user=user).exists())
 
         #右側のフレームを選択する
         right_frame = self.selenium.find_element_by_id('right_frame')
         self.selenium.switch_to.frame(right_frame)
         #選択ページ(国内)で上から1番目と3番目の記事にgoodの評価をする
         domestic_1_good = self.selenium.find_element_by_id('1_good')
-        self.assertFalse(domestic_1_good.is_selected())
         domestic_1_good.click()
         domestic_3_good = self.selenium.find_element_by_id('3_good')
         domestic_3_good.click()

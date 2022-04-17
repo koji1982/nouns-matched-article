@@ -310,14 +310,14 @@ class ViewsTest(TestCase):
 
     def test_all_clear(self):
         """all_clear()が呼ばれた時に評価が消去されてリダイレクトされることを確認する"""
-        preference = Preference.objects.get(username=get_test_user())
+        preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = '1,2,3,4,5'
         preference.uninterested_ids = '6,7,8,9,10'
         preference.save()
 
         function_response = self.client.post('/all_clear')
 
-        preference_after = Preference.objects.get(username=get_test_user())
+        preference_after = Preference.objects.get(user=get_test_user())
         self.assertEqual(function_response.status_code, STATUS_REDIRECT)
         self.assertRedirects(function_response, '/src_link')
         self.assertEqual(preference_after.good_ids, '')
@@ -346,7 +346,7 @@ class ViewsTest(TestCase):
         """call_apply_choices()が呼ばれたとき、
         記事評価から一致率が計算されていることを確認する
         """
-        preference = Preference.objects.get(username=get_test_user())
+        preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = '1,2,3,4,5'
         preference.uninterested_ids = '6,7,8,9,10'
         preference.save()
@@ -359,7 +359,7 @@ class ViewsTest(TestCase):
 
         self.client.post('/call_apply_choices')
 
-        preference_after = Preference.objects.get(username=get_test_user())
+        preference_after = Preference.objects.get(user=get_test_user())
         self.assertNotEqual(preference_after.recommended_id_rate_pair, '')
         self.assertNotEqual(preference_after.rejected_id_rate_pair, '')
         response_positive = self.client.get('/result_positive')
@@ -428,7 +428,7 @@ class ViewsTest(TestCase):
                 actual_without_csrf = remove_csrf(actual_html)
                 #テスト対象の関数が呼ばれるとtest_articleのeval_goodフィールドが
                 #Trueになるため、モデルにアクセスして状態を戻す
-                Preference.objects.get(username=request.user).all_clear()
+                Preference.objects.get(user=request.user).all_clear()
                 #比較用のhtml取り出し
                 context = {'category': category}
                 expected_template = self.client.post(path, context)
@@ -471,7 +471,7 @@ class ViewsTest(TestCase):
                 actual_without_csrf = remove_csrf(actual_html)
                 #テスト対象の関数が呼ばれるとtest_articleのeval_uninterestedフィールドが
                 #Trueになるため、モデルにアクセスして状態を戻す
-                Preference.objects.get(username=request.user).all_clear()
+                Preference.objects.get(user=request.user).all_clear()
                 #比較用のhtml取り出し
                 context = {'category': category}
                 expected_template = self.client.post(path, context)

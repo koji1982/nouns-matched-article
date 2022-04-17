@@ -6,7 +6,7 @@ def apply_choices(user):
     その単語群と他の記事内の単語がどれだけ一致するかを算出して保存する関数
     """
     
-    user_preference = Preference.objects.get(username=user)
+    user_preference = Preference.objects.get(user=user)
     
     good_id_list = user_preference.get_good_list()
     uninterested_id_list = user_preference.get_uninterested_list()

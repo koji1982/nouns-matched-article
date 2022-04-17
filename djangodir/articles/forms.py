@@ -1,4 +1,3 @@
-from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from articles.models import User
 
@@ -10,9 +9,12 @@ class SignupForm(UserCreationForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for form_field in self.fields.values():
-            form_field.widget.attrs['class'] = 'form-control'
-            form_field.widget.attrs['placeholder'] = form_field.label
+        self.fields['username'].widget.attrs['class'] = 'form-control'
+        self.fields['password1'].widget.attrs['class'] = 'form-control'
+        self.fields['password2'].widget.attrs['class'] = 'form-control'
+        self.fields['username'].widget.attrs['placeholder'] = 'User name'
+        self.fields['password1'].widget.attrs['placeholder'] = 'Password'
+        self.fields['password2'].widget.attrs['placeholder'] = 'Confirm Password'
 
 class LoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):

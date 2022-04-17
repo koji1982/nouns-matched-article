@@ -6,16 +6,33 @@ function transitWithLoadingCircle(nextUrl){
     parent.window.location.href = nextUrl;
 }
 
-//formのPost時にロード画面を表示させる
+//サインアップ、ログインformのPost時のローディング表示
 $(function(){
-    $(".commit_button").on("submit", function(){
+    $(".commit_button").on("click", function(){
+        //サインアップなのかログインなのかで入力フォームの数を決定する
+        title = document.getElementsByTagName('title');
+        formCount = title[0].textContent == 'ログイン画面' ? 2 : 3;
+        //入力フォームに空欄があった場合はそのまま終了
+        //その他の入力エラーはDjango側で処理する
+        inputForms = document.getElementsByClassName('input_form');
+        for(i=0; i<formCount; i++){
+            if(inputForms[i].value.length == 0){
+                return true;
+            }
+        }
+        //ローディング画面を表示させる
         setTimeout( function(){
             $(".loading_circle").removeClass("invisible");
         }, 200);
-        //認証に失敗してformにfocusが戻った場合はloading_circleを除去
-        $(".input_form").on("focus", function(){
-            $(".loading_circle").addClass("invisible");
-        });
+    });
+});
+
+//ゲストログイン時には認証失敗を考慮せずそのままロード画面を表示する
+$(function(){
+    $("#guest_button_id").on("click", function(){
+        setTimeout( function(){
+            $(".loading_circle").removeClass("invisible");
+        }, 200);
     });
 });
 

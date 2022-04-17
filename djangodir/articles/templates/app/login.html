@@ -30,7 +30,7 @@
         </div>
         <div class="form_area">
           {% if error %}
-            {{ error }}<br>
+            <p class="input_error">{{ error  }}</p>
           {% endif %}
           <button class="commit_button" name="login_button" type="submit">ログイン</button>
         </div>
@@ -40,7 +40,7 @@
       <form  method="POST" action="{% url 'articles:guest' %}">
         {% csrf_token %}
         <div id="guest_button">
-          <button class="commit_button" name="guest_button" type="submit">ゲストログイン</button>
+          <button id="guest_button_id" name="guest_button" type="submit">ゲストログイン</button>
           <p>※ゲストとしてログインした場合でも<br>
           サイト内を全て同じように使用できます
           </p>

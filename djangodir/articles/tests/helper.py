@@ -36,9 +36,13 @@ def post_request_with_anonymous(path, data):
 def get_request_with_pref(url_path):
     request = get_request(url_path)
     user = request.user
-    if not Preference.objects.filter(username=user).exists():
-        Preference.objects.create(username=user)
+    if not Preference.objects.filter(user=user).exists():
+        Preference.objects.create(user=user)
     return request
+
+def prepare_selenium_user():
+    user = create_user_with_password()
+    create_test_preference(user)
 
 def prepare_user_pref(testcase):
     user = get_test_user()
@@ -46,8 +50,8 @@ def prepare_user_pref(testcase):
     create_test_preference(user)
 
 def create_test_preference(user):
-    if not Preference.objects.filter(username=user).exists():
-        Preference.objects.create(username=user)
+    if not Preference.objects.filter(user=user).exists():
+        Preference.objects.create(user=user)
 
 def remove_csrf(html_source):
     """csrf部分を除去して返す関数"""

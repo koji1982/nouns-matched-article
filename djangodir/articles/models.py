@@ -26,7 +26,7 @@ class Preference(models.Model):
     class meta:
         app_lavel = 'articles'
     
-    username = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     good_ids = models.TextField(default='')
     good_nouns = models.TextField(default='')
     recommended_id_rate_pair = models.TextField(default='')
