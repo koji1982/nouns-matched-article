@@ -7,37 +7,37 @@ WRONG_URL_PATH = '/wrong_url_path/'
 class UrlsTest(TestCase):
     
     def test_resolve_article_response(self):
-        '''pathからviews.article_responseが返されることを確認する'''
+        '''path'/'からviews.article_responseが返されることを確認する'''
         view = resolve('/')
         self.assertEqual(view.func, article_response)
 
     def test_resolve_login(self):
-        '''pathからview.loginが返されることを確認する'''
+        '''path'/login'からview.loginが返されることを確認する'''
         view = resolve('/login')
         self.assertEqual(view.func, login_process)
 
     def test_resolve_login_guest_user(self):
-        '''pathからview.guest_loginが返されることを確認する'''
+        '''path'/guest'からview.guest_loginが返されることを確認する'''
         view = resolve('/guest')
         self.assertEqual(view.func, login_guest_user)
 
     def test_resolve_signup(self):
-        '''pathからview.signupが返されることを確認する'''
+        '''path'/signup'からview.signupが返されることを確認する'''
         view = resolve('/signup')
         self.assertEqual(view.func, signup)
 
     def test_resolve_signup_completed(self):
-        '''pathからview.signup_completedが返されることを確認する'''
+        '''path'signup_completed'からview.signup_completedが返されることを確認する'''
         view = resolve('/signup_completed')
         self.assertEqual(view.func, signup_completed)
 
     def test_resolve_logout_reopen(self):
-        '''pathからviews.logout_reopenが返されることを確認する'''
+        '''path'/logout'からviews.logout_reopenが返されることを確認する'''
         view = resolve('/logout')
         self.assertEqual(view.func, logout_reopen)
 
     def test_resolve_left_frame(self):
-        '''pathからviews.left_frameが返されることを確認する'''
+        '''path'/pages'からviews.left_frameが返されることを確認する'''
         view = resolve('/pages')
         self.assertEqual(view.func, left_frame)
 
@@ -47,7 +47,7 @@ class UrlsTest(TestCase):
         self.assertEqual(view.func, article_link)
 
     def test_resolve_article_link(self):
-        '''想定されるcategoryを含んだpath全てから
+        '''categoryを含んだpath'/src_link/'全てから
         views.article_linkが返されることを確認する
         '''
         for category in CATEGORY_DICT.keys():
@@ -56,24 +56,29 @@ class UrlsTest(TestCase):
                 self.assertEqual(view.func, article_link)
 
     def test_resolve_all_clear(self):
+        """path'/all_clear'からviews.all_clearが返されることを確認する"""
         view = resolve('/all_clear')
         self.assertEqual(view.func, all_clear)
         
     def test_resolve_loading(self):
+        """path'/loading'からviews.loadingが返されることを確認する"""
         view = resolve('/loading')
         self.assertEqual(view.func, loading)
     
     def test_resolve_result_positive(self):
+        """path'/result_positive'からviews.result_positiveが返されることを確認する"""
         view = resolve('/result_positive')
         self.assertEqual(view.func, result_positive)
 
     def test_resolve_result_negative(self):
+        """path'/result_negative'からviews.result_negativeが
+        返されることを確認する
+        """
         view = resolve('/result_negative')
         self.assertEqual(view.func, result_negative)
 
     def test_resolve_category_clear(self):
-        '''
-        想定されるcategoryを含んだpath全てから
+        '''想定されるcategoryを含んだpath'/category_clear'全てから
         views.category_clearが返されることを確認する
         '''
         for category_jp in CATEGORY_DICT.values():
@@ -82,8 +87,7 @@ class UrlsTest(TestCase):
                 self.assertEqual(view.func, category_clear)
 
     def test_resolve_eval_good(self):
-        '''
-        想定されるcategoryを含んだpath全てから
+        '''想定されるcategoryを含んだpath'/eval_good/'全てから
         views.eval_goodが返されることを確認する
         '''
         for category in CATEGORY_DICT.keys():
@@ -92,8 +96,7 @@ class UrlsTest(TestCase):
                 self.assertEqual(view.func, eval_good)
 
     def test_resolve_eval_uninterested(self):
-        '''
-        想定されるcategoryを含んだpath全てから
+        '''想定されるcategoryを含んだpath'/eval_uninterested/'全てから
         views.eval_uninterestedが返されることを確認する
         '''
         for category in CATEGORY_DICT.keys():

@@ -63,7 +63,7 @@ class ScenarioTest(StaticLiveServerTestCase):
         login_button.click()
         self.selenium.implicitly_wait(10)
         
-        #Preferenceが作成されているか確認
+        #（初回ログイン時に作成される）Preferenceが作成されているか確認
         user = User.objects.get(username=test_username)
         self.assertTrue(Preference.objects.filter(user=user).exists())
 

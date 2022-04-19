@@ -3,7 +3,22 @@ from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from djangodir.project import settings
 
 class Article(models.Model):
+    """ニュース記事を保存するモデル。一つの記事を一つのArticleに格納する。
 
+    id       Articleの識別子
+
+    url      記事の参照元URL
+
+    category 参照元での記事の分類
+
+    date     記事に書かれている日付
+
+    title    記事の見出し
+
+    body     記事本文
+
+    noun     記事本文から抽出した名詞リスト
+    """
     class meta:
         app_label='articles'
     
@@ -22,7 +37,35 @@ class Article(models.Model):
         return str(self.id)
             
 class Preference(models.Model):
+    """Userと一対一で紐付けられた、記事に対するUserの嗜好を保存するモデル。
     
+    user                     このPreferenceに紐付けられたUserモデル
+
+    good_ids                 Userが'いいね'と評価した記事のID
+
+    good_nouns               Userが'いいね'と評価した記事から抽出した名詞群。
+                             'いいね'評価がゼロの場合、または評価が反映されて
+                             いない場合は空のstrが格納される
+
+    recommended_id_rate_pair Userが'いいね'と評価した記事内の名詞群'good_nouns'
+                             に対する他の記事の名詞群の一致率を求めて、
+                             記事IDと一致率のペアにしたもの。
+                             'いいね'評価がゼロの場合、または評価が反映されて
+                             いない場合は空のstrが格納される
+
+    uninterested_ids         Userが'興味なし'と評価した記事のID
+
+    uninterested_nouns       Userが'興味なし'と評価した記事から抽出した名詞群。
+                             '興味なし'評価がゼロの場合、または評価が反映されて
+                             いない場合は空のstrが格納される
+
+    rejected_id_rate_pair    Userが'興味なし'と評価した記事内の名詞群
+                             'uninterested_nouns'に対する他の記事の名詞群の
+                             一致率を求めて、記事IDと一致率のペアにしたもの。
+                             '興味なし'評価がゼロの場合、または評価が反映されて
+                             いない場合は空のstrが格納される
+    """
+
     class meta:
         app_lavel = 'articles'
     
@@ -138,7 +181,7 @@ class Preference(models.Model):
         return {id_rate_pair[0]:id_rate_pair[1] for id_rate_pair in pair_list_list}
 
 class MyUserManager(BaseUserManager):
-
+    """カスタムユーザー使用のために作成"""
     use_in_migrations = True
     
     def create_user(self, username, email=None, password=None, **extra_fields):
@@ -149,7 +192,7 @@ class MyUserManager(BaseUserManager):
         return user
 
 class User(AbstractBaseUser):
-
+    """User関連の変更に対応するために作成したカスタムユーザーモデル"""
     class Meta:
         verbose_name = ("user")
 

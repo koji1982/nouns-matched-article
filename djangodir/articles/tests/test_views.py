@@ -17,6 +17,10 @@ WRONG_TITLE = 'wrong_title'
 
 class ViewsTest(TestCase):
 
+    #ログイン関連のエラーを回避するために一部のテストでは
+    #テスト対象の関数の代わりにclient.get()またはclient.post()
+    #を使用している。
+
     fixtures = ["test_articles.json"]
 
     def setUp(self):
@@ -27,7 +31,9 @@ class ViewsTest(TestCase):
         self.client.logout()
 
     def test_article_response(self):
-        """article_response()が'app/frame.html'の正常なレスポンスを返すことを確認する"""
+        """article_response()が'app/frame.html'の正常なレスポンス
+        を返すことを確認する
+        """
         request = get_request('/')
         function_response = article_response(request)
         actual_html = function_response.content.decode('utf8')
@@ -101,7 +107,9 @@ class ViewsTest(TestCase):
                 self.assertTrue(response.wsgi_request.user.is_anonymous)
 
     def test_login_guest_user_redirect(self):
-
+        """login_guest_user()が呼ばれるとゲストユーザーが作成され
+        path'/'へリダイレクトされることを確認する
+        """
         self.assertFalse(User.objects.filter(username='ゲスト').exists())
 
         response = self.client.post('/guest')
@@ -123,6 +131,9 @@ class ViewsTest(TestCase):
         self.assertTrue(response.wsgi_request.user.is_anonymous)
 
     def test_signup_get_response(self):
+        """signup()がリクエスト(GET)で呼ばれると'app/signup.html'の
+        正常なレスポンスを返すことを確認する
+        """
         request = get_request('/singup')
         function_response = signup(request)
         actual_html = function_response.content.decode('utf8')
@@ -259,6 +270,9 @@ class ViewsTest(TestCase):
 
 
     def test_left_frame(self):
+        """left_frame()が'app/pages.html'の
+        正常なレスポンスを返すことを確認する
+        """
         request = get_request('/pages')
         function_response = left_frame(request)
         actual_html = function_response.content.decode('utf8')
@@ -271,6 +285,9 @@ class ViewsTest(TestCase):
         self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_article_link_without_arg(self):
+        """article_link()がcategory引数なしで呼ばれたとき
+        'app/src_link.html'の正常なレスポンスを返すことを確認する
+        """
         request = get_request_with_pref('/src_link')
         self.client.force_login(request.user)
         function_response = article_link(request)
@@ -285,6 +302,10 @@ class ViewsTest(TestCase):
         self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_article_link(self):
+        """article_link()がcategory引数を渡されて呼ばれたとき
+        各カテゴリーの'app/src_link.html'の正常なレスポンス
+        を返すことを確認する
+        """
         for category in CATEGORY_DICT.keys():
             with self.subTest(category=category):
                 path = '/src_link/'+category
@@ -309,7 +330,9 @@ class ViewsTest(TestCase):
             article_link(HttpRequest(), WRONG_CATEGORY)
 
     def test_all_clear(self):
-        """all_clear()が呼ばれた時に評価が消去されてリダイレクトされることを確認する"""
+        """all_clear()が呼ばれた時に評価が消去されて
+        リダイレクトされることを確認する
+        """
         preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = '1,2,3,4,5'
         preference.uninterested_ids = '6,7,8,9,10'
@@ -324,6 +347,9 @@ class ViewsTest(TestCase):
         self.assertEqual(preference_after.uninterested_ids, '')
 
     def test_loading(self):
+        """loading()が呼ばれると'app/loading.html'の
+        正常なレスポンスを返すことを確認する
+        """
         function_response = loading(HttpRequest())
         actual_html = function_response.content.decode('utf8')
 
@@ -368,7 +394,7 @@ class ViewsTest(TestCase):
         self.assertNotEqual(response_negative.context['recommendations'], [])
 
     def test_result_positive(self):
-        """result_positive()"""
+        """result_positive()が正常なレスポンスを返すことを確認する"""
         function_response = result_positive(get_request_with_pref('/result_positive'))
         actual_html = function_response.content.decode('utf8')
 
@@ -379,7 +405,7 @@ class ViewsTest(TestCase):
         self.assertEqual(actual_html, expected_html)
 
     def test_result_negative(self):
-        """result_negative()"""
+        """result_negative()が正常なレスポンスを返すことを確認する"""
         function_response = result_negative(get_request_with_pref('/result_negative'))
         actual_html = function_response.content.decode('utf8')
 
@@ -390,9 +416,9 @@ class ViewsTest(TestCase):
         self.assertEqual(actual_html, expected_html)
 
     def test_category_clear(self):
-        # user = get_test_user()
-        # self.client.force_login(user)
-        # create_test_preference(user)
+        """category_clear()が呼ばれると
+        同じカテゴリーの同じページを開くことを確認する
+        """
         for category_jp in CATEGORY_DICT.values():
             with self.subTest(category=category_jp):
                 path = '/category_clear/'+category_jp
@@ -410,10 +436,16 @@ class ViewsTest(TestCase):
                 self.assertEqual(actual_without_csrf, expected_without_csrf)
 
     def test_category_clear_with_wrong_category(self):
+        """category_clear()が間違ったカテゴリー名を引数として
+        渡されて呼ばれたときエラーを送出することを確認する
+        """
         with self.assertRaises(KeyError):
             category_clear(HttpRequest(), WRONG_CATEGORY)
 
     def test_eval_good(self):
+        """eval_good()が呼ばれたとき
+        同じカテゴリーの同じページを開く（更新する）ことを確認する
+        """
         for category in CATEGORY_DICT.keys():
             with self.subTest(category=category):
                 #各カテゴリーの先頭のデータを取り出してテストデータとする
@@ -457,6 +489,8 @@ class ViewsTest(TestCase):
             eval_good(HttpRequest, WRONG_CATEGORY, WRONG_TITLE)
 
     def test_eval_uninterested(self):
+        """eval_uninterested()が呼ばれたとき
+        同じカテゴリーの同じページを開く（更新する）ことを確認する"""
         for category in CATEGORY_DICT.keys():
             with self.subTest(category=category):
                 #各カテゴリーの先頭のデータを取り出してテストデータとする
