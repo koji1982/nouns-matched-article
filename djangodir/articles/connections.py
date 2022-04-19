@@ -17,7 +17,8 @@ from articles.nlp import extract_noun
 
 
 class DBOperation:
-
+    """Djangoの外からデータベースへの保存を行うためのクラス。"""
+    
     def register_item(self, item):
         """scrapyフレームワークのitemを受け取りDjango内の
         データベースに保存するメソッド

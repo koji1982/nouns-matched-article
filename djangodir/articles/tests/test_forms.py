@@ -4,7 +4,7 @@ from articles.tests.helper import *
 
 class FormsTest(TestCase):
     
-    #SignupFormのテスト
+    #以下SignupFormのテスト
     def test_signup_form(self):
         """有効なdataを渡されたSignupForm()がis_valid()を返すことを確認する"""
         username = 'form_test'
@@ -33,6 +33,9 @@ class FormsTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_signup_form_is_invalid_with_invalid_data(self):
+        """無効なdataを渡されたSignupForm()が
+        is_valid() == False を返すことを確認する
+        """
         valid_name = 'form_test'
         valid_password = 'valid_testing_password'
         #パスワードが短すぎるデータ
@@ -70,7 +73,7 @@ class FormsTest(TestCase):
                 form = SignupForm(invalid_data)
                 self.assertFalse(form.is_valid())
         
-        #LoginFormのテスト
+        #以下LoginFormのテスト
     def test_login_form_is_valid(self):
         """LoginForm()が有効なdataを引数として受け取って
         is_valid()==Trueとなることを確認する

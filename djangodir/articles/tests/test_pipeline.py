@@ -111,6 +111,7 @@ class ArticlePipelineTest(TestCase):
             article_pipeline.process_item(spider=ArticleSpider())
 
 def get_test_item(url='https://dummy_url_100'):
+    """テスト用のArticleItemを取得するヘルパー関数"""
     return ArticleItem(url=url,
                        category='domestic',
                        date='1/1(土) 22:07',

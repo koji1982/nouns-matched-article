@@ -11,7 +11,7 @@ class SelectionTest(TestCase):
         good_nouns, recommended_id_rate_pair, uninterested_nouns,
         rejected_id_rate_pairの４つが作成、保存されることを確認する"""
         #Preference用意し、記事の評価を保存する
-        self.prepare_user_pref()
+        prepare_user_pref(self)
         preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = '1,2,3,4,5'
         preference.uninterested_ids = '6,7,8,9,10'
@@ -38,7 +38,7 @@ class SelectionTest(TestCase):
         uninterested_nouns,rejected_id_rate_pairの４つは
         作成されないことを確認する"""
         #Preference用意し、記事の評価を保存する
-        self.prepare_user_pref()
+        prepare_user_pref(self)
         preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = ''
         preference.uninterested_ids = ''
@@ -62,9 +62,3 @@ class SelectionTest(TestCase):
         self.assertEqual(preference_after.uninterested_nouns, '')
         self.assertEqual(preference_after.recommended_id_rate_pair, '')
         self.assertEqual(preference_after.rejected_id_rate_pair, '')
-
-
-    def prepare_user_pref(self):
-        user = get_test_user()
-        self.client.force_login(user)
-        create_test_preference(user)

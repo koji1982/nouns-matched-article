@@ -24,7 +24,7 @@ class ModelsTest(TestCase):
         article = Article.objects.all()[0]
         self.assertEqual(article.get_id(), str(article.id))
 
-    #Preferenceのテスト
+    #以下Preferenceのテスト
     def test_preference_get_good_list_returns_good_ids_by_list(self):
         """get_good_list()がgood_idsをlist型にして返すことを確認する"""
         preference = Preference.objects.get(user=get_test_user())
@@ -357,7 +357,8 @@ class ModelsTest(TestCase):
         self.assertNotEqual(preference.rejected_id_rate_pair, '')
 
     def test_convert_dict_to_str(self):
-        """convert_dict_to_str()が"""
+        """convert_dict_to_str()が引数として受け取った辞書型のデータを
+        辞書型に戻せる形のstrに変換して返すことを確認する"""
         preference = Preference.objects.get(user=get_test_user())
         test_data = {
             '6':'0.375',
