@@ -4,11 +4,12 @@ import time
 from bs4 import BeautifulSoup
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
-from ..items import ArticleItem
+from scraping.components.items import ArticleItem
 
 
 class ArticleSpider(CrawlSpider):
-    
+    """Yahooニュースの記事を収集するスパイダー。"""
+
     name = 'article_spider'
     allowed_domains = ['www.yahoo.co.jp', 'news.yahoo.co.jp']
     start_urls = [
@@ -32,7 +33,10 @@ class ArticleSpider(CrawlSpider):
     }
 
     def parse_newsfeed(self, response):
-        """
+        """一つの記事に対して一つのItemを作成する。
+        記事リストからリンクをたどり、導入ページを通り過ぎて本文のページで
+        記事の取得を行う。クローリング時にScrapyフレームワークから呼ばれる。
+
         @url https://news.yahoo.co.jp/topics/domestic?page=1
         @returns items 1
         @returns requests 0

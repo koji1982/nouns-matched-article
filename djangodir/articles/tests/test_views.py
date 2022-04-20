@@ -35,7 +35,7 @@ class ViewsTest(TestCase):
         を返すことを確認する
         """
         request = get_request('/')
-        function_response = article_response(request)
+        function_response = frame(request)
         actual_html = function_response.content.decode('utf8')
 
         expected_template = render_to_string('app/frame.html')

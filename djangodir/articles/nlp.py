@@ -19,16 +19,16 @@ def extract_noun(text):
     return connected_nouns
 
 def make_matched_rate_dict(base_nouns: str, id_nouns_dict: dict) -> dict:
-    """url_nouns_dictのvalue文字列に対して、base_nouns内の名詞と一致する
+    """id_nouns_dictのnounsに対して、base_nouns内の名詞と一致する
     名詞の割合を算出し、id:rateのdictの形で返す関数
     """
     #base_nounsが空の場合、
-    #即ち、goodまたはuninterestedどちらかの評価が全くされていない場合、
+    #即ち、goodまたはuninterestedどちらかの評価が全くされていない場合は、
     #その評価の一致率を算出できないため空の辞書を返す
     if base_nouns == '':
         return {}
     #型チェックを行う
-    #第一引数がlist(str),第二引数がdict{str:str}でない場合はErrorを送出する
+    #第一引数がstr,第二引数がdict{str:str}でない場合はErrorを送出する
     #また、どちらのstr(dict.keyは除く)もコンマ(,)で連結、成形されていることを前提とする
     if type(base_nouns) is not str:
         raise TypeError
