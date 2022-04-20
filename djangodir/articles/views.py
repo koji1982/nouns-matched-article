@@ -35,8 +35,10 @@ def signup(request):
     ここでの入力が有効だと判定されると新しいUserが作られる。
     """
     context = {'form': SignupForm()}
+    #GETの場合はhtmlを表示して終了
     if request.method == 'GET':
         return render(request, 'app/signup.html', context)
+    #以下POSTの場合
     #ユーザー名、パスワードを入力後、登録ボタンが押された時の処理
     username = request.POST.get('username', '')
     password1 = request.POST.get('password1', '')
@@ -53,6 +55,10 @@ def signup(request):
     if password1 != password2:
         error_message = '二つのパスワードの入力内容が違っています'
     if error_message != '':
+        #※ローディング画面表示との整合性から、
+        # (空欄の場合、ゲストの場合には無効の判定が行われないことから)
+        # この時点で無効だと判断された場合はエラーメッセージと共に
+        # もう一度サインアップ画面を表示する
         context['error'] = error_message
         return render(request, 'app/signup.html', context)
     data = {
@@ -60,6 +66,7 @@ def signup(request):
         'password1': password1,
         'password2': password2
     }
+    #Formへ入力データを渡す
     form = SignupForm(data=data)
     if form.is_valid():
         #入力が有効な場合は保存して完了画面へリダイレクト
@@ -71,6 +78,8 @@ def signup(request):
         url_with_parameters = f'{completed_url}?{param_in_url}'
         return redirect(url_with_parameters)
     else:
+        #入力が無効な場合はエラーメッセージと共に
+        #もう一度サインアップ画面を表示する
         error_message += '\n入力内容が無効とみなされました'
         context['error'] = error_message
         return render(request, 'app/signup.html', context)
@@ -88,9 +97,11 @@ def login_process(request):
     ログイン成功時にそのUserのPreferenceが存在していない場合は
     新しく作成される。
     """
+    #GETの場合はhtmlを表示して終了
     if request.method == 'GET':
         return render(request, 'app/login.html', {'form': LoginForm()})
-
+    #以下POSTの場合
+    #入力内容のチェック
     username = request.POST.get('username', '')
     password = request.POST.get('password', '')
     error_message = ''
@@ -103,9 +114,10 @@ def login_process(request):
         'username': username,
         'password': password
     }
-    
+    #Formに入力データを渡す
     form = LoginForm(data=data)
     if form.is_valid():
+        #入力が有効な場合は認証を行い、認証されたUserでログインする
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
         user = authenticate(username=username, password=password)
@@ -115,6 +127,8 @@ def login_process(request):
             Preference.objects.create(user=user)
         return redirect('/')
     else:
+        #入力が無効とされた場合はエラーメッセージと共に
+        #もう一度ログイン画面を表示
         error_message = '認証に失敗しました'
         return render(request, 'app/login.html', {'form': LoginForm(), 'error': error_message})
 
