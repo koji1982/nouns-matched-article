@@ -30,8 +30,9 @@
               <td>
                 <div>
                   <a href={{recommend.1.url}} id="{{forloop.counter}}_link" target="_blank" rel="noopener noreferrer">
-                    {{ recommend.1.title | truncatechars:35 }}{{forloop.counter}}
+                    {{ recommend.1.title | truncatechars:35 }}
                   </a>
+                  {{forloop.counter}}
                 </div>
               </td>
               

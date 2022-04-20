@@ -4,7 +4,7 @@ from articles import views
 app_name = 'articles'
 
 urlpatterns = [
-    path('', views.article_response, name='frame'),
+    path('', views.frame, name='frame'),
     path('login', views.login_process, name='login'),
     path('guest', views.login_guest_user, name='guest'),
     path('signup', views.signup, name='signup'),

@@ -24,10 +24,16 @@ CATEGORY_DICT = {
 GUEST_USERNAME = 'ゲスト'
 
 @login_required
-def article_response(request):
+def frame(request):
+    """ログイン時に最初に呼ばれることを想定している。
+    画面を分けるフレームを定義しているhtmlを返す。
+    """
     return render(request, 'app/frame.html')
 
 def signup(request):
+    """サインアップ画面として呼ばれる。
+    ここでの入力が有効だと判定されると新しいUserが作られる。
+    """
     context = {'form': SignupForm()}
     if request.method == 'GET':
         return render(request, 'app/signup.html', context)
@@ -70,6 +76,7 @@ def signup(request):
         return render(request, 'app/signup.html', context)
 
 def signup_completed(request):
+    """サインアップが完了したことを表示する。"""
     content = {
         'username': request.GET.get('username'),
         'password': request.GET.get('password')
@@ -77,7 +84,10 @@ def signup_completed(request):
     return render(request, 'app/signup_completed.html', content)
 
 def login_process(request):
-
+    """ログイン画面として呼ばれる。
+    ログイン成功時にそのUserのPreferenceが存在していない場合は
+    新しく作成される。
+    """
     if request.method == 'GET':
         return render(request, 'app/login.html', {'form': LoginForm()})
 
@@ -109,6 +119,10 @@ def login_process(request):
         return render(request, 'app/login.html', {'form': LoginForm(), 'error': error_message})
 
 def login_guest_user(request):
+    """ゲストログインを行う関数。
+    ゲストユーザーとそのPreferenceが存在しない場合は
+    新しく作成される。
+    """
     #パスワードを環境変数から取得
     env = environ.Env()
     env.read_env(os.path.join(Path(__file__).resolve().parent.parent.parent, '.django_env'))
@@ -129,18 +143,21 @@ def login_guest_user(request):
     return redirect('/')
 
 def logout_reopen(request):
+    """ログアウトを行う。完了後はログイン画面にリダイレクトする。"""
     #djangoユーザーのログアウト
     logout(request)
     #先頭のページへ転送
     return redirect('/login')
 
 def left_frame(request):
+    """app/frame.htmlで左右に分けたうちの左側を表示する。"""
     content = {
         'user': str(request.user)
     }
     return render(request, 'app/pages.html', content)
 
 def article_link(request, clicked_category='domestic'):
+    """カテゴリーごとの記事のリンクを表示する。"""
     articles = Article.objects.filter(category=clicked_category)
     context = {
         'records': articles,
@@ -150,11 +167,15 @@ def article_link(request, clicked_category='domestic'):
     return render(request, 'app/src_link.html', context)
 
 def all_clear(request):
+    """ログイン中のユーザーが行った全ての評価とそこから取得した名詞群、
+    一致率を消去する。
+    """
     preference = Preference.objects.get(user=request.user)
     preference.all_clear()
     return redirect('/src_link')
 
 def category_clear(request, category_in_jp):
+    """選択中のカテゴリーの記事の評価を全て消去する。"""
     category_in_en = get_category_en(category_in_jp)
     preference = Preference.objects.get(user=request.user)
     preference.category_clear(category_in_en)
@@ -166,6 +187,9 @@ def category_clear(request, category_in_jp):
     return render(request, 'app/src_link.html', context)
 
 def eval_good(request, clicked_category, article_title):
+    """「いいね」ボタンが押されたときに呼ばれる。
+    引数として受け取った記事のIDをPreference.evaluate_good()に渡す。
+    """
     evaluated_article = Article.objects.get(title=article_title)
     current_user_pref = Preference.objects.get(user=request.user)
     current_user_pref.evaluate_good(evaluated_article.get_id())
@@ -178,6 +202,9 @@ def eval_good(request, clicked_category, article_title):
     return render(request, 'app/src_link.html', context)
 
 def eval_uninterested(request, clicked_category, article_title):
+    """「興味なし」ボタンが押されたときに呼ばれる。
+    引数として受け取った記事のIDをPreference.evaluate_uninterested()に渡す。
+    """
     evaluated_article = Article.objects.get(title=article_title)
     current_user_pref = Preference.objects.get(user=request.user)
     current_user_pref.evaluate_uninterest(evaluated_article.get_id())
@@ -193,10 +220,14 @@ def loading(request):
     return render(request, 'app/loading.html')
 
 def call_apply_choices(request):
+    """apply_choices()を呼び出して、結果（推奨記事）の画面にリダイレクトする。"""
     apply_choices(request.user)
     return redirect('/result_positive')
 
 def result_positive(request):
+    """「いいね」評価の記事から取り出した名詞群と、
+    そこから算出した一致率を降順で表示する。
+    """
     id_rate_dict = Preference.objects.get(user=request.user).get_recommended_id_rate_dict()
     rate_articles = []
     for id, rate in id_rate_dict.items():
@@ -211,6 +242,9 @@ def result_positive(request):
     return render(request, 'app/result.html', context)
 
 def result_negative(request):
+    """「興味なし」評価の記事から取り出した名詞群と、
+    そこから算出した一致率を降順で表示する。
+    """
     id_rate_dict = Preference.objects.get(user=request.user).get_rejected_id_rate_dict()
     rate_articles = []
     for id, rate in id_rate_dict.items():
@@ -225,9 +259,13 @@ def result_negative(request):
     return render(request, 'app/result.html', context)
 
 def get_category_jp(category):
+    """英語表記で受け取ったcategoryを日本語表記にして返す関数。
+    get_category_en()と対比して見易くするために作成。
+    """
     return CATEGORY_DICT[category]
 
 def get_category_en(category):
+    """日本語表記で受け取ったカテゴリーを英語表記にして返す関数。"""
     category_jp_en = {
         '国内': 'domestic',
         '国際': 'world',
