@@ -2,6 +2,7 @@
 mod_wsgi-express module-config > /etc/apache2/sites-available/django.conf
 echo "WSGIScriptAlias / /code/djangodir/project/wsgi.py
 WSGIPythonPath /code:/code/djangodir
+WSGIApplicationGroup %{GLOBAL}
 <Directory /code/djangodir/project>
   <Files wsgi.py>
     Require all granted

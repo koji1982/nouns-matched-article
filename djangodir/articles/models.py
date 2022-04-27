@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin
 from djangodir.project import settings
 
 class Article(models.Model):
@@ -191,8 +192,19 @@ class MyUserManager(BaseUserManager):
         user.save()
         return user
 
-class User(AbstractBaseUser):
-    """User関連の変更に対応するために作成したカスタムユーザーモデル"""
+    def create_superuser(self, username, password):
+        user = self.create_user(
+            username=username,
+            password=password,
+        )
+        user.is_admin = True
+        user.save(using=self._db)
+        return user
+
+class User(AbstractBaseUser, PermissionsMixin):
+    """公式の推奨に従い、User関連の変更に対応するために
+    作成したカスタムユーザーモデル。現時点で特段変更点は無い。
+    """
     class Meta:
         verbose_name = ("user")
 
@@ -200,6 +212,18 @@ class User(AbstractBaseUser):
     objects = MyUserManager()
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
 
     def __str__(self):
         return self.get_username()
+
+    def has_perm(self, perm, obj=None):
+        return self.is_admin
+
+    def has_module_perms(self, app_label):
+        return self.is_admin
+
+    @property
+    def is_staff(self):
+        return self.is_admin

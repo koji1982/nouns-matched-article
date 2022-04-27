@@ -1,5 +1,10 @@
+from pydoc import Helper
+from unittest.mock import MagicMock
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from django.test import TestCase
 from articles.nlp import *
+from articles.tests.helper import *
 
 BASE_NOUNS = '名詞,一致,割合,算出,基準,リスト,コンマ,付属'
 HALF_MATCH = '基準,リスト,名詞,半分,一致,残り,語句,相違'
@@ -7,6 +12,57 @@ UNMATCH_NOUNS = '全部,単語,意味,量,相違'
 
 
 class NlpTest(TestCase):
+
+    fixtures = ['test_articles.json']
+
+    def test_tfidf_for_good(self):
+        prepare_user_pref(self)
+        preference = Preference.objects.get(user=get_test_user())
+        preference.good_ids = '1,2,3,4,5'
+        preference.uninterested_ids = '7,9,11,12,15'
+        preference.save()
+        
+        compute_tfidf_cos_similarity(get_test_user())
+
+    def test_make_merged_vectors_from_article_ids(self):
+
+        text_1 = '今年,3,大阪,寝屋川,専門,学校,生,刃物,死亡,事件,強盗,致死,容疑,検察,官,送致,逆送,男,19,弁護,士,25,男,起訴,際,実名,報道,よう,大阪,記者,会見,小西,智子,弁護,士,親,虐待,こと,報復,の,玉野,まりこ,弁護,士,事件,の,人物,従属,立場,説明,結果,地域,出身,実名,報道,家族'
+        text_2 = '岸田,文雄,首相,21,ニュージーランド,今年,3,大阪,寝屋川,専門,学校,生,アーダン,首相,官邸,会談,ロシア,ウクライナ,侵攻,非難,経済,制裁,対応,方針,一致,国,保障,防衛,分野,協力,強化,機密,情報,交換,情報,保護,協定,締結,交渉,開始,こと,確認,写真,G,20,ロシア,発言,米,欧,銀,トップ,途中,退席,鈴木,財務,相,同調,両氏,海洋,進出,中国,動向,念頭,東,南,シナ,海,地域,力,現状,変更,反対,認識,共有,インド,太平洋,実現,協力'
+        text_3 = '静岡,銀行,愛知,名古屋,銀行,包括,業務,提携,こと,27,大筋,合意,同日,午後,発表,経営,資源,業務,効率,ほか,競争,中部,地方,存在,感,愛知,地盤,地方,銀行,愛知,銀行,中京,銀行,2022,10,経営,統合,基本,合意,静岡,銀,20,山梨,中央,銀行,包括,業務,提携,独立,ノウハウ,方向'
+        text_4 = '社会,問題,インターネット,誹謗,ひぼう,中傷,抑止,侮辱,罪,厳罰,時代,変化,懲役,刑,禁錮,刑,拘禁,刑,一本化,刑法,関連,法,改正,案,21,衆院,会議,趣旨,説明,質疑,審議,図解,投稿,情報,開示,手続き,刑法,侮辱,罪,現行,法定,刑,拘留,科,料,改正,案,1,懲役,禁錮,30万,罰金,拘留,科,料,ネット,中傷,プロレスラー,木村,花,当時,22,命,問題,契機,厳罰,懲役,刑,禁錮,刑,廃止,受刑,特性,作業,指導,処遇,拘禁,刑,新設,1907,刑法,制定,刑,種類,名称,変更'
+        text_5 = '自民党,保障,調査,会,会長,小野寺,五,典,防衛,相,21,会合,国家,保障,戦略,改定,提言,案,大筋,了承,図解,日本,弾,道,ミサイル,迎撃,体制,敵,基地,攻撃,イメージ,敵,基地,攻撃,能力,呼称,反撃,能力,保有,内容,専守防衛,維持,上,攻撃,対象,ミサイル,基地,指揮,統制,関連,機能,防衛,国,生産,GDP,比,2,念頭,5,増額,提言,案,敵,基地,攻撃,呼称,弾,道,ミサイル,攻撃,わが国,武力,攻撃,反撃,能力,保有,抑止,対処,呼称,反撃,能力,保有,具体,技術,力,向上,中国,北朝鮮,軍事,動向,迎撃,わが国,防衛,強調,車両,潜水,艦,ミサイル,発射,方式,攻撃,対象,基地,限定,もの,相手,国,指揮,統制,機能,等,明記'
+        
+        corpus = [text_1.replace(',', ' '),
+                  text_2.replace(',', ' '),
+                  text_3.replace(',', ' '),
+                  text_4.replace(',', ' '),
+                  text_5.replace(',', ' '),]
+        vectorizer = TfidfVectorizer()
+        tfidf_mat = vectorizer.fit_transform(corpus)
+        cos_val = cosine_similarity(tfidf_mat.toarray())
+        print(tfidf_mat.shape)
+        print(tfidf_mat.toarray())
+
+        tfidf_whole_id_list = [0, 1, 2, 3, 4]
+        target_id_list = [0, 1]
+
+        merged_vectors = make_merged_vectors_from_article_ids(tfidf_mat,
+                                                              tfidf_whole_id_list,
+                                                              target_id_list)
+        print(len(merged_vectors[0]))
+        print(merged_vectors)
+
+        uneval_id_list = [2, 3]
+        uneval_vectors = extract_vectors_from_article_ids(tfidf_mat,
+                                                          tfidf_whole_id_list,
+                                                          uneval_id_list )
+
+        print(len(uneval_vectors[1]))
+        print(uneval_vectors)
+
+        result = cosine_similarity(merged_vectors, uneval_vectors)
+        print(len(result))
+        print(result)
     
     def test_extract_noun(self):
         """extract_noun()から返されるstrが、名詞と','を含んで

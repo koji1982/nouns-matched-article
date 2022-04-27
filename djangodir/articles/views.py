@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from articles.models import *
 from articles.selection import apply_choices
 from articles.forms import SignupForm, LoginForm
+from djangodir.articles.nlp import compute_tfidf_cos_similarity
 
 CATEGORY_DICT = {
         'domestic':'国内',
@@ -235,7 +236,8 @@ def loading(request):
 
 def call_apply_choices(request):
     """apply_choices()を呼び出して、結果（推奨記事）の画面にリダイレクトする。"""
-    apply_choices(request.user)
+    # apply_choices(request.user)
+    compute_tfidf_cos_similarity(request.user)
     return redirect('/result_positive')
 
 def result_positive(request):

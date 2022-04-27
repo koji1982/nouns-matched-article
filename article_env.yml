@@ -10,8 +10,9 @@ dependencies:
   - automat=20.2.0=py_0
   - bcrypt=3.2.0=py39he8ac12f_0
   - beautifulsoup4=4.10.0=pyh06a4308_0
+  - blas=1.0=mkl
   - brotlipy=0.7.0=py39h27cfd23_1003
-  - ca-certificates=2022.3.29=h06a4308_0
+  - ca-certificates=2022.3.29=h06a4308_1
   - certifi=2021.10.8=py39h06a4308_2
   - cffi=1.14.6=py39h400218f_0
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
@@ -28,12 +29,16 @@ dependencies:
   - idna=3.2=pyhd3eb1b0_0
   - incremental=17.5.0=py39h06a4308_0
   - iniconfig=1.1.1=pyhd3eb1b0_0
+  - intel-openmp=2021.4.0=h06a4308_3561
   - itemadapter=0.3.0=pyhd3eb1b0_0
+  - joblib=1.1.0=pyhd3eb1b0_0
   - krb5=1.19.2=hac12032_0
   - ld_impl_linux-64=2.35.1=h7274673_9
   - libedit=3.1.20210910=h7f8727e_0
   - libffi=3.3=he6710b0_2
   - libgcc-ng=9.3.0=h5101ec6_17
+  - libgfortran-ng=7.5.0=ha8ba4b0_17
+  - libgfortran4=7.5.0=ha8ba4b0_17
   - libgomp=9.3.0=h5101ec6_17
   - libpq=12.2=h553bfba_1
   - libstdcxx-ng=9.3.0=hd4cf53a_17
@@ -42,10 +47,16 @@ dependencies:
   - lxml=4.6.3=py39h9120a33_0
   - mecab=0.996=h4bd325d_0
   - mecab-python3=1.0.3=py39he80948d_1
+  - mkl=2021.4.0=h06a4308_640
+  - mkl-service=2.4.0=py39h7f8727e_0
+  - mkl_fft=1.3.1=py39hd3c417c_0
+  - mkl_random=1.2.2=py39h51133e4_0
   - more-itertools=8.10.0=pyhd3eb1b0_0
   - mysql-connector-c=6.1.11=h597af5e_1
   - mysqlclient=2.0.3=py39h2531618_1
   - ncurses=6.3=heee7806_1
+  - numpy=1.21.5=py39he7a7128_1
+  - numpy-base=1.21.5=py39hf524024_1
   - openssl=1.1.1n=h7f8727e_0
   - packaging=21.0=pyhd3eb1b0_0
   - parsel=1.5.2=py39h06a4308_0
@@ -70,6 +81,8 @@ dependencies:
   - queuelib=1.5.0=py39h06a4308_0
   - readline=8.1=h27cfd23_0
   - requests=2.26.0=pyhd3eb1b0_0
+  - scikit-learn=1.0.2=py39h51133e4_1
+  - scipy=1.7.3=py39hc147768_0
   - scrapy=2.4.1=py39h06a4308_0
   - selenium=3.141.0=py39h27cfd23_1000
   - service_identity=18.1.0=pyhd3eb1b0_1
@@ -78,6 +91,7 @@ dependencies:
   - soupsieve=2.2.1=pyhd3eb1b0_0
   - sqlite=3.36.0=hc218d9a_0
   - sqlparse=0.4.2=pyhd8ed1ab_0
+  - threadpoolctl=2.2.0=pyh0d69192_0
   - tk=8.6.11=h1ccaba5_0
   - toml=0.10.2=pyhd3eb1b0_0
   - twisted=21.2.0=py39h27cfd23_0
