@@ -17,12 +17,10 @@
         <thead>結果</thead><br>
         <tr><a href="{% url 'articles:result_positive' %}" target="right_frame">推奨候補</a></tr><br>
         <tr><a href="{% url 'articles:result_negative' %}" target="right_frame">除外候補</a></tr><br>
+        <tr><a href="{% url 'articles:graph' %}" target="right_frame">図表</a></tr><br>
       </table>
       <br>
-      <!-- 単語出現頻度の可視化を検討する -->
-      <!-- <br>
-      <a href="{% url 'articles:src_link' %}" target="right_frame">図表</a><br>
-      <br> -->
+      <br>
       <form method="post" action="{% url 'articles:all_clear' %}" target='right_frame'>
         {% csrf_token %}
         <button type="submit" name="reset">全評価<br>クリア</button>

@@ -1,5 +1,6 @@
 import os
 import environ
+import operator
 from urllib.parse import urlencode
 from pathlib import Path
 from django.urls import reverse
@@ -9,7 +10,8 @@ from django.contrib.auth.decorators import login_required
 from articles.models import *
 from articles.selection import apply_choices
 from articles.forms import SignupForm, LoginForm
-from djangodir.articles.nlp import compute_tfidf_cos_similarity
+from articles.nlp import compute_tfidf_cos_similarity
+from articles.graph import DISPLAY_COUNT, gen_scatter_plot, COLOR_BLUE, COLOR_RED
 
 CATEGORY_DICT = {
         'domestic':'国内',
@@ -131,7 +133,9 @@ def login_process(request):
         #入力が無効とされた場合はエラーメッセージと共に
         #もう一度ログイン画面を表示
         error_message = '認証に失敗しました'
-        return render(request, 'app/login.html', {'form': LoginForm(), 'error': error_message})
+        return render(request,
+                      'app/login.html',
+                      {'form': LoginForm(), 'error': error_message})
 
 def login_guest_user(request):
     """ゲストログインを行う関数。
@@ -144,7 +148,9 @@ def login_guest_user(request):
     #guest_userが存在するかをチェック
     if not User.objects.filter(username=GUEST_USERNAME).exists():
         #なければguest_userを作成する
-        data = {'username': GUEST_USERNAME, 'password1': env('GUEST_PASSWORD'), 'password2': env('GUEST_PASSWORD')}
+        data = {'username': GUEST_USERNAME,
+                'password1': env('GUEST_PASSWORD'),
+                'password2': env('GUEST_PASSWORD')}
         form = SignupForm(data=data)
         form.save()
     #guest_userとして認証
@@ -235,8 +241,9 @@ def loading(request):
     return render(request, 'app/loading.html')
 
 def call_apply_choices(request):
-    """apply_choices()を呼び出して、結果（推奨記事）の画面にリダイレクトする。"""
-    # apply_choices(request.user)
+    """compute_tfidf_cos_similarity()を呼び出して、
+    結果（推奨記事）の画面にリダイレクトする。
+    """
     compute_tfidf_cos_similarity(request.user)
     return redirect('/result_positive')
 
@@ -244,16 +251,21 @@ def result_positive(request):
     """「いいね」評価の記事から取り出した名詞群と、
     そこから算出した一致率を降順で表示する。
     """
-    id_rate_dict = Preference.objects.get(user=request.user).get_recommended_id_rate_dict()
+    user_preference = Preference.objects.get(user=request.user)
+    noun_tfidf_dict = user_preference.get_good_noun_tfidf_dict()
+    good_nouns = noun_tfidf_dict.keys()
+
+    id_rate_dict = user_preference.get_recommended_id_rate_dict()
     rate_articles = []
     for id, rate in id_rate_dict.items():
         article = Article.objects.get(id=id)
         rate_articles.append((rate, article))
     sorted_rate_articles = sorted(rate_articles, key=lambda pair: pair[0], reverse=True)
     context = {
-        'result_title': '「いいね」評価の記事から抽出された語群（名詞）と\nその語群に対する各記事の一致率',
+        'result_title': '「いいね」評価の記事から抽出された語群（名詞）と\n'\
+                        'その語群に対する各記事のTF-IDFコサイン類似度',
         'recommendations': sorted_rate_articles,
-        'eval_nouns': Preference.objects.get(user=request.user).good_nouns,
+        'eval_nouns': ','.join(good_nouns),
     }
     return render(request, 'app/result.html', context)
 
@@ -261,6 +273,10 @@ def result_negative(request):
     """「興味なし」評価の記事から取り出した名詞群と、
     そこから算出した一致率を降順で表示する。
     """
+    user_preference = Preference.objects.get(user=request.user)
+    noun_tfidf_dict = user_preference.get_uninterested_noun_tfidf_dict()
+    uninterested_nouns = noun_tfidf_dict.keys()
+
     id_rate_dict = Preference.objects.get(user=request.user).get_rejected_id_rate_dict()
     rate_articles = []
     for id, rate in id_rate_dict.items():
@@ -268,20 +284,95 @@ def result_negative(request):
         rate_articles.append((rate, article))
     sorted_rate_articles = sorted(rate_articles, key=lambda pair: pair[0], reverse=True)
     context = {
-        'result_title': '「興味なし」評価の記事から抽出された語群（名詞）と\nその語群に対する各記事の一致率',
+        'result_title': '「興味なし」評価の記事から抽出された語群（名詞）と\n'\
+                        'その語群に対する各記事のTF-IDFコサイン類似度',
         'recommendations': sorted_rate_articles,
-        'eval_nouns': Preference.objects.get(user=request.user).uninterested_nouns,
+        'eval_nouns': ','.join(uninterested_nouns),
     }
     return render(request, 'app/result.html', context)
 
-def get_category_jp(category):
-    """英語表記で受け取ったcategoryを日本語表記にして返す関数。
-    get_category_en()と対比して見易くするために作成。
+def graph(request):
+    """「いいね」「興味なし」と評価された記事内の単語の影響の大きさを
+    図示するページを表示する。
     """
+    user_preference = Preference.objects.get(user=request.user)
+    word_idf_dict = user_preference.get_word_idf_dict()
+    good_noun_tfidf_dict = user_preference.get_good_noun_tfidf_dict()
+    uninterested_noun_tfidf_dict = user_preference.get_uninterested_noun_tfidf_dict()
+    
+    good_ordered_idf = []
+    good_ordered_tfidf = []
+    good_ordered_nouns = []
+    #各単語ごとにtupleの組(idf, tfidf, noun)にしてtfidfの値でソートする
+    good_values_tuple_list = []
+    for noun, tfidf in good_noun_tfidf_dict.items():
+        try:
+            idf = word_idf_dict[noun]
+        except KeyError:
+            continue
+        good_values_tuple_list.append((float(idf), float(tfidf), noun))
+    sorted_good_values = sorted(good_values_tuple_list,
+                                key=operator.itemgetter(1),
+                                reverse=True)
+    #good評価のidf, tfidf, 名詞を順序を合わせてリストに格納する
+    for good_values_tuple in sorted_good_values:
+        good_ordered_idf.append(good_values_tuple[0])
+        good_ordered_tfidf.append(good_values_tuple[1])
+        good_ordered_nouns.append(good_values_tuple[2])
+    #各単語ごとにtupleの組(idf, tfidf, noun)にしてtfidfの値でソートする
+    uninterested_values_tuple_list = []
+    for noun, tfidf in uninterested_noun_tfidf_dict.items():
+        try:
+            idf = word_idf_dict[noun]
+        except KeyError:
+            continue
+        uninterested_values_tuple_list.append((float(idf), float(tfidf), noun))
+    sorted_uninterested_values = sorted(uninterested_values_tuple_list,
+                                        key=operator.itemgetter(1),
+                                        reverse=True)
+    #uninterested評価のidf, tfidf, 名詞を順序を合わせてリストに格納する
+    uninterested_ordered_idf = []
+    uninterested_ordered_tfidf = []
+    uninterested_ordered_nouns = []
+    for uninterested_values_tuple in sorted_uninterested_values:
+        uninterested_ordered_idf.append(uninterested_values_tuple[0])
+        uninterested_ordered_tfidf.append(uninterested_values_tuple[1])
+        uninterested_ordered_nouns.append(uninterested_values_tuple[2])
+    good_scatter = gen_scatter_plot(good_ordered_idf,
+                                    good_ordered_tfidf,
+                                    good_ordered_nouns,
+                                    COLOR_BLUE,
+                                    '「いいね」と評価された記事内の語句で\n'\
+                                    '影響の大きな語（TF-IDF上位30語）の散布図')
+    good_noun_count = len(good_noun_tfidf_dict)
+    good_noun_tfidf_str = make_display_noun_tfidf_str(good_noun_count,
+                                                      good_ordered_nouns,
+                                                      good_ordered_tfidf)
+    uninterested_scatter = gen_scatter_plot(uninterested_ordered_idf,
+                                            uninterested_ordered_tfidf,
+                                            uninterested_ordered_nouns,
+                                            COLOR_RED,
+                                            '「興味なし」と評価された記事内の語句で\n'\
+                                            '影響の大きな語（TF-IDF上位30語）の散布図')
+    uninterested_noun_count = len(uninterested_noun_tfidf_dict)
+    uninterested_noun_tfidf_str = make_display_noun_tfidf_str(
+                                                        uninterested_noun_count,
+                                                        uninterested_ordered_nouns,
+                                                        uninterested_ordered_tfidf)
+    context = {
+        'good_scatter': good_scatter,
+        'good_noun_tfidf': good_noun_tfidf_str,
+        'uninterested_scatter': uninterested_scatter,
+        'uninterested_noun_tfidf': uninterested_noun_tfidf_str
+    }
+    return render(request, 'app/graph.html', context)
+
+def get_category_jp(category):
+    """英語表記で受け取ったcategoryを日本語表記にして返す。"""
     return CATEGORY_DICT[category]
 
 def get_category_en(category):
-    """日本語表記で受け取ったカテゴリーを英語表記にして返す関数。"""
+    """日本語表記で受け取ったカテゴリーを英語表記にして返す。"""
     category_jp_en = {
         '国内': 'domestic',
         '国際': 'world',
@@ -293,3 +384,19 @@ def get_category_en(category):
         '地域': 'local'
     }
     return category_jp_en[category]
+
+def make_display_noun_tfidf_str(word_count, ordered_nouns, ordered_tfidf):
+    connection_count = word_count
+    if (DISPLAY_COUNT * 2) < word_count:
+        connection_count = DISPLAY_COUNT * 2
+    display_str = ''
+    break_counter = 0
+    for i in range(connection_count):
+        display_str = display_str + ordered_nouns[i] + ': ' \
+                            + str(round(ordered_tfidf[i], 3)) + \
+                             ", &nbsp;&nbsp;&nbsp;&nbsp;"
+        break_counter += 1
+        if 5 < break_counter:
+            display_str += "<br>"
+            break_counter = 0
+    return display_str

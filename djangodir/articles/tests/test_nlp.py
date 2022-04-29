@@ -15,14 +15,25 @@ class NlpTest(TestCase):
 
     fixtures = ['test_articles.json']
 
-    def test_tfidf_for_good(self):
+    def test_compute_tfidf_cos_similarity(self):
         prepare_user_pref(self)
         preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = '1,2,3,4,5'
         preference.uninterested_ids = '7,9,11,12,15'
         preference.save()
+
+        self.assertEqual(preference.good_noun_tfidf_pair, '')
+        self.assertEqual(preference.uninterested_noun_tfidf_pair, '')
+        self.assertEqual(preference.recommended_id_rate_pair, '')
+        self.assertEqual(preference.rejected_id_rate_pair, '')
         
         compute_tfidf_cos_similarity(get_test_user())
+
+        preference = Preference.objects.get(user=get_test_user())
+        self.assertNotEqual(preference.good_noun_tfidf_pair, '')
+        self.assertNotEqual(preference.uninterested_noun_tfidf_pair, '')
+        self.assertNotEqual(preference.recommended_id_rate_pair, '')
+        self.assertNotEqual(preference.rejected_id_rate_pair, '')
 
     def test_make_merged_vectors_from_article_ids(self):
 
@@ -39,30 +50,6 @@ class NlpTest(TestCase):
                   text_5.replace(',', ' '),]
         vectorizer = TfidfVectorizer()
         tfidf_mat = vectorizer.fit_transform(corpus)
-        cos_val = cosine_similarity(tfidf_mat.toarray())
-        print(tfidf_mat.shape)
-        print(tfidf_mat.toarray())
-
-        tfidf_whole_id_list = [0, 1, 2, 3, 4]
-        target_id_list = [0, 1]
-
-        merged_vectors = make_merged_vectors_from_article_ids(tfidf_mat,
-                                                              tfidf_whole_id_list,
-                                                              target_id_list)
-        print(len(merged_vectors[0]))
-        print(merged_vectors)
-
-        uneval_id_list = [2, 3]
-        uneval_vectors = extract_vectors_from_article_ids(tfidf_mat,
-                                                          tfidf_whole_id_list,
-                                                          uneval_id_list )
-
-        print(len(uneval_vectors[1]))
-        print(uneval_vectors)
-
-        result = cosine_similarity(merged_vectors, uneval_vectors)
-        print(len(result))
-        print(result)
     
     def test_extract_noun(self):
         """extract_noun()から返されるstrが、名詞と','を含んで

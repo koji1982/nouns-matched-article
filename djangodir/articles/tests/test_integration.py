@@ -95,8 +95,8 @@ class IntegrationTest(TestCase):
         preference.good_ids = domestic_good_ids + ',' + other_good_ids
         preference.uninterested_ids = domestic_uninterested_ids + ',' + other_uninterested_ids
         #評価以外のフィールドが消えないことを確認するために他のフィールドも用意する
-        preference.good_nouns = 'テスト,パス,リクエスト,フィールド'
-        preference.uninterested_nouns = '評価,消去,確認'
+        preference.good_noun_tfidf_pair = 'テスト,パス,リクエスト,フィールド'
+        preference.uninterested_noun_tfidf_pair = '評価,消去,確認'
         preference.recommended_id_rate_pair = '6:0.500,7:0.450,8:0.400,9:0.350,10:0.300'
         preference.rejected_id_rate_pair = '10:0.600,9:0.550,8:0.500,7:0.450,6:0.400'
         preference.save()
@@ -120,8 +120,8 @@ class IntegrationTest(TestCase):
         for other_uninterested_id in other_uninterested_ids.split(','):
             self.assertIn(other_uninterested_id, preference.uninterested_ids)
         #評価以外のフィールドが消えないことを確認
-        self.assertNotEqual(preference.good_nouns, '')
-        self.assertNotEqual(preference.uninterested_nouns, '')
+        self.assertNotEqual(preference.good_noun_tfidf_pair, '')
+        self.assertNotEqual(preference.uninterested_noun_tfidf_pair, '')
         self.assertNotEqual(preference.recommended_id_rate_pair, '')
         self.assertNotEqual(preference.rejected_id_rate_pair, '')
 
@@ -132,8 +132,8 @@ class IntegrationTest(TestCase):
         preference = Preference.objects.get(user=get_test_user())
         preference.good_ids = '1,2,3'
         preference.uninterested_ids = '3,4,5'
-        preference.good_nouns = 'テスト,パス,リクエスト,フィールド'
-        preference.uninterested_nouns = '評価,消去,確認'
+        preference.good_noun_tfidf_pair = 'テスト,パス,リクエスト,フィールド'
+        preference.uninterested_noun_tfidf_pair = '評価,消去,確認'
         preference.recommended_id_rate_pair = '6:0.500,7:0.450,8:0.400,9:0.350,10:0.300'
         preference.rejected_id_rate_pair = '10:0.600,9:0.550,8:0.500,7:0.450,6:0.400'
         preference.save()
@@ -145,8 +145,8 @@ class IntegrationTest(TestCase):
         preference = Preference.objects.get(user=get_test_user())
         self.assertEqual(preference.good_ids, '')
         self.assertEqual(preference.uninterested_ids, '')
-        self.assertEqual(preference.good_nouns, '')
-        self.assertEqual(preference.uninterested_nouns, '')
+        self.assertEqual(preference.good_noun_tfidf_pair, '')
+        self.assertEqual(preference.uninterested_noun_tfidf_pair, '')
         self.assertEqual(preference.recommended_id_rate_pair, '')
         self.assertEqual(preference.rejected_id_rate_pair, '')
 
@@ -215,7 +215,7 @@ class IntegrationTest(TestCase):
 
     def test_call_apply_choices_request_alter_preference(self):
         """urlパス'/call_apply_choices'へのリクエストがPreference内の
-        good_nouns、recommended_id_rate_pair、uninterested_nouns、
+        good_noun_tfidf_pair、recommended_id_rate_pair、uninterested_nouns、
         rejected_id_rate_pairの値を算出し変更することを確認する
         """
         preference = Preference.objects.get(user=get_test_user())
@@ -224,8 +224,8 @@ class IntegrationTest(TestCase):
         preference.save()
 
         preference = Preference.objects.get(user=get_test_user())
-        self.assertEqual(preference.good_nouns, '')
-        self.assertEqual(preference.uninterested_nouns, '')
+        self.assertEqual(preference.good_noun_tfidf_pair, '')
+        self.assertEqual(preference.uninterested_noun_tfidf_pair, '')
         self.assertEqual(preference.recommended_id_rate_pair, '')
         self.assertEqual(preference.rejected_id_rate_pair, '')
 
@@ -234,8 +234,8 @@ class IntegrationTest(TestCase):
         view.func(get_request_with_pref(path))
 
         preference = Preference.objects.get(user=get_test_user())
-        self.assertNotEqual(preference.good_nouns, '')
-        self.assertNotEqual(preference.uninterested_nouns, '')
+        self.assertNotEqual(preference.good_noun_tfidf_pair, '')
+        self.assertNotEqual(preference.uninterested_noun_tfidf_pair, '')
         self.assertNotEqual(preference.recommended_id_rate_pair, '')
         self.assertNotEqual(preference.rejected_id_rate_pair, '')
 
