@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{% static '/css/style.css' %}" />
+  </head>
+  <body>
+    <h2>評価された記事内の各語句の影響の大きさ</h2>
+    <img src="data:image/png;base64,{{ good_scatter | safe }}">
+    <p>{{ good_noun_tfidf | safe }}</p>
+    <img src="data:image/png;base64,{{ uninterested_scatter | safe }}">
+    <p>{{ uninterested_noun_tfidf | safe }}</p>
+  </body>
+</html>

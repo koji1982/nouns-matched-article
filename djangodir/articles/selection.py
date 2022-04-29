@@ -15,13 +15,13 @@ def apply_choices(user):
     
     #算出対象となる側の記事（評価されていない記事）から
     #算出のために{ID:名詞}の辞書を作成する
-    good_id_nouns_dict = make_id_nouns_dict(good_id_list, uninterested_id_list)
-    uninterested_id_nouns_dict = make_id_nouns_dict(uninterested_id_list, good_id_list)
+    good_target_id_nouns_dict = make_unevaluated_id_nouns_dict(good_id_list, uninterested_id_list)
+    uninterested_target_id_nouns_dict = make_unevaluated_id_nouns_dict(uninterested_id_list, good_id_list)
 
     #一致率を算出する。{記事ID:一致率}の形の辞書として受け取る
-    good_id_rate_dict = make_matched_rate_dict(good_merged_nouns, good_id_nouns_dict)
+    good_id_rate_dict = make_matched_rate_dict(good_merged_nouns, good_target_id_nouns_dict)
     uninterested_id_rate_dict = make_matched_rate_dict(uninterested_merged_nouns,
-                                                       uninterested_id_nouns_dict)
+                                                       uninterested_target_id_nouns_dict)
     
     #評価ごとの語句群と算出された語句の一致率を保存する。
     user_preference.good_nouns = good_merged_nouns
@@ -30,8 +30,8 @@ def apply_choices(user):
     user_preference.set_rejected_id_rate_dict(uninterested_id_rate_dict)
     user_preference.save()
 
-def make_id_nouns_dict(article_id_list, rejected_id_list):
-    """受け取った記事のIDリストから記事を取り出し、
+def make_unevaluated_id_nouns_dict(article_id_list, rejected_id_list):
+    """受け取った記事のIDリスト『以外』の記事を取得し、
     {ID:名詞}の辞書にして返す関数
     """
     #未評価の記事を取り出す。

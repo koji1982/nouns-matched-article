@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin
 from djangodir.project import settings
 
 class Article(models.Model):
@@ -71,11 +72,12 @@ class Preference(models.Model):
     
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     good_ids = models.TextField(default='')
-    good_nouns = models.TextField(default='')
+    good_noun_tfidf_pair = models.TextField(default='')
     recommended_id_rate_pair = models.TextField(default='')
     uninterested_ids = models.TextField(default='')
-    uninterested_nouns = models.TextField(default='')
+    uninterested_noun_tfidf_pair = models.TextField(default='')
     rejected_id_rate_pair = models.TextField(default='')
+    word_idf_pair = models.TextField(default='')
 
     def get_good_list(self):
         """good評価された記事のIDが文字列で保存されているのをリストに変換する"""
@@ -147,11 +149,28 @@ class Preference(models.Model):
         """全ての評価とその評価にもとづいた結果を消去する"""
         self.good_ids = ''
         self.uninterested_ids = ''
-        self.good_nouns = ''
-        self.uninterested_nouns = ''
+        self.good_noun_tfidf_pair = ''
+        self.uninterested_noun_tfidf_pair = ''
         self.recommended_id_rate_pair = ''
         self.rejected_id_rate_pair = ''
+        self.word_idf_pair = ''
         self.save()
+
+    def get_good_noun_tfidf_dict(self):
+        """strで保存されているgood_noun_tfidf_pairをdictで返す"""
+        return self.convert_str_to_dict(self.good_noun_tfidf_pair)
+
+    def set_good_noun_tfidf_dict(self, noun_tfidf_dict):
+        """dictで渡されたnoun_tfidf_pairをstrで保存する"""
+        self.good_noun_tfidf_pair = self.convert_dict_to_str(noun_tfidf_dict)
+
+    def get_uninterested_noun_tfidf_dict(self):
+        """strで保存されているuninterested_noun_tfidf_pairをdictで返す"""
+        return self.convert_str_to_dict(self.uninterested_noun_tfidf_pair)
+
+    def set_uninterested_noun_tfidf_dict(self, noun_tfidf_dict):
+        """dictで渡されたuninterested_noun_tfidf_pairをstrで保存する"""
+        self.uninterested_noun_tfidf_pair = self.convert_dict_to_str(noun_tfidf_dict)
 
     def get_recommended_id_rate_dict(self):
         """strで保存されているrecommended_id_rate_pairをdictで返す"""
@@ -168,6 +187,14 @@ class Preference(models.Model):
     def set_rejected_id_rate_dict(self, id_rate_dict):
         """「興味なし」の評価から算出したdict{記事ID:一致率}をデータベースに保存する"""
         self.rejected_id_rate_pair = self.convert_dict_to_str(id_rate_dict)
+
+    def get_word_idf_dict(self):
+        """"""
+        return self.convert_str_to_dict(self.word_idf_pair)
+
+    def set_word_idf_dict(self, word_idf_dict):
+        """"""
+        self.word_idf_pair = self.convert_dict_to_str(word_idf_dict)
 
     def convert_dict_to_str(self, id_rate_dict):
         """引数として受け取ったdictの':'や','を文字列に変換してstrで返す関数"""
@@ -191,8 +218,19 @@ class MyUserManager(BaseUserManager):
         user.save()
         return user
 
-class User(AbstractBaseUser):
-    """User関連の変更に対応するために作成したカスタムユーザーモデル"""
+    def create_superuser(self, username, password):
+        user = self.create_user(
+            username=username,
+            password=password,
+        )
+        user.is_admin = True
+        user.save(using=self._db)
+        return user
+
+class User(AbstractBaseUser, PermissionsMixin):
+    """公式の推奨に従い、User関連の変更に対応するために
+    作成したカスタムユーザーモデル。現時点で特段変更点は無い。
+    """
     class Meta:
         verbose_name = ("user")
 
@@ -200,6 +238,18 @@ class User(AbstractBaseUser):
     objects = MyUserManager()
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
 
     def __str__(self):
         return self.get_username()
+
+    def has_perm(self, perm, obj=None):
+        return self.is_admin
+
+    def has_module_perms(self, app_label):
+        return self.is_admin
+
+    @property
+    def is_staff(self):
+        return self.is_admin
