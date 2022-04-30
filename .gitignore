@@ -53,7 +53,8 @@ coverage.xml
 
 #Trial codes
 scratch.py
-Untitled.ipynb
+.ipynb_checkpoints
+*.ipynb
 
 # Translations
 *.mo
