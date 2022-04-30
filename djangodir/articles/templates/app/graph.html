@@ -11,5 +11,13 @@
     <p>{{ good_noun_tfidf | safe }}</p>
     <img src="data:image/png;base64,{{ uninterested_scatter | safe }}">
     <p>{{ uninterested_noun_tfidf | safe }}</p>
+    {% if good_noun_tfidf == '' and uninterested_noun_tfidf == '' %}
+      <p>
+        評価された記事がありません。<br><br>
+        『選択』ページで記事を選択後、<br>
+        『反映』ボタンを押して下さい。<br>
+        『結果』ページ（このページ）に評価が反映された記事が表示されます。
+      </p>
+    {% endif %}
   </body>
 </html>

@@ -13,22 +13,25 @@ DISPLAY_COUNT = 30
 
 def gen_scatter_plot(x, y, word_list, color_map, title):
     """各プロットにテキストを付加した散布図を作成する。"""
+    if len(x) == 0:
+        return
+    plot_count = DISPLAY_COUNT
+    if len(x) < DISPLAY_COUNT:
+        plot_count = len(x)
     plt.switch_backend("AGG")
     plt.figure(figsize=(7.5, 4))
-    plt.scatter(x=x[:DISPLAY_COUNT], y=y[:DISPLAY_COUNT], s=30,
-                c=y[:DISPLAY_COUNT], norm=colors.Normalize(0.0,y[0]), cmap=color_map)
+    plt.scatter(x=x[:plot_count], y=y[:plot_count], s=30,
+                c=y[:plot_count], norm=colors.Normalize(0.0,y[0]), cmap=color_map)
     plt.xlabel('IDF（逆文書頻度）')
     plt.ylabel('TF-IDF（単語出現頻度ー逆文書頻度）')
     plt.colorbar()
     plt.title(title)
     plt.tight_layout()
+    plt.grid()
     #各単語とプロットをx,y座標で紐付ける
-    #プロットが重なるときはyの値を修正する
-    # corrected_y = correct_overlapped_coods(x, y)
-    # for i, word in enumerate(word_list[:DISPLAY_COUNT]):
-    #     plt.text(x[i], corrected_y[i], word)
-    plot_texts = [plt.text(x[i], y[i], word) for i, word in enumerate(word_list[:DISPLAY_COUNT])]
-    
+    #各リストは同じ順番に並べられた状態で引数として渡されていることを前提とする
+    plot_texts = [plt.text(x[i], y[i], word)
+                         for i, word in enumerate(word_list[:plot_count])]
     graph = output_png(plt)
     return graph
 
@@ -46,17 +49,3 @@ def output_png(plot):
     image = base64_image.decode("utf-8")
     buffer.close()
     return image
-
-def correct_overlapped_coods(x_list, y_list):
-    """グラフ内の文字が重なっている場合に見やすい位置に文字の座標を修正する"""
-    limit = 0.05
-    correct_step = 0.01
-    overlapped_indices = []
-    corrected_y_list = copy.copy(y_list)
-    for i in range(len(x_list)-1):
-        if abs(x_list[i] - x_list[i+1]) < limit:
-            if x_list[i] <= x_list[i+1]:
-                corrected_y_list[i] = corrected_y_list[i] + correct_step
-            if x_list[i+1] <= x_list[i]:
-                corrected_y_list[i+1] = corrected_y_list[i+1] + correct_step
-    return corrected_y_list

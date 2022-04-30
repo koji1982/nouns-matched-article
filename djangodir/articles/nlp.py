@@ -58,10 +58,7 @@ def compute_tfidf_cos_similarity(user):
     #結果を保存する
     word_idf_dict = make_word_idf_dict(tfidf_vectorizer.get_feature_names_out(),
                                        tfidf_vectorizer.idf_)
-    # print(word_idf_dict)
-    print(len(good_id_list))
-    print(len(good_word_tfidf_dict))
-    print(good_word_tfidf_dict)
+                                       
     user_preference.set_good_noun_tfidf_dict(good_word_tfidf_dict)
     user_preference.set_uninterested_noun_tfidf_dict(uninterested_word_tfidf_dict)
     user_preference.set_recommended_id_rate_dict(good_id_cos_sim_dict)
@@ -132,13 +129,6 @@ def get_duplicate_rate(source: str, target: str) -> float:
             duplicate_count += 1
     
     return duplicate_count / len(split_sources)
-
-def get_cosine_similarity(fitted_vectorizer, base_corpus, target_corpus):
-    """
-    """
-    base_vector = fitted_vectorizer.transform(base_corpus)
-    target_vector = fitted_vectorizer.transform(target_corpus)
-    return cosine_similarity(base_vector.toarray(), target_vector.toarray())
 
 def make_id_vector_dict(tfidf_val_csr_mat, tfidf_whole_id_list, target_id_list):
     """target_id_list内のIDのIF-IDF値から一つずつvectorに作成してvectorのlistとして返す"""

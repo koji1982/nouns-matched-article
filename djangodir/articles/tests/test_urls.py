@@ -77,6 +77,13 @@ class UrlsTest(TestCase):
         view = resolve('/result_negative')
         self.assertEqual(view.func, result_negative)
 
+    def test_resolve_graph(self):
+        """path'/graph'からviews.graphが
+        返されることを確認する
+        """
+        view = resolve('/graph')
+        self.assertEqual(view.func, result_graph)
+
     def test_resolve_category_clear(self):
         '''想定されるcategoryを含んだpath'/category_clear'全てから
         views.category_clearが返されることを確認する
