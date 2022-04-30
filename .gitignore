@@ -51,7 +51,9 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
+#Trial codes
 scratch.py
+Untitled.ipynb
 
 # Translations
 *.mo

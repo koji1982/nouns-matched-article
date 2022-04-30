@@ -8,7 +8,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login, logout
 from django.contrib.auth.decorators import login_required
 from articles.models import *
-from articles.selection import apply_choices
 from articles.forms import SignupForm, LoginForm
 from articles.nlp import compute_tfidf_cos_similarity
 from djangodir.articles.plots import DISPLAY_COUNT, gen_scatter_plot, COLOR_BLUE, COLOR_RED
