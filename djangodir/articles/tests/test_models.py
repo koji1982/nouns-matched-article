@@ -399,3 +399,21 @@ class ModelsTest(TestCase):
         """Userオブジェクトをstr()に渡した時にusernameの文字列を返すことを確認する"""
         user = User.objects.get(username=get_test_user())
         self.assertEqual(str(user), user.username)
+
+    def test_user_not_has_superuser_permissions(self):
+        """通常のUserは特別な権限をもっていないことを確認する"""
+        user = User.objects.create_user(username='test_user_2',
+                                        password='valid_test_password')
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.has_perm(None))
+        self.assertFalse(user.has_module_perms(None))
+        self.assertFalse(user.is_admin)
+
+    def test_create_superuser_has_different_user_permissions(self):
+        """superuserが必要な権限を持っていることを確認する"""
+        superuser = User.objects.create_superuser(username='test_superuser',
+                                                  password='valid_test_password')
+        self.assertTrue(superuser.is_staff)
+        self.assertTrue(superuser.has_perm(None))
+        self.assertTrue(superuser.has_module_perms(None))
+        self.assertTrue(superuser.is_admin)

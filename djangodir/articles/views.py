@@ -11,7 +11,7 @@ from articles.models import *
 from articles.selection import apply_choices
 from articles.forms import SignupForm, LoginForm
 from articles.nlp import compute_tfidf_cos_similarity
-from articles.graph import DISPLAY_COUNT, gen_scatter_plot, COLOR_BLUE, COLOR_RED
+from djangodir.articles.plots import DISPLAY_COUNT, gen_scatter_plot, COLOR_BLUE, COLOR_RED
 
 CATEGORY_DICT = {
         'domestic':'国内',
@@ -291,69 +291,49 @@ def result_negative(request):
     }
     return render(request, 'app/result.html', context)
 
-def graph(request):
+def result_graph(request):
     """「いいね」「興味なし」と評価された記事内の単語の影響の大きさを
     図示するページを表示する。
     """
+    #Preferenceから保存された計算結果を取得する
     user_preference = Preference.objects.get(user=request.user)
     word_idf_dict = user_preference.get_word_idf_dict()
     good_noun_tfidf_dict = user_preference.get_good_noun_tfidf_dict()
     uninterested_noun_tfidf_dict = user_preference.get_uninterested_noun_tfidf_dict()
-    
-    good_ordered_idf = []
-    good_ordered_tfidf = []
-    good_ordered_nouns = []
-    #各単語ごとにtupleの組(idf, tfidf, noun)にしてtfidfの値でソートする
-    good_values_tuple_list = []
-    for noun, tfidf in good_noun_tfidf_dict.items():
-        try:
-            idf = word_idf_dict[noun]
-        except KeyError:
-            continue
-        good_values_tuple_list.append((float(idf), float(tfidf), noun))
-    sorted_good_values = sorted(good_values_tuple_list,
-                                key=operator.itemgetter(1),
-                                reverse=True)
-    #good評価のidf, tfidf, 名詞を順序を合わせてリストに格納する
-    for good_values_tuple in sorted_good_values:
-        good_ordered_idf.append(good_values_tuple[0])
-        good_ordered_tfidf.append(good_values_tuple[1])
-        good_ordered_nouns.append(good_values_tuple[2])
-    #各単語ごとにtupleの組(idf, tfidf, noun)にしてtfidfの値でソートする
-    uninterested_values_tuple_list = []
-    for noun, tfidf in uninterested_noun_tfidf_dict.items():
-        try:
-            idf = word_idf_dict[noun]
-        except KeyError:
-            continue
-        uninterested_values_tuple_list.append((float(idf), float(tfidf), noun))
-    sorted_uninterested_values = sorted(uninterested_values_tuple_list,
-                                        key=operator.itemgetter(1),
-                                        reverse=True)
-    #uninterested評価のidf, tfidf, 名詞を順序を合わせてリストに格納する
-    uninterested_ordered_idf = []
-    uninterested_ordered_tfidf = []
-    uninterested_ordered_nouns = []
-    for uninterested_values_tuple in sorted_uninterested_values:
-        uninterested_ordered_idf.append(uninterested_values_tuple[0])
-        uninterested_ordered_tfidf.append(uninterested_values_tuple[1])
-        uninterested_ordered_nouns.append(uninterested_values_tuple[2])
+
+    #グラフ生成時に渡すために各語句の、IDF、 TF-IDF、名詞を
+    #同じ順番に並べたリストを作成する
+    good_ordered_values = make_ordered_values_lists(
+                                   good_noun_tfidf_dict, word_idf_dict)
+    good_ordered_idf = good_ordered_values[0]
+    good_ordered_tfidf = good_ordered_values[1]
+    good_ordered_nouns = good_ordered_values[2]
+    uninterested_ordered_values = make_ordered_values_lists(
+                                   uninterested_noun_tfidf_dict, word_idf_dict)
+    uninterested_ordered_idf = uninterested_ordered_values[0]
+    uninterested_ordered_tfidf = uninterested_ordered_values[1]
+    uninterested_ordered_nouns = uninterested_ordered_values[2]
+
+    #グラフ画像の作成
     good_scatter = gen_scatter_plot(good_ordered_idf,
                                     good_ordered_tfidf,
                                     good_ordered_nouns,
                                     COLOR_BLUE,
                                     '「いいね」と評価された記事内の語句で\n'\
                                     '影響の大きな語（TF-IDF上位30語）の散布図')
+    #表示のための'名詞:TF-IDF値'のテキストを作成
     good_noun_count = len(good_noun_tfidf_dict)
     good_noun_tfidf_str = make_display_noun_tfidf_str(good_noun_count,
                                                       good_ordered_nouns,
                                                       good_ordered_tfidf)
+    #グラフ画像の作成
     uninterested_scatter = gen_scatter_plot(uninterested_ordered_idf,
                                             uninterested_ordered_tfidf,
                                             uninterested_ordered_nouns,
                                             COLOR_RED,
                                             '「興味なし」と評価された記事内の語句で\n'\
                                             '影響の大きな語（TF-IDF上位30語）の散布図')
+    #表示のための'名詞:TF-IDF値'のテキストを作成
     uninterested_noun_count = len(uninterested_noun_tfidf_dict)
     uninterested_noun_tfidf_str = make_display_noun_tfidf_str(
                                                         uninterested_noun_count,
@@ -385,18 +365,47 @@ def get_category_en(category):
     }
     return category_jp_en[category]
 
+def make_ordered_values_lists(noun_tfidf_dict, noun_idf_dict):
+    """IDF, TF-IDF, 名詞をそれぞれ同じ順番（TF-IDF降順）に並べて
+    三つのリストとして返す。
+    """
+    #各単語ごとにtupleの組(idf, tfidf, noun)にしてtfidfの値でソートする
+    values_tuple_list = []
+    for noun, tfidf in noun_tfidf_dict.items():
+        try:
+            idf = noun_idf_dict[noun]
+        except KeyError:
+            continue
+        values_tuple_list.append((float(idf), float(tfidf), noun))
+    sorted_values = sorted(values_tuple_list,
+                           key=operator.itemgetter(1),
+                           reverse=True)
+    #idf, tfidf, 名詞を順序を合わせてリストに格納する
+    ordered_idf = []
+    ordered_tfidf = []
+    ordered_nouns = []
+    for values_tuple in sorted_values:
+        ordered_idf.append(values_tuple[0])
+        ordered_tfidf.append(values_tuple[1])
+        ordered_nouns.append(values_tuple[2])
+    return ordered_idf, ordered_tfidf, ordered_nouns
+
 def make_display_noun_tfidf_str(word_count, ordered_nouns, ordered_tfidf):
+    """名詞、TF-IDF値を成形したテキストの形で返す。"""
     connection_count = word_count
+    #単語をつなげる長さを決める
     if (DISPLAY_COUNT * 2) < word_count:
         connection_count = DISPLAY_COUNT * 2
     display_str = ''
     break_counter = 0
+    #引数として受け取った名詞、TF-IDF値をつなげる
     for i in range(connection_count):
         display_str = display_str + ordered_nouns[i] + ': ' \
                             + str(round(ordered_tfidf[i], 3)) + \
                              ", &nbsp;&nbsp;&nbsp;&nbsp;"
+        #５語つなぐごとに改行する
         break_counter += 1
-        if 5 < break_counter:
+        if 4 < break_counter:
             display_str += "<br>"
             break_counter = 0
     return display_str

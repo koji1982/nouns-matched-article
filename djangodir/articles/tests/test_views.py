@@ -1,10 +1,11 @@
-import re
+import random
 from urllib.parse import urlencode
 from django.test import TestCase
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from articles.views import *
 from articles.tests.helper import *
+from articles.plots import DISPLAY_COUNT
 
 REQUEST_OK = 200
 STATUS_REDIRECT = 302
@@ -415,6 +416,17 @@ class ViewsTest(TestCase):
         self.assertEqual(function_response.status_code, REQUEST_OK)
         self.assertEqual(actual_html, expected_html)
 
+    def test_result_graph(self):
+        """result_graph()が正常なレスポンスを返すことを確認する"""
+        function_response = result_graph(get_request_with_pref('/graph'))
+        actual_html = function_response.content.decode('utf8')
+
+        expected_template = self.client.get('/graph')
+        expected_html = expected_template.content.decode('utf8')
+
+        self.assertEqual(function_response.status_code, REQUEST_OK)
+        self.assertEqual(actual_html, expected_html)
+
     def test_category_clear(self):
         """category_clear()が呼ばれると
         同じカテゴリーの同じページを開くことを確認する
@@ -530,3 +542,130 @@ class ViewsTest(TestCase):
         #誤ったcategoryと誤ったArticle.titleを渡した時にDoesNotExistをraiseすることを確認する
         with self.assertRaises(Article.DoesNotExist):
             eval_uninterested(request, WRONG_CATEGORY, WRONG_TITLE)
+
+    def test_make_ordered_values_list_returns_extracted_three_lists(self):
+        """make_ordered_values_list()が引数として受け取るdictの内容を含んだlistを
+        返すことを確認する
+        """
+        dict1_key1 = 'common_key1'
+        dict1_key2 = 'common_key2'
+        dict2_key1 = 'common_key1'
+        dict2_key2 = 'common_key2'
+        dict1_val1 = '0.1'
+        dict1_val2 = '0.2'
+        dict2_val1 = '1.0'
+        dict2_val2 = '1.5'
+        dict1 = {dict1_key1:dict1_val1, dict1_key2:dict1_val2}
+        dict2 = {dict2_key1:dict2_val1, dict2_key2:dict2_val2}
+
+        three_lists_tuple = make_ordered_values_lists(dict1, dict2)
+
+        idf_list = three_lists_tuple[0]
+        tfidf_list = three_lists_tuple[1]
+        nouns_list = three_lists_tuple[2]
+
+        self.assertIn(float(dict2_val1), idf_list)
+        self.assertIn(float(dict2_val2), idf_list)
+        self.assertEqual(len(dict2), len(idf_list))
+        self.assertIn(float(dict1_val1), tfidf_list)
+        self.assertIn(float(dict1_val2), tfidf_list)
+        self.assertEqual(len(dict1), len(tfidf_list))
+        self.assertIn(dict1_key1, nouns_list)
+        self.assertIn(dict1_key2, nouns_list)
+        self.assertEqual(len(dict2), len(nouns_list))
+
+
+    def test_make_ordered_values_list_makes_keeps_key_value_pair(self):
+        """make_ordered_values_lists()に渡された引数の二つのdictに使われているkeyとvalue
+        の組み合わせが、返されたlist間で同じ順序として保たれていることを確認する
+        """
+
+        dict1_key1 = 'common_key1'
+        dict1_key2 = 'common_key2'
+        dict1_key3 = 'common_key3'
+        dict2_key1 = 'common_key1'
+        dict2_key2 = 'common_key2'
+        dict2_key3 = 'common_key3'
+        dict1_val1 = str(round(random.random(), 3))
+        dict1_val2 = str(round(random.random(), 3))
+        dict1_val3 = str(round(random.random(), 3))
+        dict2_val1 = str(round(random.random(), 3))
+        dict2_val2 = str(round(random.random(), 3))
+        dict2_val3 = str(round(random.random(), 3))
+        dict1 = {dict1_key1:dict1_val1, dict1_key2:dict1_val2, dict1_key3:dict1_val3}
+        dict2 = {dict2_key1:dict2_val1, dict2_key2:dict2_val2, dict2_key3:dict2_val3}
+
+        three_lists_tuple = make_ordered_values_lists(dict1, dict2)
+
+        idf_list = three_lists_tuple[0]
+        tfidf_list = three_lists_tuple[1]
+        nouns_list = three_lists_tuple[2]
+
+        key1_index = nouns_list.index(dict1_key1)
+        key2_index = nouns_list.index(dict1_key2)
+        key3_index = nouns_list.index(dict1_key3)
+
+        self.assertEqual(idf_list[key1_index], float(dict2.get(dict1_key1)))
+        self.assertEqual(idf_list[key2_index], float(dict2.get(dict1_key2)))
+        self.assertEqual(idf_list[key3_index], float(dict2.get(dict1_key3)))
+        self.assertEqual(tfidf_list[key1_index], float(dict1.get(dict1_key1)))
+        self.assertEqual(tfidf_list[key2_index], float(dict1.get(dict1_key2)))
+        self.assertEqual(tfidf_list[key3_index], float(dict1.get(dict1_key3)))
+
+    def test_make_ordered_values_list_skips_unmatch_key(self):
+        """make_ordered_values_list()が引数として受け取る二つのdictの名詞の中で
+        一致しないものがあった場合はスキップする
+        """
+        dict1_key1 = 'common_key1'
+        dict1_key2 = 'common_key2'
+        dict1_key3 = 'uncommon_key3'
+        dict2_key1 = 'common_key1'
+        dict2_key2 = 'common_key2'
+        dict2_key3 = 'uncommon_key___3'
+        dict1_val1 = '0.1'
+        dict1_val2 = '0.2'
+        dict1_val3 = '0.3'
+        dict2_val1 = '1.0'
+        dict2_val2 = '1.5'
+        dict2_val3 = '2.0'
+        dict1 = {dict1_key1:dict1_val1, dict1_key2:dict1_val2, dict1_key3: dict1_val3}
+        dict2 = {dict2_key1:dict2_val1, dict2_key2:dict2_val2, dict2_key3: dict2_val3}
+
+        three_lists_tuple = make_ordered_values_lists(dict1, dict2)
+
+        idf_list = three_lists_tuple[0]
+        tfidf_list = three_lists_tuple[1]
+        nouns_list = three_lists_tuple[2]
+
+        self.assertIn(float(dict2_val1), idf_list)
+        self.assertIn(float(dict2_val2), idf_list)
+        self.assertNotIn(float(dict2_val3), idf_list)
+        self.assertNotEqual(len(dict2), len(idf_list))
+        self.assertIn(float(dict1_val1), tfidf_list)
+        self.assertIn(float(dict1_val2), tfidf_list)
+        self.assertNotIn(float(dict1_val3), tfidf_list)
+        self.assertNotEqual(len(dict1), len(tfidf_list))
+        self.assertIn(dict1_key1, nouns_list)
+        self.assertIn(dict1_key2, nouns_list)
+        self.assertNotIn(dict1_key3, nouns_list)
+        self.assertNotEqual(len(dict2), len(nouns_list))
+
+    def test_make_display_noun_tfidf_str_make_str_contains_args(self):
+        """make_display_noun_tfidf_str()が返すstrが
+        引数として渡された名詞とTF-IDF値を含んでいることを確認する
+        """
+        noun_list = []
+        tfidf_list = []
+
+        for i in range(DISPLAY_COUNT * 3):
+            noun_list.append('noun_' + str(i))
+            tfidf_list.append(float(0.1 * i))
+
+        result_str = make_display_noun_tfidf_str(len(noun_list),
+                                                 noun_list,
+                                                 tfidf_list)
+        
+        for i in range(DISPLAY_COUNT*2):
+            with self.subTest(i=i):
+                self.assertIn(noun_list[i], result_str)
+                self.assertIn(str(round(tfidf_list[i], 3)), result_str)
