@@ -17,7 +17,7 @@ urlpatterns = [
     path('call_apply_choices', views.call_apply_choices, name='call_apply_choices'),
     path('result_positive', views.result_positive, name='result_positive'),
     path('result_negative', views.result_negative, name='result_negative'),
-    path('graph', views.result_graph, name='graph'),
+    path('result_graph', views.result_graph, name='result_graph'),
     path('all_clear', views.all_clear, name='all_clear'),
     path('category_clear/<str:category_in_jp>',
           views.category_clear, name='category_clear'),

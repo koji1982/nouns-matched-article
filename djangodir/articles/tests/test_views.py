@@ -418,10 +418,10 @@ class ViewsTest(TestCase):
 
     def test_result_graph(self):
         """result_graph()が正常なレスポンスを返すことを確認する"""
-        function_response = result_graph(get_request_with_pref('/graph'))
+        function_response = result_graph(get_request_with_pref('/result_graph'))
         actual_html = function_response.content.decode('utf8')
 
-        expected_template = self.client.get('/graph')
+        expected_template = self.client.get('/result_graph')
         expected_html = expected_template.content.decode('utf8')
 
         self.assertEqual(function_response.status_code, REQUEST_OK)
