@@ -44,7 +44,8 @@ class Preference(models.Model):
 
     good_ids                 Userが'いいね'と評価した記事のID
 
-    good_nouns               Userが'いいね'と評価した記事から抽出した名詞群。
+    good_noun_tfidf_pair     Userが'いいね'と評価した記事から抽出した名詞と、
+                             その名詞のTF-IDF値をペアにしたもの。
                              'いいね'評価がゼロの場合、または評価が反映されて
                              いない場合は空のstrが格納される
 
@@ -54,17 +55,21 @@ class Preference(models.Model):
                              'いいね'評価がゼロの場合、または評価が反映されて
                              いない場合は空のstrが格納される
 
-    uninterested_ids         Userが'興味なし'と評価した記事のID
+    uninterested_ids              Userが'興味なし'と評価した記事のID
 
-    uninterested_nouns       Userが'興味なし'と評価した記事から抽出した名詞群。
-                             '興味なし'評価がゼロの場合、または評価が反映されて
-                             いない場合は空のstrが格納される
+    uninterested_noun_tfidf_pair  Userが'興味なし'と評価した記事から抽出した名詞と、
+                                  その名詞のTF-IDF値をペアにしたもの。
+                                  '興味なし'評価がゼロの場合、または評価が反映されて
+                                  いない場合は空のstrが格納される
 
-    rejected_id_rate_pair    Userが'興味なし'と評価した記事内の名詞群
-                             'uninterested_nouns'に対する他の記事の名詞群の
-                             一致率を求めて、記事IDと一致率のペアにしたもの。
-                             '興味なし'評価がゼロの場合、または評価が反映されて
-                             いない場合は空のstrが格納される
+    rejected_id_rate_pair         Userが'興味なし'と評価した記事内の名詞群
+                                  'uninterested_nouns'に対する他の記事の名詞群の
+                                  一致率を求めて、記事IDと一致率のペアにしたもの。
+                                  '興味なし'評価がゼロの場合、または評価が反映されて
+                                  いない場合は空のstrが格納される
+    
+    word_idf_pair                 全ての単語のIDF値を辞書形式で受け取り、テキストに
+                                  変換して保存したもの
     """
 
     class meta:
@@ -189,11 +194,11 @@ class Preference(models.Model):
         self.rejected_id_rate_pair = self.convert_dict_to_str(id_rate_dict)
 
     def get_word_idf_dict(self):
-        """"""
+        """全ての単語のIDF値を辞書形式で取得する"""
         return self.convert_str_to_dict(self.word_idf_pair)
 
     def set_word_idf_dict(self, word_idf_dict):
-        """"""
+        """{単語:IDF}の辞書を受け取り、テキストに変換して保存する"""
         self.word_idf_pair = self.convert_dict_to_str(word_idf_dict)
 
     def convert_dict_to_str(self, id_rate_dict):

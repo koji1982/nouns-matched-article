@@ -262,7 +262,7 @@ def result_positive(request):
     sorted_rate_articles = sorted(rate_articles, key=lambda pair: pair[0], reverse=True)
     context = {
         'result_title': '「いいね」評価の記事から抽出された語群（名詞）と\n'\
-                        'その語群に対する各記事のTF-IDFコサイン類似度',
+                        'その語群に対する各記事のTF-IDFベクトルのコサイン類似度',
         'recommendations': sorted_rate_articles,
         'eval_nouns': ','.join(good_nouns),
     }
@@ -284,7 +284,7 @@ def result_negative(request):
     sorted_rate_articles = sorted(rate_articles, key=lambda pair: pair[0], reverse=True)
     context = {
         'result_title': '「興味なし」評価の記事から抽出された語群（名詞）と\n'\
-                        'その語群に対する各記事のTF-IDFコサイン類似度',
+                        'その語群に対する各記事のTF-IDFベクトルのコサイン類似度',
         'recommendations': sorted_rate_articles,
         'eval_nouns': ','.join(uninterested_nouns),
     }
