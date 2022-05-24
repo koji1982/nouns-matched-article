@@ -60,8 +60,8 @@ def signup(request):
     error_message = ''
     if User.objects.filter(username=username).exists():
         error_message = 'このユーザー名は既に使用されています'
-    if username.startswith(GUESTNAME_BASE):
-        error_message = f'ユーザー名を{GUESTNAME_BASE}で始めることはできません'
+    if username.startswith(GUESTNAME_BASE) or username.startswith('ゲスト'):
+        error_message = 'ユーザー名を『ゲスト』で始めることはできません'
     if (username == '') or (password1 == '') or (password2 == ''):
         error_message = '未記入の項目があります'
     if password1 != password2:
