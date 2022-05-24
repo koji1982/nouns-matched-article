@@ -23,7 +23,17 @@ CATEGORY_DICT = {
         'local':'地域'
     }
 
-GUEST_USERNAME = 'ゲスト'
+GUESTNAME_BASE = 'guest__'
+
+def index(request):
+    """root URLから呼ばれ、request内のCookieの値ごとに
+    最初に開くhtmlを選択して返す。
+    """
+    #usernameを保持していた場合はログイン画面を返す
+    username = request.COOKIES.get('username', '')
+    if username == '':
+        return login_guest_user(request)
+    return login_process(request)
 
 @login_required
 def frame(request):
@@ -50,8 +60,8 @@ def signup(request):
     error_message = ''
     if User.objects.filter(username=username).exists():
         error_message = 'このユーザー名は既に使用されています'
-    if username == GUEST_USERNAME:
-        error_message = 'このユーザー名は既に使用されています'
+    if username.startswith(GUESTNAME_BASE):
+        error_message = f'ユーザー名を{GUESTNAME_BASE}で始めることはできません'
     if (username == '') or (password1 == '') or (password2 == ''):
         error_message = '未記入の項目があります'
     if password1 != password2:
@@ -101,7 +111,13 @@ def login_process(request):
     """
     #GETの場合はhtmlを表示して終了
     if request.method == 'GET':
-        return render(request, 'app/login.html', {'form': LoginForm()})
+        username = request.COOKIES.get('username', '')
+        initial_dict = {}
+        if username != '':
+            initial_dict['username'] = username
+        return render(request,
+                      'app/login.html',
+                      {'form': LoginForm(initial=initial_dict)})
     #以下POSTの場合
     #入力内容のチェック
     username = request.POST.get('username', '')
@@ -127,7 +143,12 @@ def login_process(request):
         #Preferenceが作られていない場合は作成する
         if not Preference.objects.filter(user=user).exists():
             Preference.objects.create(user=user)
-        return redirect('/')
+        #ログインが完了したらCookieに保存して記事選択画面へリダイレクト
+        response = redirect('/frame')
+        #Cookieに保存できる文字列の場合はsetする
+        if username.isascii():
+            response.set_cookie('username', username)
+        return response
     else:
         #入力が無効とされた場合はエラーメッセージと共に
         #もう一度ログイン画面を表示
@@ -141,26 +162,38 @@ def login_guest_user(request):
     ゲストユーザーとそのPreferenceが存在しない場合は
     新しく作成される。
     """
+    #Cookieがguestnameを保持していた場合はゲストとしてログインした状態のページを返す
+    #guestnameを保持していない場合は（内部的な）guestnameを決定し
+    #ログインした状態のページを返す
+    guestname = request.COOKIES.get('guestname', '')
+    if guestname == '':
+        guestusers = User.objects.filter(username__startswith=GUESTNAME_BASE)
+        guestuser_count = len(guestusers)
+        guestname = GUESTNAME_BASE + str(guestuser_count)
+
     #パスワードを環境変数から取得
     env = environ.Env()
-    env.read_env(os.path.join(Path(__file__).resolve().parent.parent.parent, '.django_env'))
+    env_path = os.path.join(Path(__file__).resolve().parent.parent.parent , '.django_env')
+    env.read_env(env_path)
     #guest_userが存在するかをチェック
-    if not User.objects.filter(username=GUEST_USERNAME).exists():
+    if not User.objects.filter(username=guestname).exists():
         #なければguest_userを作成する
-        data = {'username': GUEST_USERNAME,
+        data = {'username': guestname,
                 'password1': env('GUEST_PASSWORD'),
                 'password2': env('GUEST_PASSWORD')}
         form = SignupForm(data=data)
         form.save()
     #guest_userとして認証
-    user = authenticate(username=GUEST_USERNAME, password=env('GUEST_PASSWORD'))
+    user = authenticate(username=guestname, password=env('GUEST_PASSWORD'))
     #guest_userとしてログイン
     login(request, user)
     #Preferenceが作られていない場合は作成する
     if not Preference.objects.filter(user=user).exists():
         Preference.objects.create(user=user)
-    #記事選択のページへ転送
-    return redirect('/')
+    #cookieにguestnameを保存して記事選択のページへ転送
+    response = redirect('/frame')
+    response.set_cookie('guestname', guestname)
+    return response
 
 def logout_reopen(request):
     """ログアウトを行う。完了後はログイン画面にリダイレクトする。"""
@@ -171,8 +204,11 @@ def logout_reopen(request):
 
 def left_frame(request):
     """app/frame.htmlで左右に分けたうちの左側を表示する。"""
+    username = str(request.user)
+    if username.startswith(GUESTNAME_BASE):
+        username = 'ゲスト'
     content = {
-        'user': str(request.user)
+        'user': username
     }
     return render(request, 'app/pages.html', content)
 
