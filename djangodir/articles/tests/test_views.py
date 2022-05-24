@@ -31,11 +31,11 @@ class ViewsTest(TestCase):
     def tearDown(self):
         self.client.logout()
 
-    def test_article_response(self):
+    def test_frame_response(self):
         """article_response()が'app/frame.html'の正常なレスポンス
         を返すことを確認する
         """
-        request = get_request('/')
+        request = get_request('/frame')
         function_response = frame(request)
         actual_html = function_response.content.decode('utf8')
 
@@ -72,7 +72,7 @@ class ViewsTest(TestCase):
         response = self.client.post('/login', data=data)
 
         self.assertEqual(response.status_code, LOGIN_SUCCESS_REDIRECT)
-        self.assertRedirects(response, '/')
+        self.assertRedirects(response, '/frame')
         self.assertEqual(response.wsgi_request.user.username, data['username'])
 
     def test_login_process_post_invalid_input_fail(self):
@@ -111,13 +111,13 @@ class ViewsTest(TestCase):
         """login_guest_user()が呼ばれるとゲストユーザーが作成され
         path'/'へリダイレクトされることを確認する
         """
-        self.assertFalse(User.objects.filter(username='ゲスト').exists())
+        self.assertFalse(User.objects.filter(username__startswith=GUESTNAME_BASE).exists())
 
         response = self.client.post('/guest')
         
         self.assertEqual(response.status_code, LOGIN_SUCCESS_REDIRECT)
-        self.assertRedirects(response, '/')
-        self.assertTrue(User.objects.filter(username='ゲスト').exists())
+        self.assertRedirects(response, '/frame')
+        self.assertTrue(User.objects.filter(username__startswith=GUESTNAME_BASE).exists())
 
     def test_logout_reopen_redirect(self):
         """logout_reopen()が呼ばれるとUserがログアウトして

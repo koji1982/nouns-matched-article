@@ -8,7 +8,7 @@ class UrlsTest(TestCase):
     
     def test_resolve_article_response(self):
         '''path'/'からviews.article_responseが返されることを確認する'''
-        view = resolve('/')
+        view = resolve('/frame')
         self.assertEqual(view.func, frame)
 
     def test_resolve_login(self):

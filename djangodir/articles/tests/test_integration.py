@@ -17,12 +17,12 @@ class IntegrationTest(TestCase):
     def tearDown(self):
         self.client.logout()
 
-    def test_routing_response_from_slash(self):
+    def test_routing_response_from_frame(self):
         """urlパス'/'から返されるview関数にリクエストを送り
         app/frame.htmlを取得することを確認する
         """
-        view = resolve('/')
-        response = view.func(get_request('/'))
+        view = resolve('/frame')
+        response = view.func(get_request('/frame'))
         actual_html = response.content.decode('utf8')
 
         expected_html = render_to_string('app/frame.html')
